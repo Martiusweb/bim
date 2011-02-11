@@ -198,32 +198,27 @@ int main()
                 close(events[i].data.fd);
             }
             /* Event is data ready to be read (hint) */
-            else if(events[i].events & EPOLLIN) {
+            else if(events[i].events & EPOLLIN)
+            {
                 if(events[i].data.fd = server_socket) {
-                /* Accept
-                   set client non blocking
+                    tmp = sizeof(client_addr);
+                    if((client_socket = accept(server_socket, (struct sockaddr*) &client_addr,
+                        &tmp)) < 0) {
+                        perror("Can't accept client\n");
+                    }
+
+                printf("Client connected with IP : %s (socket : %d)\n",
+                inet_ntoa(client_addr.sin_addr), client_socket);
+                /* set client non blocking
                    add the client to epoll
                 */
                 }
                 else {
-                    // Process request
+                    /* get client socket ! */
+                    handle_client(client_socket);
                 }
             }
 
-        }
-        tmp = sizeof(client_addr);
-        if((client_socket = accept(server_socket, (struct sockaddr*) &client_addr,
-                        &tmp)) < 0) {
-            perror("Can't accept client\n");
-            /* we can't kill the server anymore ! */
-        }
-
-        printf("Client connected with IP : %s (socket : %d)\n",
-                inet_ntoa(client_addr.sin_addr), client_socket);
-
-
-        if(pthread_create(&thread, 0, &handle_client, (void*) client_socket)) {
-            perror("Thread creation failed. Bouh\n");
         }
     }
     
