@@ -48,6 +48,32 @@ const char ERROR_404[] = "HTTP/1.1 404 NOT FOUND\r\n\r\n"
                          "</html>\r\n";
 
 /**
+ * String returned when a 501 error shall occur (method not implemented).
+ */
+const char ERROR_501[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">"
+                         "<html><head>"
+                         "<title>501 Method Not Implemented</title>"
+                         "</head><body>"
+                         "<h1>Method Not Implemented</h1>"
+                         "<p>akenrlanre to /index.html not supported.<br />"
+                         "</p>"
+                         "<hr>"
+                         "</body></html>";
+/**
+ * String returned when a 400 error occur (malformed request).
+ * TODO
+ */
+const char ERROR_400[] = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">"
+                         "<html><head>"
+                         "<title>400 Bad Request</title>"
+                         "</head><body>"
+                         "<h1>Bad Request</h1>"
+                         "<p>Your browser sent a request that this server could not understand.<br />"
+                         "</p>"
+                         "<hr>"
+                         "</body></html>";
+
+/**
  * Header for a normal response.
  */
 const char HEADER_200[] = "HTTP/1.1 200 OK\r\n\r\n";
@@ -118,17 +144,18 @@ void* thread_function(void *client_infos)
 
     if(get_URL(request, path, requested))
     {
-      LOG << "Bad request" << std::endl;
+      send_socket(infos->fd_client, ERROR_501, strlen(ERROR_501));
+      goto clean;
     }
 
 
     send_content(path, requested, infos->fd_client);
   }
 
+clean:
+
   close_socket(infos->fd_client);
-
   delete infos;
-
   pthread_exit(0);
 }
 
