@@ -12,7 +12,7 @@
 #define TEST_FAILURE(x) if(x) {\
 	std::cerr << __FILE__ \
 			  << ":" << __LINE__ \
-			  << ":" << #x << \
+			  << ":" << #x << " : " << \
 			  strerror(errno) << std::endl;\
 	}
 

@@ -28,11 +28,11 @@
 /**
  * This is dispayed when the user sets bad arguments.
  */
-const char HELP_MESSAGE[] = "Liste des arguments\n"
-                            "\t-h \t[nom de l'hote]\n"
-                            "\t-p \t[num port]\n"
-                            "\t-d \t[repertoire de base du serveur]\n"
-                            "\t-l \t mode log\n";
+const char HELP_MESSAGE[] = "Arguments list :\n"
+                            "\t-h \thostname\n"
+                            "\t-p \tport number\n"
+                            "\t-d \troot directory\n"
+                            "\t-l \tlog mode\n";
 
 /**
  * String returned when a 404 error shall occur.
@@ -148,12 +148,10 @@ void* thread_function(void *client_infos)
       goto clean;
     }
 
-
     send_content(path, requested, infos->fd_client);
   }
 
 clean:
-
   close_socket(infos->fd_client);
   delete infos;
   pthread_exit(0);
@@ -240,6 +238,9 @@ int string_compare(const void* str1, const void *str2)
 
 /**
  * @brief List the content of a directory
+ *
+ * @todo Stat the flie to determine type and permissions, and to be able to
+ * give 403 error.
  *
  * @param name the name of the file
  * @param fd_socket the socket to write to
