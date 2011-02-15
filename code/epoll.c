@@ -200,8 +200,11 @@ int main()
             /* Event is data ready to be read (hint) */
             else if(events[i].events & EPOLLIN) {
                 if(events[i].data.fd = server_socket) {
-                /* Accept
-                   set client non blocking
+                if((client_socket = accept(server_socket, (struct sockaddr*) & client_addr, &tmp)) < 0) {
+                    perror("Can't accept client ");
+                    exit(errno);
+                }
+                /* set client non blocking
                    add the client to epoll
                 */
                 }
