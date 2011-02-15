@@ -7,12 +7,13 @@ HOST=localhost
 # The port the server is serving to
 PORT=8080
 # The interval, in seconds, between http requests
-INTERVAL=0.01
+INTERVAL=0.0001
 # The file to get. Empty string means root, and often
 # defaults to index.html or whatever.
-FILE="/ubuntu-10.10-desktop-i386.iso"
+# FILE="/ubuntu-10.10-desktop-i386.iso"
+FILE=""
 # How many connection ? 0 means unlimited
-CONNECTIONS=100
+CONNECTIONS=0
 
 stress()
 {
@@ -32,7 +33,7 @@ else
   i=0
   while : 
   do
-    stress
-    i=$($i+1)
+    stress $i
+    i=$(($i + 1))
   done
 fi
