@@ -20,4 +20,5 @@ int main(int argc, char** argv)
         cout << "Listening on 7000 !" << endl;
 
     server.close();
+    cout << "Bye !" << endl;
 }
