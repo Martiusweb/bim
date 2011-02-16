@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
@@ -12,15 +13,15 @@
 
 /*** Configuration ***/
 /* Server port */
-static const uint16_t SERVER_PORT = 7000;
+static const uint16_t SERVER_PORT = 7001;
 /* Max clients */
 static const int MAX_CLIENTS = 1000;
 /* Max epoll events that can be caught
  * TODO explain how to choose this value (currently *rand*) */
-static const MAX_EPOLL_EVENTS = 64;
+static const int MAX_EPOLL_EVENTS = 64;
 /* Max epoll events processed per loop
  * TODO explain this one too */
-static const MAX_EPOLL_EVENTS_PER_LOOP = 16;
+static const int MAX_EPOLL_EVENTS_PER_LOOP = 16;
 
 /**
  * Sets the socket described by fd as non-blocking.
@@ -91,9 +92,11 @@ static int create_server(uint16_t port, int max_clients)
  * Add the socket to the I/O descriptors watched by our epoll structure.
  * @param epollq epoll file descriptor
  * @param socket_server server socket to watch
+ * @param mode epoll_ctl mode (EPOLL_CTL_ADD or EPOLL_CTL_MOD)
  * Returns the epoll fd or -1 in case of error
  */
-static int epoll_watch_server(int epollq, int socket_server)
+static int epoll_watch_in(int epollq, int socket_server, int mode =
+        EPOLL_CTL_ADD)
 {
     struct epoll_event event;
 
@@ -101,7 +104,7 @@ static int epoll_watch_server(int epollq, int socket_server)
     event.events = EPOLLIN /* ready to read */;
     event.data.fd = socket_server;
 
-    if(epoll_ctl(epollq, EPOLL_CTL_ADD, socket_server, &event) == -1) {
+    if(epoll_ctl(epollq, mode, socket_server, &event) == -1) {
         return -1;
     }
 
@@ -112,17 +115,19 @@ static int epoll_watch_server(int epollq, int socket_server)
  * Add the socket to the I/O descriptors watched by our epoll structure.
  * @param epollq epoll file descriptor
  * @param socket_client client socket to watch
+ * @param mode epoll_ctl mode (EPOLL_CTL_ADD or EPOLL_CTL_MOD)
  * Returns the epoll fd or -1 in case of error
  */
-static int epoll_watch_client(int epollq, int socket_client)
+static int epoll_watch_inout(int epollq, int socket_client, int mode =
+        EPOLL_CTL_ADD)
 {
     struct epoll_event event;
 
-    /* @see epoll_watch_server */
+    /* @see epoll_watch_in */
     event.events = EPOLLIN | EPOLLOUT;
     event.data.fd = socket_client;
 
-    if(epoll_ctl(epollq, EPOLL_CTL_ADD, socket_client, &event) == -1) {
+    if(epoll_ctl(epollq, mode, socket_client, &event) == -1) {
         return -1;
     }
     return epollq;
@@ -150,10 +155,15 @@ static int epoll_unwatch(int epollq, int fd)
 int main()
 {
     int socket_server = 0, socket_client = 0, epollq = 0, nb_events = 0,
-        addr_ln = 0, i = 0;
+        read = 0, i = 0;
+    socklen_t addr_ln = 0;
     struct epoll_event epoll_event, events[MAX_EPOLL_EVENTS_PER_LOOP];
     /* TODO it may be good to keep the user address somewhere... */
     struct sockaddr_in addr_client = {0};
+
+    /* For testing purpose : implementation quite stupid of a dummy protocol */
+    int BUFFER_SIZE = 256;
+    char buffer[BUFFER_SIZE];
 
     if((socket_server = create_server(SERVER_PORT, MAX_CLIENTS)) == -1) {
         perror("Can not create or bind or listen on the server socket ");
@@ -168,7 +178,7 @@ int main()
     }
     printf("Epoll ready to wait for %d events !\n", MAX_EPOLL_EVENTS);
 
-    if(epoll_watch_server(epollq, socket_server) == -1) {
+    if(epoll_watch_in(epollq, socket_server) == -1) {
         close(epollq);
         close(socket_server);
         perror("Can not add the server socket file descriptor to epoll ");
@@ -186,10 +196,12 @@ int main()
             /* error on a client socket */
             if(events[i].data.fd != socket_server &&
                     (events[i].events & (EPOLLHUP|EPOLLERR))) {
+                perror("Connection with client closed\n");
                 epoll_unwatch(epollq, events[i].data.fd);
                 close(events[i].data.fd);
             }
-            else if(events[i].data.fd == socket_server) {
+            else if(events[i].data.fd == socket_server && (events[i].events &
+                        EPOLLIN)) {
                 if((socket_client = accept(socket_server, (struct sockaddr*)
                                 &addr_client, &addr_ln)) > 0) {
 
@@ -197,15 +209,27 @@ int main()
                         close(socket_client);
                         perror("Can not set the client non blocking\n");
                     }
-                    else if(epoll_watch_client(epollq, socket_client) == -1) {
+                    else if(epoll_watch_in(epollq, socket_client) == -1) {
                         close(socket_client);
                         perror("Can not watch the client with epoll\n");
                     }
                 }
             }
             else {
-                /* manage_events(&(events[i])); */
-                printf("User Event !\n");
+                if(events[i].events & EPOLLIN) {
+                    read = recv(events[i].data.fd, buffer, BUFFER_SIZE,
+                            MSG_DONTWAIT);
+                    epoll_watch_inout(epollq, events[i].data.fd,
+                            EPOLL_CTL_MOD);
+                    buffer[read] = 0;
+                    printf("Read from socket \"%s\"\n", buffer);
+                }
+                if(events[i].events & EPOLLOUT) {
+                    send(events[i].data.fd, "plop\n", 5,
+                            MSG_DONTWAIT|MSG_NOSIGNAL);
+                    epoll_unwatch(epollq, events[i].data.fd);
+                    close(events[i].data.fd);
+                }
             }
         }
     }
