@@ -38,4 +38,16 @@ void list_directory(const char *name, const char* requested, int fd_socket);
 int string_compare(const void* str1, const void *str2);
 int arguments(int argc, char **argv, struct server_infos *infos);
 
+/**
+ * Read on socket
+ * Epoll / select / thread -- magic
+ * Handle (we now have the data)
+ *    extract method → get URL requested
+ *      Errors : 400, 501
+ *    extract URL, transform to path, check existence and permission on the file
+ *      Error : 403, 404
+ *    file requested ?
+ *      yes : send back the file
+ *      no : list the directory
+ */
 #endif
