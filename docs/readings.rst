@@ -15,5 +15,9 @@ Progress on multi thread epoll support
   Talks about a specific case, but it may be generalized, right ?
 Research paper describing the architecture (linked in c10k page)
   http://www.cs.rice.edu/~druschel/usenix99event.ps.gz
+Splice : a system call which allow not to copy data in userspace
+  http://en.wikipedia.org/wiki/Splice_%28system_call%29
+0mQ : Datagram with transmission guarantees
+  http://www.zeromq.org/
 
 Obviously, Linux man pages are a good start.
