@@ -6,18 +6,19 @@
  * terms of the license.
  */
 
-#include <sys/types.h>
-
 namespace bim {
     class dispatcher
     {
         public:
-        dispatcher(max_events);
+        dispatcher(int max_events);
         ~dispatcher();
+        bool open();
+        void close();
         void dispatch();
 
         protected:
         int _epoll;
+        int _max_events;
     };
 }
 

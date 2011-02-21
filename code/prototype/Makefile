@@ -10,10 +10,10 @@ all : $(BIN)server
 $(OBJ)%.o : $(SRC)%.cpp
 	$(CXX) $(CPPFLAGS) -c $< -o $@
 
-$(BIN)server : $(OBJ)main.o $(OBJ)server.o 
+$(BIN)server : $(OBJ)main.o $(OBJ)server.o $(OBJ)dispatcher.o
 	$(CXX) $(CPPFLAGS) $+ -o $@ -lpthread -D_GNU_SOURCE
 
-main.o : server.hpp
+main.o : server.hpp dispatcher.hpp
 server.o :
 
 clean :
