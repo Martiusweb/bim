@@ -22,6 +22,7 @@ class ThreadPool
 
     int cpu_count_;
     std::vector<pthread_t> threads_;
+    pthread_mutex_t block_mutex_;
 };
 }
 

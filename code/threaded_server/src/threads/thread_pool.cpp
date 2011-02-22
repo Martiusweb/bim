@@ -42,9 +42,10 @@ namespace bim
 
   void* ThreadPool::noop_job(void*)
   {
-    std::cout << "It's alive" << std::endl;
-    return 0;
+//    std::cout << "About to block" << std::endl;
+//    TEST_FAILURE(pthread_mutex_lock(&block_mutex_));
+//    return 0;
   }
 
-  }
+}
 
