@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <sys/epoll.h>
+#include <cstring>
 
 /*** Configuration ***/
 /* Server port */
@@ -23,13 +24,18 @@ static const int MAX_EPOLL_EVENTS = 64;
  * TODO explain this one too */
 static const int MAX_EPOLL_EVENTS_PER_LOOP = 16;
 
+typedef struct {
+  int fd;
+  char* string;
+} bim_connection_t;
+
 /**
  * Sets the socket described by fd as non-blocking.
  * Returns the socket fd or -1 in case of error.
  */
 static int socket_set_nonblocking(int fd)
 {
-    int socket_flags = 0;
+    int socket_flags = 1;
     /* Reuse address : tells the kernel that even if this port is busy (in the
        TIME_WAIT state), go ahead and reuse it anyway. Avoid "Already in use"
        error when restarting the program.  */
@@ -102,7 +108,9 @@ static int epoll_watch_in(int epollq, int socket_server, int mode =
 
     /* Nb events EPOLLHUP and EPOLLERR are impicitly set */
     event.events = EPOLLIN /* ready to read */ | EPOLLET /* Edge Triggered */;
-    event.data.fd = socket_server;
+    bim_connection_t* c = new bim_connection_t;
+    c->fd = socket_server;
+    event.data.ptr = (void*)c;
 
     if(epoll_ctl(epollq, mode, socket_server, &event) == -1) {
         return -1;
@@ -125,7 +133,13 @@ static int epoll_watch_inout(int epollq, int socket_client, int mode =
 
     /* @see epoll_watch_in */
     event.events = EPOLLIN | EPOLLOUT /* ready to write */ | EPOLLET;
-    event.data.fd = socket_client;
+
+    bim_connection_t* c = new bim_connection_t;
+    c->fd = socket_client;
+    c->string = new char[21];
+    strcpy(c->string, "persistant");
+
+    event.data.ptr = (void*) c;
 
     if(epoll_ctl(epollq, mode, socket_client, &event) == -1) {
         return -1;
@@ -193,14 +207,16 @@ int main()
 
         for(i = 0; i < nb_events; ++i)
         {
+            /** Unpack the structure **/
+            bim_connection_t* c = (bim_connection_t*) events[i].data.ptr;
             /* error on a client socket */
-            if(events[i].data.fd != socket_server &&
+            if(c->fd != socket_server &&
                     (events[i].events & (EPOLLHUP|EPOLLERR))) {
                 perror("Connection with client closed\n");
-                epoll_unwatch(epollq, events[i].data.fd);
-                close(events[i].data.fd);
+                epoll_unwatch(epollq, c->fd);
+                close(c->fd);
             }
-            else if(events[i].data.fd == socket_server && (events[i].events &
+            else if(c->fd == socket_server && (events[i].events &
                         EPOLLIN)) {
                 if((socket_client = accept(socket_server, (struct sockaddr*)
                                 &addr_client, &addr_ln)) > 0) {
@@ -217,18 +233,21 @@ int main()
             }
             else {
                 if(events[i].events & EPOLLIN) {
-                    read = recv(events[i].data.fd, buffer, BUFFER_SIZE,
+                    read = recv(c->fd, buffer, BUFFER_SIZE,
                             MSG_DONTWAIT);
-                    epoll_watch_inout(epollq, events[i].data.fd,
+                    epoll_watch_inout(epollq, c->fd,
                             EPOLL_CTL_MOD);
                     buffer[read] = 0;
                     printf("Read from socket \"%s\"\n", buffer);
                 }
                 if(events[i].events & EPOLLOUT) {
-                    send(events[i].data.fd, "plop\n", 5,
+                    printf("persistant data ? %s\n", c->string);
+                    send(c->fd, "plop\n", 5,
                             MSG_DONTWAIT|MSG_NOSIGNAL);
-                    epoll_unwatch(epollq, events[i].data.fd);
-                    close(events[i].data.fd);
+                    epoll_unwatch(epollq, c->fd);
+                    close(c->fd);
+                    delete [] c->string;
+                    delete c;
                 }
             }
         }
