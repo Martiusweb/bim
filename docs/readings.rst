@@ -19,5 +19,7 @@ Splice : a system call which allow not to copy data in userspace
   http://en.wikipedia.org/wiki/Splice_%28system_call%29
 0mQ : Datagram with transmission guarantees
   http://www.zeromq.org/
+Sendfile() and splice() and perfs
+  http://blog.superpat.com/2010/06/01/zero-copy-in-linux-with-sendfile-and-splice/
 
-Obviously, Linux man pages are a good start.
+  Obviously, Linux man pages are a good start.
