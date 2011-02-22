@@ -6,3 +6,4 @@ read_write
 splice
 benchtool/*.pyc
 *.svg
+*.dat
