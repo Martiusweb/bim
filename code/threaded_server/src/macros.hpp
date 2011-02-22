@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <cerrno>
+#include <cstring>
 
 #define dump_var(x) {std::cerr << #x << ":" << x << ":" << std::endl;}
 #define LOG std::cerr
