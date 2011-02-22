@@ -101,7 +101,7 @@ static int epoll_watch_in(int epollq, int socket_server, int mode =
     struct epoll_event event;
 
     /* Nb events EPOLLHUP and EPOLLERR are impicitly set */
-    event.events = EPOLLIN /* ready to read */;
+    event.events = EPOLLIN /* ready to read */ | EPOLLET /* Edge Triggered */;
     event.data.fd = socket_server;
 
     if(epoll_ctl(epollq, mode, socket_server, &event) == -1) {
@@ -124,7 +124,7 @@ static int epoll_watch_inout(int epollq, int socket_client, int mode =
     struct epoll_event event;
 
     /* @see epoll_watch_in */
-    event.events = EPOLLIN | EPOLLOUT;
+    event.events = EPOLLIN | EPOLLOUT /* ready to write */ | EPOLLET;
     event.data.fd = socket_client;
 
     if(epoll_ctl(epollq, mode, socket_client, &event) == -1) {
