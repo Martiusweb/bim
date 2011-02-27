@@ -1,4 +1,4 @@
 env = Environment()
 env.Append(LIBS = ['pthread'])
-source = ['thread_pool.cpp','test.cpp']
-env.Program('program', source ,CXXFLAGS='-Wall -pedantic -g')
+source = ['job.cpp', 'thread_pool.cpp','test.cpp', 'dummy_job.cpp']
+env.Program('thread_test', source ,CXXFLAGS='-Wall -pedantic -Os -g')

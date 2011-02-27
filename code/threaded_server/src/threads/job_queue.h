@@ -6,6 +6,9 @@
 namespace bim
 {
 
+  /**
+   * This is a simple wrapper for a queue of tasks
+   */
   class JobQueue
   {
     public:
