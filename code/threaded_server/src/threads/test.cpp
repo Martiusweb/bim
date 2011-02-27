@@ -4,7 +4,25 @@
 
 int main()
 {
-  bim::ThreadPool pool;
+  char plop = 1;
+  char plop2 = 2;
+  bim::ThreadPool pool; 
+  char plop3 = 3;
+
+  char* plop4 = new char;
+  char* plop5 = new char;
+  char* plop6 = new char;
+
+  std::cerr << std::hex << "&plop:" << (void*)&plop << std::endl;
+  std::cerr << std::hex << "&plop2:"  << (void*)&plop2 << std::endl;
+  std::cerr << std::hex << "&plop3:" << (void*)&plop3 << std::endl;
+
+  std::cerr << std::hex << "plop4:" << (void*)plop4 << std::endl;
+  std::cerr << std::hex << "plop5:"  << (void*)plop5 << std::endl;
+  std::cerr << std::hex << "plop6:" << (void*)plop6 << std::endl;
+
+  plop = plop2;
+  plop3 = 4;
 
   epoll_event event;
 
@@ -23,7 +41,6 @@ int main()
   std::cerr << std::hex << "c&~1:" << c <<  std::endl;
 
   assert(c == &pool);
-
 
   uintptr_t fd;
 
