@@ -1,4 +1,11 @@
 env = Environment()
+
+vars = Variables('buildconfig.py')
+vars.Add('THREADS_PER_CORE', 'Number of threads per core', 2)
+env = Environment(variables = vars,
+                 CPPDEFINES={'BIM_THREADPOOL_THREADS_PER_CORE' :
+                 '${THREADS_PER_CORE}'})
+
 env.Append(LIBS = ['pthread'])
 source = ['job.cpp', 'thread_pool.cpp','test.cpp', 'dummy_job.cpp']
 env.Program('thread_test', source ,CXXFLAGS='-Wall -pedantic -Os -g')

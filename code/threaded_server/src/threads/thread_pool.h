@@ -6,7 +6,6 @@
 #include <sys/epoll.h>
 #include <vector>
 
-
 namespace bim
 {
 class Job;
@@ -40,7 +39,10 @@ class ThreadPool
      * Main thread function
      */
     static void* thread_init(void*);
-    
+    /**
+     * This function, which is called by each thread when completing a job,
+     * tells it which job to perform next.
+     */
     void schedule();
 
     /**
