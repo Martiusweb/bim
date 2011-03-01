@@ -1,3 +1,6 @@
+/// Author : Paul ADENOT <paul@paul.cx>
+/// License : WTFPL <http://sam.zoy.org/wtfpl/>
+
 #ifndef DUMMY_JOB_H
 #define DUMMY_JOB_H
 

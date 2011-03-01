@@ -1,3 +1,6 @@
+/// Author : Paul ADENOT <paul@paul.cx>
+/// License : WTFPL <http://sam.zoy.org/wtfpl/>
+
 #ifndef CONTEXT_H
 #define CONTEXT_H
 

@@ -1,3 +1,6 @@
+/// Author : Paul ADENOT <paul@paul.cx>
+/// License : WTFPL <http://sam.zoy.org/wtfpl/>
+
 #ifndef _THREAD_POOL_H_
 #define _THREAD_POOL_H_
 

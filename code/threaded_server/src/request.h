@@ -1,3 +1,6 @@
+/// Author : Paul ADENOT <paul@paul.cx>
+/// License : WTFPL <http://sam.zoy.org/wtfpl/>
+
 #ifndef _REQUEST_H_
 #define _REQUEST_H_
 

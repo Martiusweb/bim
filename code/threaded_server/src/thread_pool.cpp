@@ -1,3 +1,6 @@
+/// Author : Paul ADENOT <paul@paul.cx>
+/// License : WTFPL <http://sam.zoy.org/wtfpl/>
+
 #include "thread_pool.h"
 #include "job.h"
 #include "macros.h"
@@ -89,7 +92,6 @@ namespace bim
         {
           TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
           break;
-<<<<<<< HEAD
         }
         TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
 
@@ -97,13 +99,7 @@ namespace bim
         if(action == Delete)
         {
           delete to_perform;
-=======
->>>>>>> 33ee3579b57f21fbd055422934a26e7fc59c17a0
         }
-        TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
-
-        to_perform->act();
-        delete to_perform;
       }
       // The thread will sleep, and will be awaken when jobs are posted.
       noop_job();
