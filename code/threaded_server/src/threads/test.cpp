@@ -1,10 +1,13 @@
-#include <iostream>
-#include "thread_pool.h"
-#include "dummy_job.h"
 #include <assert.h>
-#include <vector>
 #include <cstdio>
+#include <iostream>
 #include <stdlib.h>
+#include <vector>
+
+#include "context.h"
+#include "dummy_job.h"
+#include "thread_pool.h"
+#include "context.h"
 
 using namespace bim;
 using namespace std;
@@ -12,11 +15,12 @@ using namespace std;
 int main()
 {
   ThreadPool pool; 
+  Context context = {"."};
   std::vector<Job*> jobs(10);
 
   for(unsigned i = 0; i < jobs.size(); i++)
   {
-    jobs[i] = new DummyJob(pool);
+    jobs[i] = new DummyJob(pool, context);
   }
 
   srand(time(0));

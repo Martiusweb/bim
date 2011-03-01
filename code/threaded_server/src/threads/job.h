@@ -2,20 +2,24 @@
 #define _JOB_H_
 
 #include "thread_pool.h"
+#include "context.h"
+#include "action.h"
 
 namespace bim
 {
 class Job
 {
   public:
-    Job(ThreadPool& pool);
+    Job(ThreadPool& pool, Context& context);
     /**
      * @brief This method actually do the job. It shall be called by a worker
      * thread.
      */
-    virtual void act() = 0;
+    virtual bim::Action act() = 0;
 
-    ThreadPool& pool_;
+  protected:
+    bim::ThreadPool& pool_;
+    bim::Context& context_;
 };
 }
 

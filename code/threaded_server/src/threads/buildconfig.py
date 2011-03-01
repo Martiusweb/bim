@@ -1,0 +1,1 @@
+THREADS_PER_CORE = 2

@@ -1,17 +1,18 @@
 #include "thread_pool.h"
 #include "job.h"
-#include "../macros.hpp"
+#include "macros.h"
 
 namespace bim
 {
   ThreadPool::ThreadPool()
     :thread_count_(-1)
     ,threads_(get_thread_count())
-    ,block_mutex_(PTHREAD_MUTEX_INITIALIZER)
-    ,queue_mutex_(PTHREAD_MUTEX_INITIALIZER)
-    ,cond_wait_(PTHREAD_COND_INITIALIZER)
     ,join_requested_(false)
   {
+    TEST_FAILURE(pthread_mutex_init(&block_mutex_, 0));
+    TEST_FAILURE(pthread_mutex_init(&queue_mutex_, 0));
+    TEST_FAILURE(pthread_cond_init(&cond_wait_, 0));
+
     for(int i = 0; i < get_thread_count(); ++i)
     {
       // TODO : consider using the argument to be able to queue jobs
@@ -25,7 +26,10 @@ namespace bim
     if(thread_count_ == -1)
     {
       TEST_FAILURE((thread_count_ = sysconf(_SC_NPROCESSORS_CONF)) == -1);
-      thread_count_ *= 20;
+
+      #ifdef BIM_THREADPOOL_THREADS_PER_CORE
+      thread_count_ *= BIM_THREADPOOL_THREADS_PER_CORE;
+      #endif
     }
 
     return thread_count_;
@@ -38,6 +42,9 @@ namespace bim
 
   void ThreadPool::postJob(bim::Job* job)
   {
+    // Yes, two locks here : one for the condition, which, according to the
+    // manpages, shall be locked when calling pthread_cond_signal, and one for
+    // mutual exclusion of the queue.
     TEST_FAILURE(pthread_mutex_lock(&block_mutex_));
     TEST_FAILURE(pthread_mutex_lock(&queue_mutex_));
     queue_.push(job);
@@ -51,7 +58,7 @@ namespace bim
     for(int i = 0; i < get_thread_count(); ++i)
     {
       join_requested_ = true;
-     
+
       // unblock all thread, if they were on no-op
       TEST_FAILURE(pthread_cond_broadcast(&cond_wait_));
 
@@ -64,30 +71,34 @@ namespace bim
     reinterpret_cast<ThreadPool*>(instance)->schedule();
     return 0;
   }
-    
+
   void ThreadPool::schedule()
   {
     for(;;)
     {
-    // This locking is flawed, it crashes after a while. Presumably, race
-    // condition on the while we should use two mutex here.
-    while( ! queue_.empty())
+      bim::Job* to_perform = 0;
+      for(;;)
       {
         TEST_FAILURE(pthread_mutex_lock(&queue_mutex_));
-        bim::Job* to_perform = queue_.front();
-        queue_.pop();
-        TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
-        if(to_perform != 0)
+        if(! queue_.empty() )
         {
-          to_perform->act();
-          delete to_perform;
+          to_perform = queue_.front();
+          queue_.pop();
         }
         else
         {
-          std::cerr << "########### race condition, about to segfault" << std::endl;
-          std::cerr << "########### queue size : " << queue_.size() << std::endl;
+          TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
+          break;
+        }
+        TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
+
+        bim::Action action = to_perform->act();
+        if(action == Delete)
+        {
+          delete to_perform;
         }
       }
+      // The thread will sleep, and will be awaken when jobs are posted.
       noop_job();
     }
   }

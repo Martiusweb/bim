@@ -5,11 +5,13 @@
 
 namespace bim
 {
+  class ThreadPool;
+  class Context;
   class DummyJob : public Job
   {
     public:
-      DummyJob(ThreadPool& pool);
-        virtual void act();
+      DummyJob(ThreadPool& pool, Context& context);
+      virtual bim::Action act();
   };
 }
 

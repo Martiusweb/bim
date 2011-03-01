@@ -2,7 +2,8 @@
 
 namespace bim
 {
-Job::Job(ThreadPool& pool)
-  :pool_(pool)
+Job::Job(ThreadPool& pool, Context& context)
+  :pool_(pool),
+  context_(context)
 { }
 }

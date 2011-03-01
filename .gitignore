@@ -1,3 +1,6 @@
 *.dblite
 *.o
 *.swp
+Session.vim
+code/server
+tags
