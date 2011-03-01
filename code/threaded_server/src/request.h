@@ -3,17 +3,19 @@
 
 #include <string>
 
+namespace bim 
+{
+  class Context;
 class Request
 {
   public:
     /**
      * @brief Constructor for an HTTP request
      *
-     * @param http_request The content of the request
      * @param fd the file descriptor of the client(s socket
      * @param context The context (document_root, etc.)
      */
-    Request(const std::string& http_request, const int fd, const Context& context);
+    Request(const int fd, Context& context);
     /**
      * @brief Get the method for the request
      *
@@ -34,6 +36,11 @@ class Request
     std::string& get_path();
 
     /**
+     * Append data to the internal buffer.
+     */
+    void append_data(const char* data);
+
+    /**
      * @brief Get the fd back.
      *
      * @return the fd for this request.
@@ -41,11 +48,14 @@ class Request
     int get_fd();
 
   private:
+    /* Change that to ranges ? */
     std::string path_;
     std::string url_;
     std::string method_;
     std::string raw_;
     int fd_;
+    Context& context_;
 };
+}
 
 #endif

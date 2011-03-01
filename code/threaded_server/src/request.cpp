@@ -1,9 +1,15 @@
+#include "request.h"
+#include "context.h"
+#include "assert.h"
 
-#include "request.h"""
+namespace bim 
+{
 
-Request::Request(const std::string& http_request, const int fd, const Context& context)
-:raw_(http_request)
-,fd_(fd)
+using namespace std;
+
+Request::Request(const int fd, Context& context)
+:fd_(fd)
+,context_(context)
 {}
 
 std::string& Request::get_method()
@@ -12,7 +18,7 @@ std::string& Request::get_method()
   {
     size_t pos = raw_.find_first_of(' ');
 
-    if(pos != string::npos)
+    if(pos != std::string::npos)
     {
       method_ = raw_.substr(0,pos);
     }
@@ -44,5 +50,14 @@ std::string& Request::get_path()
 
 int Request::get_fd()
 {
-  return fd;
+  return fd_;
 }
+
+
+void Request::append_data(const char* data)
+{
+  raw_ += data;
+}
+
+}
+

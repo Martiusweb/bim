@@ -1,14 +1,17 @@
-#ifndef _CONTEXT_H_
-#define _CONTEXT_H_
+#ifndef CONTEXT_H
+#define CONTEXT_H
 
 #include <string>
-
-class Context
+namespace bim
 {
   /**
-   * @brief The root for this webserver.
+   * @brief The context of the webserver.
+   * For now, a struct, maybe a class in the future.
    */
+struct Context
+{
   std::string document_root_;
 };
+}
 
 #endif
