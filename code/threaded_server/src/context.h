@@ -9,11 +9,14 @@ namespace bim
 {
   /**
    * @brief The context of the webserver.
-   * For now, a struct, maybe a class in the future.
    */
-struct Context
+class Context
 {
-  std::string document_root_;
+  public:
+    std::string get_document_root();
+    void set_document_root(const std::string& document_root);
+  private:
+    std::string document_root_;
 };
 }
 

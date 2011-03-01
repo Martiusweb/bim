@@ -4,6 +4,7 @@
 #include "request.h"
 #include "context.h"
 #include "assert.h"
+#include <iostream>
 
 namespace bim 
 {
@@ -34,13 +35,11 @@ std::string& Request::get_url()
   if(url_.empty())
   {
     size_t begin_url = raw_.find_first_of(' ');
-    size_t end_url = raw_.find_first_of(' ', begin_url);
+    size_t end_url = raw_.find_first_of(' ', begin_url+1);
 
     if(begin_url != string::npos && end_url != string::npos)
     {
-      url_ = raw_.substr(begin_url + 1, end_url - begin_url); 
-
-      assert(url_.find_first_of(' ') == string::npos);
+      url_ = raw_.substr(begin_url+1, end_url - begin_url - 1); 
     }
   }
   return url_;
@@ -48,6 +47,11 @@ std::string& Request::get_url()
 
 std::string& Request::get_path()
 {
+  if(path_.empty())
+  {
+    path_ = context_.get_document_root()+get_url();
+  }
+  return path_;
 }
 
 
