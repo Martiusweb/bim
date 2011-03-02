@@ -1,2 +1,7 @@
-*.swp
-code/server
+*.sw[op]
+*.dblite
+*.o
+tags
+Session.vim
+code/bin/*
+code/obj/*
