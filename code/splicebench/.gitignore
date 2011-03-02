@@ -1,9 +1,0 @@
-file1
-file2
-file1rw
-file2rw
-read_write
-splice
-benchtool/*.pyc
-*.svg
-*.dat
