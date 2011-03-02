@@ -30,7 +30,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * File author : Paul ADENOT <paul@paul.cx>
+ * File author : Martin Richard <martius@martiusweb.net>
  *
  **/
 
