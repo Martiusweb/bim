@@ -1,3 +1,4 @@
 thread_test
+server
 *.o
 *.dblite

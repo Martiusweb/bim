@@ -34,14 +34,18 @@
  *
  **/
 
-#include "read_job.h"
-#include "request.h"
+#include <unistd.h>
+
 #include "context.h"
 #include "macros.h"
+#include "parse_job.h"
+#include "read_job.h"
+#include "request.h"
+
 
 namespace bim
 {
-const size_t READ_SIZE = 512;
+const int READ_SIZE = 512;
 
 ReadJob::ReadJob(bim::ThreadPool& pool, int fd, Context& context)
   :Job(pool, context)
@@ -51,10 +55,16 @@ ReadJob::ReadJob(bim::ThreadPool& pool, int fd, Context& context)
 
 Action ReadJob::act()
 {
-  size_t rv = 0;
+  int rv = 0;
   char* buffer = new char[READ_SIZE];
 
-  TEST_FAILURE((rv = read(request_->get_fd(), buffer, READ_SIZE)));
+  rv = read(request_->get_fd(), buffer, READ_SIZE);
+
+  if(rv == -1 && errno == (EAGAIN | EWOULDBLOCK))
+  {
+    pool_.postJob(this);
+    return DontDelete;
+  }
 
   request_->append_data(buffer);
 
@@ -66,7 +76,7 @@ Action ReadJob::act()
   else
   {
     std::cout << "Ok, data read, time to parse" << std::endl;
-    // pool_.postJob(new ParseJob(pool_, context_, request_));
+    pool_.postJob(new ParseJob(pool_, context_, request_));
     return Delete;
   }
 }

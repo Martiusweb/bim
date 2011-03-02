@@ -36,14 +36,18 @@
 
 
 #include "client.h"
+#include "thread_pool.h"
+#include "read_job.h"
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/socket.h>
+#include <iostream>
 #include <string.h>
 
+
 namespace bim {
-Client::Client(): Listenable(), _server(0) {
+  : Listenable(), thread_pool_(pool), context_(context), _server(0) {
     bzero((char *) &_address, sizeof(_address));
 }
 
@@ -58,13 +62,15 @@ Client::~Client() {
 
 bool Client::initialize(Server &server) {
     _server = &server;
-    socklen_t addrln = sizeof(_address), flags = 0;
+    socklen_t addrln = sizeof(_address);
+    int flags = 0;
+
     if((_descriptor = accept(server.getDescriptor(), (sockaddr*) &_address,
                     &addrln)) == -1) {
         _descriptor = 0;
         return false;
     }
-    
+
     if((flags = fcntl(_descriptor, F_GETFL, 0)) == -1) {
         close();
         return false;
@@ -83,7 +89,7 @@ void Client::close() {
 }
 
 bool Client::registerEventDispatcher(EventDispatcher& ed) {
-    if(ed.listenInOut(this, true)) {
+    if(ed.listenInOut(this)) {
         return Listenable::registerEventDispatcher(ed);
     }
 
@@ -91,6 +97,8 @@ bool Client::registerEventDispatcher(EventDispatcher& ed) {
 }
 
 void Client::onIn() {
+  std::cout << "plop" << std::endl;
+  thread_pool_.postJob(new ReadJob(thread_pool_, _descriptor, context_));
 }
 
 void Client::onOut() {

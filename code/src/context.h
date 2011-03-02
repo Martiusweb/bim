@@ -38,6 +38,9 @@
 #define CONTEXT_H
 
 #include <string>
+
+#include "http_status_code.h"
+
 namespace bim
 {
   /**
@@ -46,10 +49,13 @@ namespace bim
 class Context
 {
   public:
-    std::string get_document_root();
+    std::string& get_document_root();
     void set_document_root(const std::string& document_root);
+    std::string& get_error_document_path(const HttpStatusCode code); 
+    void set_error_document_path(const HttpStatusCode code, const std::string& path); 
   private:
     std::string document_root_;
+    std::string error_path_[_HTTP_STATUS_CODE_SIZE];
 };
 }
 

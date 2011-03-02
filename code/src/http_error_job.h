@@ -34,28 +34,32 @@
  *
  **/
 
-#include "context.h"
+#ifndef HTTP_ERROR_H
+#define HTTP_ERROR_H
+
+#include "job.h"
 
 namespace bim
 {
-  std::string& Context::get_document_root()
-  {
-      return document_root_;
-  }
 
-  void Context::set_document_root(const std::string& document_root)
-  {
-    document_root_=document_root;
-  }
+  class ThreadPool;
+  class Context;
+  class Request;
+  enum HttpStatusCode;
+  enum Action;
 
-  std::string& Context::get_error_document_path(const HttpStatusCode code)
+  /**
+   * This gets the error text, and post a write job.
+   */
+  class HttpErrorJob : public Job
   {
-    return error_path_[code];
-  }
-
-  void Context::set_error_document_path(const HttpStatusCode code, const std::string& path)
-  {
-    error_path_[code] = path;
-  }
+    public:
+      HttpErrorJob(ThreadPool& pool, Context& context, Request* request, HttpStatusCode code);
+      Action act();
+    private:
+      HttpStatusCode code_;
+      Request* request_;
+  };
 }
 
+#endif

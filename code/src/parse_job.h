@@ -34,28 +34,33 @@
  *
  **/
 
-#include "context.h"
+#ifndef _PARSE_JOB_H_
+#define _PARSE_JOB_H_
+
+#include "job.h"
 
 namespace bim
 {
-  std::string& Context::get_document_root()
-  {
-      return document_root_;
-  }
+class Context;
+class Request;
+class ThreadPool;
 
-  void Context::set_document_root(const std::string& document_root)
-  {
-    document_root_=document_root;
-  }
-
-  std::string& Context::get_error_document_path(const HttpStatusCode code)
-  {
-    return error_path_[code];
-  }
-
-  void Context::set_error_document_path(const HttpStatusCode code, const std::string& path)
-  {
-    error_path_[code] = path;
-  }
+class ParseJob : public Job
+{
+  public:
+       /**
+        * @brief This constructor is used when constructing this job 
+        * for the first time
+        *
+        * @param pool The thread pool, to be able to post jobs
+        * @param context The context, containing the document root
+        * @param request The request, i.e. the data sent by the client
+        */
+    ParseJob(bim::ThreadPool& pool, Context& context, Request* request);
+    Action act();
+  private:
+    Request* request_;
+};
 }
 
+#endif

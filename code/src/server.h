@@ -39,6 +39,8 @@
 #define BIM_SERVER_H
 
 #include "listenable.h"
+#include "thread_pool.h"
+#include "context.h"
 
 namespace bim {
 /**
@@ -53,7 +55,10 @@ class Server: public Listenable
 {
     public:
         Server();
-        Server(int port = 80, int max_clients = 1);
+        Server(int port,
+               int max_clients,
+               ThreadPool& pool,
+               Context& context);
         virtual ~Server();
 
         /**
@@ -84,7 +89,8 @@ class Server: public Listenable
     protected:
         int _port;
         int _max_clients;
-        Context& _context;
+        ThreadPool& thread_pool_;
+        Context& context_;
 };
 } // /bim
 

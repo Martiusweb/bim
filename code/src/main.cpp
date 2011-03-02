@@ -44,7 +44,10 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    Server server(7000, 10000);
+    Context context;
+    context.set_document_root(".");
+    ThreadPool pool;
+    Server server(7000, 10000, pool, context);
     EventDispatcher dispatcher(1024, 16);
 
     cout << "Welcome" << endl;
@@ -52,6 +55,8 @@ int main(int argc, char** argv)
     dispatcher.init();
     server.init();
     server.registerEventDispatcher(dispatcher);
+
+    dispatcher.dispatch();
 
     return 0;
 }

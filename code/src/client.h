@@ -44,13 +44,14 @@
 #include <arpa/inet.h>
 
 namespace bim {
+class ThreadPool;
 /**
  * A client object represent a connection of a client through socket.
  */
 class Client: public Listenable
 {
     public:
-        Client();
+        Client(ThreadPool& pool, Context& context);
         virtual ~Client();
         /**
          * @brief accept a client
@@ -66,6 +67,9 @@ class Client: public Listenable
 
         virtual bool registerEventDispatcher(EventDispatcher& ed);
 
+        /**
+         * @brief Data are available.
+         */
         virtual void onIn();
         virtual void onOut();
         virtual void onErr();
@@ -73,6 +77,8 @@ class Client: public Listenable
     protected:
         struct sockaddr_in6 _address;
         Server* _server;
+        ThreadPool& thread_pool_;
+        Context& context_;
 };
 } // /bim
 

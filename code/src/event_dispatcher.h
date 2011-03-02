@@ -62,7 +62,6 @@ class EventDispatcher
 };
 } // /bim
 
-#include "Listenable.hpp"
 
 #endif
 
