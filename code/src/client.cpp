@@ -40,9 +40,11 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/socket.h>
+#include <string.h>
 
 namespace bim {
-Client::Client(): Listenable() {
+Client::Client(): Listenable(), _server(0) {
+    bzero((char *) &_address, sizeof(_address));
 }
 
 Client::~Client() {
@@ -55,6 +57,7 @@ Client::~Client() {
 }
 
 bool Client::initialize(Server &server) {
+    _server = &server;
     socklen_t addrln = sizeof(_address), flags = 0;
     if((_descriptor = accept(server.getDescriptor(), (sockaddr*) &_address,
                     &addrln)) == -1) {

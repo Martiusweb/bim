@@ -72,6 +72,7 @@ class Client: public Listenable
 
     protected:
         struct sockaddr_in6 _address;
+        Server* _server;
 };
 } // /bim
 
