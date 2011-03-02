@@ -34,10 +34,13 @@
  *
  **/
 
-#include "read_job.h"
-#include "request.h"
+#include <unistd.h>
+
 #include "context.h"
 #include "macros.h"
+#include "read_job.h"
+#include "request.h"
+
 
 namespace bim
 {
@@ -54,7 +57,13 @@ Action ReadJob::act()
   size_t rv = 0;
   char* buffer = new char[READ_SIZE];
 
-  TEST_FAILURE((rv = read(request_->get_fd(), buffer, READ_SIZE)));
+  rv = read(request_->get_fd(), buffer, READ_SIZE);
+
+  if(rv == -1 && errno == EAGAIN | EWOULDBLOCK)
+  {
+    pool_.postJob(this);
+    return DontDelete;
+  }
 
   request_->append_data(buffer);
 
