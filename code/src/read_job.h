@@ -1,6 +1,3 @@
-/// Author : Paul ADENOT <paul@paul.cx>
-/// License : WTFPL <http://sam.zoy.org/wtfpl/>
-
 #ifndef _READ_JOB_H_
 #define _READ_JOB_H_
 

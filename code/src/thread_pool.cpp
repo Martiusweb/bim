@@ -1,6 +1,3 @@
-/// Author : Paul ADENOT <paul@paul.cx>
-/// License : WTFPL <http://sam.zoy.org/wtfpl/>
-
 #include "thread_pool.h"
 #include "job.h"
 #include "macros.h"
