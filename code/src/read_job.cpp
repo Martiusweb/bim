@@ -54,7 +54,7 @@ ReadJob::ReadJob(bim::ThreadPool& pool, int fd, Context& context)
 
 Action ReadJob::act()
 {
-  size_t rv = 0;
+  int rv = 0;
   char* buffer = new char[READ_SIZE];
 
   rv = read(request_->get_fd(), buffer, READ_SIZE);

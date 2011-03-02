@@ -42,11 +42,16 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <iostream>
 
 namespace bim {
-Server::Server(int port, int max_clients):
-    Listenable(), _port(port), _max_clients(max_clients) {
-}
+Server::Server(int port, int max_clients, ThreadPool& pool, Context& context)
+  :Listenable()
+  ,_port(port)
+  ,_max_clients(max_clients)
+  ,thread_pool_(pool)
+  ,context_(context)
+{ }
 
 Server::~Server() {
     if(_event_dispatcher != 0) {
@@ -109,7 +114,8 @@ bool Server::registerEventDispatcher(EventDispatcher& ed) {
 
 void Server::onIn()
 {
-    Client* client = new Client();
+
+    Client* client = new Client(thread_pool_, context_);
     if(!(client->initialize(*this) &&
                 client->registerEventDispatcher(*_event_dispatcher))) {
         delete client;

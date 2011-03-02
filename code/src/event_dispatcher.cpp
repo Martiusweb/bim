@@ -36,6 +36,7 @@
 
 
 #include "event_dispatcher.h"
+#include "listenable.h"
 
 #include <sys/epoll.h>
 #include <unistd.h>
@@ -124,7 +125,6 @@ void EventDispatcher::dispatch()
                 listenable->onOut();
             }
         }
-        
     }
     delete[] events;
 }
