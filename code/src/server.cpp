@@ -44,8 +44,8 @@
 #include <fcntl.h>
 
 namespace bim {
-Server::Server(int port, int max_clients):
-    Listenable(), _port(port), _max_clients(max_clients) {
+Server::Server(Context &context, int port, int max_clients):
+    Listenable(), _port(port), _max_clients(max_clients), _context(context) {
 }
 
 Server::~Server() {

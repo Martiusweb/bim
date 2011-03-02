@@ -84,7 +84,7 @@ class Server: public Listenable
     protected:
         int _port;
         int _max_clients;
-        int _sock_domain;
+        Context& _context;
 };
 } // /bim
 
