@@ -10,13 +10,14 @@ all : $(BIN)server
 $(OBJ)%.o : $(SRC)%.cpp
 	$(CXX) $(CPPFLAGS) -c $< -o $@
 
-$(BIN)server : $(OBJ)main.o $(OBJ)Listenable.o $(OBJ)Server.o $(OBJ)EventDispatcher.o
+$(BIN)server : $(OBJ)main.o $(OBJ)Listenable.o $(OBJ)Client.o $(OBJ)Server.o $(OBJ)EventDispatcher.o
 	$(CXX) $(CPPFLAGS) $+ -o $@ -lpthread -D_GNU_SOURCE
 
-main.o : Server.o Listenable.o 
-Server.o : Listenable.o
-EventDispatcher.o :
-Listenable.o :
+main.o : Server.o Listenable.o
+Server.o : Listenable.o Client.o
+Client.o : Listenable.o Server.o
+EventDispatcher.o : Listenable.o
+Listenable.o : EventDispatcher.o
 
 clean :
 	rm $(OBJ)* $(BIN)*

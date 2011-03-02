@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Client.hpp"
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -8,6 +9,15 @@
 namespace bim {
 Server::Server(int port, int max_clients):
     Listenable(), _port(port), _max_clients(max_clients) {
+}
+
+Server::~Server() {
+    if(_event_dispatcher != 0) {
+        unregisterEventDispatcher();
+    }
+    if(_descriptor != 0) {
+        close();
+    }
 }
 
 bool Server::init() {
@@ -52,25 +62,29 @@ bool Server::init() {
     return true;
 }
 
-bool Server::registerEventDispatcher(EventDispatcher& ed)
-{
-    return ed.listenIn(this, false);
+bool Server::registerEventDispatcher(EventDispatcher& ed) {
+    if(ed.listenIn(this, false)) {
+        return Listenable::registerEventDispatcher(ed);
+    }
+
+    return false;
 }
 
 void Server::onIn()
 {
-    // perform accept
+    Client* client = new Client();
+    if(!(client->initialize(*this) &&
+                client->registerEventDispatcher(*_event_dispatcher))) {
+        delete client;
+    }
+}
+
+void Server::onErr() {
 }
 
 void Server::close() {
     ::close(_descriptor);
     _descriptor = 0;
-}
-
-Server::~Server() {
-    if(_descriptor != 0) {
-        close();
-    }
 }
 
 } // /bim

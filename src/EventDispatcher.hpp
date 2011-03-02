@@ -1,9 +1,9 @@
 #ifndef BIM_EVENTDISPATCHER_H
 #define BIM_EVENTDISPATCHER_H
 
-#include "Listenable.hpp"
-
 namespace bim {
+class Listenable;
+
 class EventDispatcher
 {
     public:
@@ -14,6 +14,7 @@ class EventDispatcher
         bool listenIn(Listenable* const listenable, bool update = false);
         bool listenOut(Listenable* const listenable, bool update = false);
         bool listenInOut(Listenable* const listenable, bool update = false);
+        void stopListening(Listenable &listenable);
         void dispatch();
 
     protected:
@@ -23,6 +24,8 @@ class EventDispatcher
         int _events_per_loop;
 };
 } // /bim
+
+#include "Listenable.hpp"
 
 #endif
 

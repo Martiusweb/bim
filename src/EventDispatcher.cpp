@@ -33,7 +33,7 @@ EventDispatcher::~EventDispatcher()
 
 bool EventDispatcher::_listen(Listenable* const listenable, bool update, int mode)
 {
-    struct epoll_event event;
+    epoll_event event;
     event.events = mode | EPOLLET;
     event.data.ptr = (void*) listenable;
 
@@ -59,10 +59,37 @@ bool EventDispatcher::listenInOut(Listenable* const listenable, bool update)
     return _listen(listenable, update, EPOLLIN | EPOLLOUT);
 }
 
+void EventDispatcher::stopListening(Listenable& listenable) {
+    /* static */ epoll_event event;
+    epoll_ctl(_epoll, EPOLL_CTL_DEL, listenable.getDescriptor(), &event);
+}
+
 void EventDispatcher::dispatch()
 {
-    // event loop
-    // listenable.onIn() etc
+    int nb_events_fetched, i;
+    epoll_event *events = new epoll_event[_events_per_loop];
+    Listenable* listenable;
+
+    for(;;) {
+        // We wait infinitely for an event
+        nb_events_fetched = epoll_wait(_epoll, events, _events_per_loop, -1);
+        for(i = 0; i < nb_events_fetched; ++i) {
+            listenable = (Listenable*) events[i].data.ptr;
+
+            // TODO Here we connect the job list
+            if(events[i].events & (EPOLLHUP|EPOLLERR)) {
+                listenable->onErr();
+            }
+            if(events[i].events & EPOLLIN) {
+                listenable->onIn();
+            }
+            if(events[i].events & EPOLLERR) {
+                listenable->onOut();
+            }
+        }
+        
+    }
+    delete[] events;
 }
 
 } // /bim

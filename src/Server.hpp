@@ -2,7 +2,6 @@
 #define BIM_SERVER_H
 
 #include "Listenable.hpp"
-#include "EventDispatcher.hpp"
 
 namespace bim {
 /**
@@ -40,16 +39,12 @@ class Server: public Listenable
          */
         void close();
 
-        /**
-         * @brief Registers callbacks to the event dispatcher.
-         * @param ed The event dispatcher instance
-         */
-        bool registerEventDispatcher(EventDispatcher& ed);
+        virtual bool registerEventDispatcher(EventDispatcher& ed);
 
         virtual void onIn();
+        virtual void onErr();
 
     protected:
-        int _descriptor;
         int _port;
         int _max_clients;
         int _sock_domain;
