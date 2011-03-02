@@ -86,7 +86,7 @@ void Client::close() {
 }
 
 bool Client::registerEventDispatcher(EventDispatcher& ed) {
-    if(ed.listenInOut(this, true)) {
+    if(ed.listenInOut(this)) {
         return Listenable::registerEventDispatcher(ed);
     }
 
