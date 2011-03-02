@@ -15,7 +15,8 @@ using namespace std;
 int main()
 {
   ThreadPool pool; 
-  Context context = {"."};
+  Context context;
+  context.set_document_root(".");
   std::vector<Job*> jobs(10);
 
   for(unsigned i = 0; i < jobs.size(); i++)
