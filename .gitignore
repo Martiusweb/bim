@@ -1,6 +1,16 @@
+<<<<<<< HEAD
 *.dblite
 *.o
 *.swp
 Session.vim
 code/server
 tags
+=======
+*.sw[op]
+*.dblite
+*.o
+tags
+Session.vim
+code/bin/*
+code/obj/*
+>>>>>>> 5d868beac27158e631e76e356f8a065c42c363d3
