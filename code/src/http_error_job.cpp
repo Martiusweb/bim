@@ -34,28 +34,27 @@
  *
  **/
 
+#include <iostream>
+
+#include "action.h"
 #include "context.h"
+#include "http_error_job.h"
+#include "http_status_code.h"
+#include "request.h"
+#include "thread_pool.h"
 
 namespace bim
 {
-  std::string& Context::get_document_root()
-  {
-      return document_root_;
-  }
+  HttpErrorJob::HttpErrorJob(ThreadPool& pool, Context& context, Request* request, HttpStatusCode code)
+    :Job(pool, context), code_(code)
+  { }
 
-  void Context::set_document_root(const std::string& document_root)
-  {
-    document_root_=document_root;
-  }
 
-  std::string& Context::get_error_document_path(const HttpStatusCode code)
+  Action HttpErrorJob::act()
   {
-    return error_path_[code];
-  }
-
-  void Context::set_error_document_path(const HttpStatusCode code, const std::string& path)
-  {
-    error_path_[code] = path;
+    std::string path;
+    std::cout << "An error occured : type :" <<  code_ << std::endl;
+    path = context_.get_error_document_path(code_);
+    return Delete;
   }
 }
-

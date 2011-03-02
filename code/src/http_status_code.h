@@ -34,28 +34,32 @@
  *
  **/
 
-#include "context.h"
+#ifndef HTTP_STATUS_CODE_H
+#define HTTP_STATUS_CODE_H
+
 
 namespace bim
 {
-  std::string& Context::get_document_root()
+  enum HttpStatusCode
   {
-      return document_root_;
-  }
-
-  void Context::set_document_root(const std::string& document_root)
-  {
-    document_root_=document_root;
-  }
-
-  std::string& Context::get_error_document_path(const HttpStatusCode code)
-  {
-    return error_path_[code];
-  }
-
-  void Context::set_error_document_path(const HttpStatusCode code, const std::string& path)
-  {
-    error_path_[code] = path;
-  }
+    OK_200,
+    CREATED_201,
+    ACCEPTED_202,
+    NO_CONTENT_204,
+    MULTIPLE_CHOICE_300,
+    MOVED_PERMANENTLY_301,
+    MOVED_TEMPORARILY_302,
+    NOT_MODIFIED_304,
+    BAD_REQUEST_400,
+    UNAUTHORIZED_401,
+    FORBIDDEN_403,
+    NOT_FOUND_404,
+    INTERNAL_SERVER_ERROR_500,
+    NOT_IMPLEMENTED_501,
+    BAD_GATEWAY_502,
+    SERVICE_UNAVAILABLE_503,
+    _HTTP_STATUS_CODE_SIZE
+  };
 }
 
+#endif

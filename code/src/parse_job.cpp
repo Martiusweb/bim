@@ -34,28 +34,42 @@
  *
  **/
 
+#include <unistd.h>
+
 #include "context.h"
+#include "http_error_job.h"
+#include "macros.h"
+#include "parse_job.h"
+#include "request.h"
+#include "thread_pool.h"
+
 
 namespace bim
 {
-  std::string& Context::get_document_root()
+ParseJob::ParseJob(bim::ThreadPool& pool, Context& context, Request* request)
+  :Job(pool, context), request_(request)
+{ }
+
+Action ParseJob::act()
+{
+  // Check for protocol error
+  if(request_->get_method() != "GET" || request_->get_method() != "POST")
   {
-      return document_root_;
+    if(request_->get_method() != "PUT" || request_->get_method() != "DELETE")
+    {
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_,  NOT_IMPLEMENTED_501));
+      return Delete;
+    }
+    else
+    {
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_, BAD_REQUEST_400));
+      return Delete;
+    }
   }
 
-  void Context::set_document_root(const std::string& document_root)
-  {
-    document_root_=document_root;
-  }
-
-  std::string& Context::get_error_document_path(const HttpStatusCode code)
-  {
-    return error_path_[code];
-  }
-
-  void Context::set_error_document_path(const HttpStatusCode code, const std::string& path)
-  {
-    error_path_[code] = path;
-  }
+  // Check for file error (unreadable, not exist, etc.)
+  return Delete;
 }
 
+
+}

@@ -40,6 +40,7 @@
 
 #include <sys/epoll.h>
 #include <unistd.h>
+#include <cstdio>
 
 namespace bim {
 
