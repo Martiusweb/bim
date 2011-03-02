@@ -57,12 +57,12 @@ Action ParseJob::act()
   {
     if(request_->get_method() != "PUT" || request_->get_method() != "DELETE")
     {
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_,  NOT_IMPLEMENTED_501));
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_, BAD_REQUEST_400));
       return Delete;
     }
     else
     {
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_, BAD_REQUEST_400));
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_,  NOT_IMPLEMENTED_501));
       return Delete;
     }
   }
