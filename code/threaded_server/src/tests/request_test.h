@@ -12,11 +12,15 @@
 #include "../request.h"
 #include "../context.h"
 
-const char* CRLF = "\r\n";
-const char* CRLF2 = "\r\n\r\n";
+
+#ifndef REQUEST_FIXTURE_CPP
+#define REQUEST_FIXTURE_CPP
 
 using bim::Request;
 using bim::Context;
+
+const char* CRLF = "\r\n";
+const char* CRLF2 = "\r\n\r\n";
 
 class RequestFixture : public CppUnit::TestFixture
 {
@@ -73,17 +77,6 @@ class RequestFixture : public CppUnit::TestFixture
     {
     
     }
-//    static CppUnit::Test* suite()
-//    {
-//      CppUnit::TestSuite* suite = new CppUnit::TestSuite("Request test suite");
-//      suite->addTest(new CppUnit::TestCaller<RequestFixture>("Method",
-//            &RequestFixture::test_method));
-//      suite->addTest(new CppUnit::TestCaller<RequestFixture>("get url",
-//            &RequestFixture::test_get_url));
-//      suite->addTest(new CppUnit::TestCaller<RequestFixture>("get path",
-//            &RequestFixture::test_get_path));
-//      return suite;
-//    }
 
     CPPUNIT_TEST_SUITE( RequestFixture );
       CPPUNIT_TEST(test_method);
@@ -92,29 +85,4 @@ class RequestFixture : public CppUnit::TestFixture
     CPPUNIT_TEST_SUITE_END();
 };
 
-using namespace CppUnit;
-
-int main()
-{
-  TextUi::TestRunner runner;
-  TestResult controller;
-
-  TestResultCollector result;
-  controller.addListener( &result );
-
-  BriefTestProgressListener progress;
-  controller.addListener( &progress );
-
-  runner.addTest(RequestFixture::suite());
-
-  runner.run(controller);
-  CompilerOutputter outputter( &result, CPPUNIT_NS::stdCOut() );
-  outputter.write();
-
-  std::ofstream file( "cppunit-report.xml" );
-  XmlOutputter xml( &result, file );
-  xml.write();
-  file.close();
-
-  return result.wasSuccessful();
-}
+#endif

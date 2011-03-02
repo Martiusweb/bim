@@ -1,6 +1,7 @@
 env = Environment()
 env.Append(LIBS = ['pthread', 'cppunit'])
 
-source = ['request_test.cpp', '../request.cpp','../context.cpp']
+source = ['../request.cpp','../context.cpp']
+source += Glob('*.cpp')
 
 env.Program('test_suite', source ,CXXFLAGS='-Wall -pedantic -Os -g')
