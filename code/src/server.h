@@ -82,7 +82,6 @@ class Server: public Listenable
         void close();
 
         virtual bool registerEventDispatcher(EventDispatcher& ed);
-
         virtual void onIn();
         virtual void onErr();
 

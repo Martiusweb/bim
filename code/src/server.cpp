@@ -105,7 +105,7 @@ bool Server::init() {
 }
 
 bool Server::registerEventDispatcher(EventDispatcher& ed) {
-    if(ed.listenIn(this, false)) {
+    if(ed.listenIn(this)) {
         return Listenable::registerEventDispatcher(ed);
     }
 

@@ -42,14 +42,38 @@ namespace bim {
 
 class EventDispatcher;
 
+/**
+ * A listenable object is a high-level object that can be watched by the event
+ * poller and respond to I/O events.
+ *
+ * An object that need to be watched by EventDispatcher must inherit of this
+ * class.
+ */
 class Listenable
 {
     public:
+        /**
+         * @brief construct the object.
+         * The object is in a stable inactive state.
+         */
         Listenable();
+        /**
+         * @brief destruct the object.
+         * Unregister the event dispatcher, but don't check if the object
+         * associated to the descriptor is closed.
+         */
         virtual ~Listenable();
+
+        /**
+         * @brief Checks if the object is ready (opened).
+         */
         inline bool isReady() const {
             return _descriptor > 0;
         }
+
+        /**
+         * Returns the low-level file descriptor.
+         */
         inline int getDescriptor() const {
             return _descriptor;
         }
@@ -63,13 +87,40 @@ class Listenable
          * returns true.
          */
         virtual bool registerEventDispatcher(EventDispatcher& ed);
+
+        /**
+         * @brief Unregisters callbacks to the event dispatcher.
+         */
         void unregisterEventDispatcher();
+
+        /**
+         * @brief called by the event dispatcher when an input action can be
+         * performed.
+         */
         virtual void onIn() {};
+
+        /**
+         * @brief called by the event dispatcher when an output action cna be
+         * performed.
+         * You can not check if an output action is ready to be done and check
+         * the EAGAIN ernno.
+         */
         virtual void onOut() {};
+
+        /**
+         * @brief Called by the event dispatcher when an error is detected.
+         * Use errno to get the error code.
+         */
         virtual void onErr() {};
 
     protected:
+        /**
+         * @brief Low-level descriptor.
+         */
         int _descriptor;
+        /**
+         * @brief Event dispatcher pointer.
+         */
         EventDispatcher* _event_dispatcher;
 };
 } // /bim
