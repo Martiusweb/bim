@@ -72,7 +72,7 @@ int main(int argc, char** argv)
     // they will use the thread pool to work.
     EventDispatcher dispatcher(1024, 16);
 
-    cout << "Welcome" << endl;
+    DBG_LOG("Welcome, ready to initialize");
 
     // Order does not matters here
     TEST_FAILURE(!(pool.init() && dispatcher.init() && server.init()));

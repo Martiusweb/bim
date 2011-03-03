@@ -60,7 +60,8 @@ Action ReadJob::act()
 
   rv = read(request_->getFd(), buffer, READ_SIZE);
 
-  if(rv == -1 && errno == (EAGAIN | EWOULDBLOCK))
+  // Typo on bitmask
+  if(rv == -1 && (errno & (EAGAIN | EWOULDBLOCK)))
   {
     pool_.postJob(this);
     return DontDelete;
