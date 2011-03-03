@@ -82,7 +82,7 @@ std::string& Request::get_path()
 {
   if(path_.empty())
   {
-    path_ = context_.get_document_root()+get_url();
+    path_ = context_.getDocumentRoot()+get_url();
   }
   return path_;
 }

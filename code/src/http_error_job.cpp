@@ -45,7 +45,8 @@
 
 namespace bim
 {
-  HttpErrorJob::HttpErrorJob(ThreadPool& pool, Context& context, Request* request, HttpStatusCode code)
+  HttpErrorJob::HttpErrorJob(ThreadPool& pool, Context& context, Request*
+          request, HttpStatusCode code)
     :Job(pool, context), code_(code)
   { }
 
@@ -54,7 +55,7 @@ namespace bim
   {
     std::string path;
     std::cout << "An error occured : type :" <<  code_ << std::endl;
-    path = context_.get_error_document_path(code_);
+    path = context_.getErrorDocumentPath(code_);
     return Delete;
   }
 }

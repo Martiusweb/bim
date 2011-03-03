@@ -38,22 +38,22 @@
 
 namespace bim
 {
-  std::string& Context::get_document_root()
+  std::string& Context::getDocumentRoot()
   {
       return document_root_;
   }
 
-  void Context::set_document_root(const std::string& document_root)
+  void Context::setDocumentRoot(const std::string& document_root)
   {
-    document_root_=document_root;
+    document_root_= document_root;
   }
 
-  std::string& Context::get_error_document_path(const HttpStatusCode code)
+  std::string& Context::getErrorDocumentPath(const HttpStatusCode code)
   {
     return error_path_[code];
   }
 
-  void Context::set_error_document_path(const HttpStatusCode code, const std::string& path)
+  void Context::setErrorDocumentPath(const HttpStatusCode code, const std::string& path)
   {
     error_path_[code] = path;
   }
