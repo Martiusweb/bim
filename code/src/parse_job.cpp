@@ -53,9 +53,9 @@ ParseJob::ParseJob(bim::ThreadPool& pool, Context& context, Request* request)
 Action ParseJob::act()
 {
   // Check for protocol error
-  if(request_->get_method() != "GET" || request_->get_method() != "POST")
+  if(request_->getMethod() != "GET" || request_->getMethod() != "POST")
   {
-    if(request_->get_method() != "PUT" || request_->get_method() != "DELETE")
+    if(request_->getMethod() != "PUT" || request_->getMethod() != "DELETE")
     {
       pool_.postJob(new HttpErrorJob(pool_, context_, request_, BAD_REQUEST_400));
       return Delete;

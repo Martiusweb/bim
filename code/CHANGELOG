@@ -1,7 +1,8 @@
 03.03.2011
  - BIM_THREADPOOL_THREADS_PER_CORE not in the threadpool anymore : why a
    preprocessor constant ?
- - Context public methods are now camel-case
+ - Context and Request public methods are now camel-case
  - Moved SConstruct to parent directory allowing to build without enterring the
    src/ dir
  - updated gitignore
+ - created a debug macro

@@ -87,9 +87,21 @@ class Server: public Listenable
         virtual void onErr();
 
     protected:
+        /**
+         * @brief Listening port.
+         */
         int _port;
+        /**
+         * @brief Maximum of clients handled simultaneously by the server
+         */
         int _max_clients;
+        /**
+         * @brief Thread pool processing jobs
+         */
         ThreadPool& thread_pool_;
+        /**
+         * @brief Context data
+         */
         Context& context_;
 };
 } // /bim

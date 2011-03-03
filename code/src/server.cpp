@@ -114,7 +114,6 @@ bool Server::registerEventDispatcher(EventDispatcher& ed) {
 
 void Server::onIn()
 {
-
     Client* client = new Client(thread_pool_, context_);
     if(!(client->initialize(*this) &&
                 client->registerEventDispatcher(*_event_dispatcher))) {

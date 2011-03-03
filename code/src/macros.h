@@ -49,6 +49,6 @@
 			  << ":" << #x << " : " << \
 			  strerror(errno) << std::endl;\
 	}
-
+#define DBG_LOG(x) { std::cerr << x << std::endl; }
 
 #endif

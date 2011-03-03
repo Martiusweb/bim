@@ -57,31 +57,31 @@ class Request
      *
      * @return empty in case of error, the method otherwise
      */
-    std::string& get_method();
+    std::string& getMethod();
     /**
      * @brief Get the url of this request
      *
      * @return empty in case of error, the url otherwise
      */
-    std::string& get_url();
+    std::string& getUrl();
     /**
      * @brief Get the path for this request
      * @todo get document_root from context
      * @return empty in case of error, the path otherwise.
      */
-    std::string& get_path();
+    std::string& getPath();
 
     /**
      * Append data to the internal buffer.
      */
-    void append_data(const char* data);
+    void appendData(const char* data);
 
     /**
      * @brief Get the fd back.
      *
      * @return the fd for this request.
      */
-    int get_fd();
+    int getFd();
 
   private:
     /* Change that to ranges ? */

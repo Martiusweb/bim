@@ -38,6 +38,7 @@
 #include "client.h"
 #include "thread_pool.h"
 #include "read_job.h"
+#include "macros.h"
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -81,6 +82,7 @@ bool Client::initialize(Server &server) {
         close();
         return false;
     }
+    DBG_LOG("Client connected");
     return true;
 }
 
@@ -98,8 +100,8 @@ bool Client::registerEventDispatcher(EventDispatcher& ed) {
 }
 
 void Client::onIn() {
-  std::cout << "plop" << std::endl;
-  thread_pool_.postJob(new ReadJob(thread_pool_, _descriptor, context_));
+    DBG_LOG("Ready to read from client");
+    thread_pool_.postJob(new ReadJob(thread_pool_, _descriptor, context_));
 }
 
 void Client::onOut() {

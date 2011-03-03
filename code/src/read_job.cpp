@@ -58,7 +58,7 @@ Action ReadJob::act()
   int rv = 0;
   char* buffer = new char[READ_SIZE];
 
-  rv = read(request_->get_fd(), buffer, READ_SIZE);
+  rv = read(request_->getFd(), buffer, READ_SIZE);
 
   if(rv == -1 && errno == (EAGAIN | EWOULDBLOCK))
   {
@@ -66,7 +66,7 @@ Action ReadJob::act()
     return DontDelete;
   }
 
-  request_->append_data(buffer);
+  request_->appendData(buffer);
 
   if(rv == READ_SIZE) // More data to read
   {
@@ -75,7 +75,7 @@ Action ReadJob::act()
   }
   else
   {
-    std::cout << "Ok, data read, time to parse" << std::endl;
+    DBG_LOG("Ok, data read, time to parse");
     pool_.postJob(new ParseJob(pool_, context_, request_));
     return Delete;
   }
