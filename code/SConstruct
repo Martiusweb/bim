@@ -40,5 +40,5 @@ env = Environment(variables = vars,
                  '${THREADS_PER_CORE}'})
 
 env.Append(LIBS = ['pthread'])
-source =  Glob('*.cpp')
+source =  Glob('src/*.cpp')
 env.Program('server', source ,CXXFLAGS='-Wall -pedantic -g')
