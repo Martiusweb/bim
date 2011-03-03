@@ -93,7 +93,6 @@ int Request::get_fd()
   return fd_;
 }
 
-
 void Request::append_data(const char* data)
 {
   raw_ += data;

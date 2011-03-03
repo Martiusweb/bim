@@ -38,6 +38,27 @@
 
 namespace bim
 {
+  Context::Context()
+  {
+    const std::string prefix = "errors/";
+    error_path_[OK_200] = prefix + "ok.html";
+    //error_path_[CREATED_201] = prefix + 
+    //error_path_[ACCEPTED_202] = prefix + 
+    //error_path_[NO_CONTENT_204] = prefix + 
+    //error_path_[MULTIPLE_CHOICE_300] = prefix + 
+    //error_path_[MOVED_PERMANENTLY_301] = prefix + 
+    //error_path_[MOVED_TEMPORARILY_302] = prefix + 
+    //error_path_[NOT_MODIFIED_304] = prefix + 
+    error_path_[BAD_REQUEST_400] = prefix + "400.html";
+    error_path_[UNAUTHORIZED_401] = prefix + "401.html";
+    error_path_[FORBIDDEN_403] = prefix + "403.html";
+    error_path_[NOT_FOUND_404] = prefix + "404.html";
+    error_path_[INTERNAL_SERVER_ERROR_500] = prefix + "500.html";
+    error_path_[NOT_IMPLEMENTED_501] = prefix + "501.html";
+    error_path_[BAD_GATEWAY_502] = prefix + "502.html";
+    error_path_[SERVICE_UNAVAILABLE_503] = prefix + "503.html";
+  }
+
   std::string& Context::get_document_root()
   {
       return document_root_;
@@ -46,6 +67,8 @@ namespace bim
   void Context::set_document_root(const std::string& document_root)
   {
     document_root_=document_root;
+    if(document_root_[document_root_.size()] != '/')
+      document_root_ += '/';
   }
 
   std::string& Context::get_error_document_path(const HttpStatusCode code)

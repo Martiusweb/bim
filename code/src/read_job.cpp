@@ -75,7 +75,6 @@ Action ReadJob::act()
   }
   else
   {
-    std::cout << "Ok, data read, time to parse" << std::endl;
     pool_.postJob(new ParseJob(pool_, context_, request_));
     return Delete;
   }

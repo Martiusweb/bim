@@ -34,30 +34,34 @@
  *
  **/
 
-#ifndef CONTEXT_H
-#define CONTEXT_H
+#include <unistd.h>
+#include <iostream>
 
-#include <string>
-
-#include "http_status_code.h"
+#include "action.h"
+#include "context.h"
+#include "thread_pool.h"
+#include "write_job.h"
 
 namespace bim
 {
-  /**
-   * @brief The context of the webserver.
-   */
-class Context
+
+WriteJob::WriteJob(ThreadPool& pool,
+    Context& context,
+    const std::string* data,
+    const ContentType type,
+    const HttpStatusCode code)
+:Job(pool, context)
+,data_(data)
+,buffer_content_(type)
+,code_(code)
+{ }
+
+Action WriteJob::act()
 {
-  public:
-    Context();
-    std::string& get_document_root();
-    void set_document_root(const std::string& document_root);
-    std::string& get_error_document_path(const HttpStatusCode code); 
-    void set_error_document_path(const HttpStatusCode code, const std::string& path); 
-  private:
-    std::string document_root_;
-    std::string error_path_[_HTTP_STATUS_CODE_SIZE];
-};
+  std::cout << "About to write back : " 
+            << context_.get_document_root() + *data_ 
+            << std::endl;
+  return Delete;
 }
 
-#endif
+}

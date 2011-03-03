@@ -34,30 +34,64 @@
  *
  **/
 
-#ifndef CONTEXT_H
-#define CONTEXT_H
+#ifndef WRITE_JOB_H
+#define WRITE_JOB_H
 
 #include <string>
 
 #include "http_status_code.h"
+#include "job.h"
 
 namespace bim
 {
-  /**
-   * @brief The context of the webserver.
-   */
-class Context
+
+class ThreadPool;
+class Context;
+
+class WriteJob : public Job
 {
   public:
-    Context();
-    std::string& get_document_root();
-    void set_document_root(const std::string& document_root);
-    std::string& get_error_document_path(const HttpStatusCode code); 
-    void set_error_document_path(const HttpStatusCode code, const std::string& path); 
+    /**
+     * This specifies what to do with the data (i.e. which constructor has been
+     * called).
+     */
+    enum ContentType
+    {
+      Data,
+      Path
+    };
+    /**
+     * @brief A job to write the request back to the client
+     *
+     * @param pool The thread pool, to post job back (actually, for 
+     * consistency).
+     * @param context The context, to get contextual informations.
+     * @param data The data (file or path).
+     * @para type The type of the content of data : file or path.
+     * @param code An optionnal error code to include in the header. 200 (OK)
+     * is assumed if none is passed.
+     */
+    WriteJob(ThreadPool& pool,
+             Context& context,
+             const std::string* data,
+             const ContentType type = Path,
+             const HttpStatusCode code = OK_200);
+
+    Action act();
+
   private:
-    std::string document_root_;
-    std::string error_path_[_HTTP_STATUS_CODE_SIZE];
+    /**
+     * This can either be the data to send back or the path of the file.
+     */
+    const std::string* data_;
+    ContentType buffer_content_;
+    /**
+     * The error code to put in the header
+     */
+    const HttpStatusCode code_;
+
 };
+
 }
 
 #endif

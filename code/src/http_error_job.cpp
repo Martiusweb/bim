@@ -42,6 +42,7 @@
 #include "http_status_code.h"
 #include "request.h"
 #include "thread_pool.h"
+#include "write_job.h"
 
 namespace bim
 {
@@ -52,9 +53,11 @@ namespace bim
 
   Action HttpErrorJob::act()
   {
-    std::string path;
     std::cout << "An error occured : type :" <<  code_ << std::endl;
-    path = context_.get_error_document_path(code_);
+    const std::string& path = context_.get_error_document_path(code_);
+    pool_.postJob(new WriteJob(pool_, context_, &path, WriteJob::Path, code_));
+
+
     return Delete;
   }
 }

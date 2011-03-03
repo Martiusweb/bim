@@ -50,5 +50,6 @@
 			  strerror(errno) << std::endl;\
 	}
 
+#define CRLF "\r\n"
 
 #endif
