@@ -43,6 +43,8 @@
 #include "request.h"
 #include "thread_pool.h"
 
+#include "macros.h"
+
 namespace bim
 {
   HttpErrorJob::HttpErrorJob(ThreadPool& pool, Context& context, Request*
@@ -54,7 +56,7 @@ namespace bim
   Action HttpErrorJob::act()
   {
     std::string path;
-    std::cout << "An error occured : type :" <<  code_ << std::endl;
+    DBG_LOG("An error occured : type :" <<  code_);
     path = context_.getErrorDocumentPath(code_);
     return Delete;
   }
