@@ -38,23 +38,42 @@
 #include "job.h"
 #include "macros.h"
 
+#include <errno.h>
+
 namespace bim
 {
-  ThreadPool::ThreadPool()
-    :thread_count_(-1)
+  ThreadPool::ThreadPool(int threads_per_core)
+    :threads_per_core_(threads_per_core)
+    ,thread_count_(-1)
     ,threads_(get_thread_count())
     ,join_requested_(false)
   {
-    TEST_FAILURE(pthread_mutex_init(&block_mutex_, 0));
-    TEST_FAILURE(pthread_mutex_init(&queue_mutex_, 0));
-    TEST_FAILURE(pthread_cond_init(&cond_wait_, 0));
+  }
+
+bool ThreadPool::init() {
+    if(pthread_mutex_init(&block_mutex_, 0) != 0) {
+        return false;
+    }
+
+    if(pthread_mutex_init(&queue_mutex_, 0)) {
+        pthread_mutex_destroy(&block_mutex_);
+        return false;
+    }
+
+    if(pthread_cond_init(&cond_wait_, 0)) {
+        pthread_mutex_destroy(&block_mutex_);
+        pthread_mutex_destroy(&queue_mutex_);
+        return false;
+    }
 
     for(int i = 0; i < get_thread_count(); ++i)
     {
       // TODO : consider using the argument to be able to queue jobs
+      // TODO : manage errors properly 
       TEST_FAILURE(pthread_create(&(threads_[i]),0, thread_init, this ));
     }
-  }
+    return true;
+}
 
   int ThreadPool::get_thread_count()
   {
@@ -63,9 +82,7 @@ namespace bim
     {
       TEST_FAILURE((thread_count_ = sysconf(_SC_NPROCESSORS_CONF)) == -1);
 
-      #ifdef BIM_THREADPOOL_THREADS_PER_CORE
-      thread_count_ *= BIM_THREADPOOL_THREADS_PER_CORE;
-      #endif
+      thread_count_ *= threads_per_core_;
     }
 
     return thread_count_;

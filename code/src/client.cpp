@@ -47,7 +47,8 @@
 
 
 namespace bim {
-  : Listenable(), thread_pool_(pool), context_(context), _server(0) {
+Client::Client(ThreadPool& pool, Context& context)
+  : Listenable(), _server(0), thread_pool_(pool), context_(context) {
     bzero((char *) &_address, sizeof(_address));
 }
 

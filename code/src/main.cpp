@@ -38,25 +38,51 @@
 #include <iostream>
 #include "server.h"
 #include "event_dispatcher.h"
+#include "macros.h"
 
 using namespace bim;
 using namespace std;
 
+/**
+ * This is the Bim entry point for tests and standalone server.
+ * It shows how the Bim API can be used to create an http server but must not
+ * be used for production : use a daemon instead !
+ *
+ * As you will see, there is no way to stop the program : use Ctrl+C.
+ */
 int main(int argc, char** argv)
 {
+    // The context provide informations the server will use as configuration
+    // keys
     Context context;
-    context.set_document_root(".");
+    context.setDocumentRoot(".");
+
+    // The thread pool is the object that manage how the server jobs are
+    // processed
+#ifdef BIM_THREADPOOL_THREADS_PER_CORE
+    ThreadPool pool(BIM_THREADPOOL_THREADS_PER_CORE);
+#else
     ThreadPool pool;
+#endif
+
+    // The server object, do we need to say more ?
     Server server(7000, 10000, pool, context);
+
+    // The event dispatcher notifies server and clients when they can act, then
+    // they will use the thread pool to work.
     EventDispatcher dispatcher(1024, 16);
 
     cout << "Welcome" << endl;
 
-    dispatcher.init();
-    server.init();
+    // Order does not matters here
+    TEST_FAILURE(!(pool.init() && dispatcher.init() && server.init()));
+
+    // server and dispatcher must be initialized
     server.registerEventDispatcher(dispatcher);
 
+    // Contains the event-loop, get and dispatch i/o events
     dispatcher.dispatch();
 
     return 0;
 }
+

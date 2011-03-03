@@ -49,8 +49,13 @@ class Job;
 class ThreadPool
 {
   public:
-    ThreadPool();
+    ThreadPool(int threads_per_core = 1);
     ~ThreadPool();
+
+    /**
+     * @brief Create the threads
+     */
+    bool init();
     void postJob(bim::Job* job);
     size_t queue_length();
 
@@ -80,6 +85,11 @@ class ThreadPool
      * tells it which job to perform next.
      */
     void schedule();
+
+    /**
+     * Number of threads created per core
+     */
+    int threads_per_core_;
 
     /**
      * This is a cache for the thread count value.
