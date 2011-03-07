@@ -46,10 +46,10 @@ namespace bim
 {
 
 WriteJob::WriteJob(ThreadPool& pool,
-    Context& context,
-    const std::string* data,
-    const ContentType type,
-    const HttpStatusCode code)
+                   Context& context,
+                   const std::string& data,
+                   const ContentType type,
+                   const HttpStatusCode code)
 :Job(pool, context)
 ,data_(data)
 ,buffer_content_(type)
@@ -59,9 +59,8 @@ WriteJob::WriteJob(ThreadPool& pool,
 Action WriteJob::act()
 {
   std::cout << "About to write back : " 
-            << context_.get_document_root() + *data_ 
+            << context_.get_document_root() + data_
             << std::endl;
   return Delete;
 }
-
 }

@@ -73,6 +73,8 @@ class Request
      */
     std::string& get_path();
 
+    const std::string& get_raw() const;
+
     /**
      * Append data to the internal buffer.
      */

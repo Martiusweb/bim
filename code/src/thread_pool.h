@@ -34,8 +34,8 @@
  *
  **/
 
-#ifndef _THREAD_POOL_H_
-#define _THREAD_POOL_H_
+#ifndef THREAD_POOL_H
+#define THREAD_POOL_H
 
 #include <pthread.h>
 #include <queue>

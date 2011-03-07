@@ -73,7 +73,7 @@ class WriteJob : public Job
      */
     WriteJob(ThreadPool& pool,
              Context& context,
-             const std::string* data,
+             const std::string& data,
              const ContentType type = Path,
              const HttpStatusCode code = OK_200);
 
@@ -83,7 +83,7 @@ class WriteJob : public Job
     /**
      * This can either be the data to send back or the path of the file.
      */
-    const std::string* data_;
+    const std::string& data_;
     ContentType buffer_content_;
     /**
      * The error code to put in the header

@@ -82,6 +82,7 @@ std::string& Request::get_path()
 {
   if(path_.empty())
   {
+    std::cout << "url" << get_url() <<std::endl;
     path_ = context_.get_document_root()+get_url();
   }
   return path_;
@@ -96,6 +97,11 @@ int Request::get_fd()
 void Request::append_data(const char* data)
 {
   raw_ += data;
+}
+
+const std::string& Request::get_raw() const
+{
+  return raw_;
 }
 
 }

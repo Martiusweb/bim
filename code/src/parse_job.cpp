@@ -34,7 +34,10 @@
  *
  **/
 
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
+
 
 #include "context.h"
 #include "http_error_job.h"
@@ -42,6 +45,7 @@
 #include "parse_job.h"
 #include "request.h"
 #include "thread_pool.h"
+#include "write_job.h"
 
 
 namespace bim
@@ -53,9 +57,10 @@ ParseJob::ParseJob(bim::ThreadPool& pool, Context& context, Request* request)
 Action ParseJob::act()
 {
   // Check for protocol error
-  if(request_->get_method() != "GET" || request_->get_method() != "POST")
+  std::cout <<"method:" << request_->get_method() << ":" << std::endl;
+  if(request_->get_method() != "GET" && request_->get_method() != "POST")
   {
-    if(request_->get_method() != "PUT" || request_->get_method() != "DELETE")
+    if(request_->get_method() != "PUT" && request_->get_method() != "DELETE")
     {
       pool_.postJob(new HttpErrorJob(pool_, context_, request_, BAD_REQUEST_400));
       return Delete;
@@ -65,6 +70,40 @@ Action ParseJob::act()
       pool_.postJob(new HttpErrorJob(pool_, context_, request_,  NOT_IMPLEMENTED_501));
       return Delete;
     }
+  }
+
+  struct stat statbuf;
+  int rv = stat(request_->get_path().c_str(), &statbuf);
+  if(rv == -1)
+  {
+    switch(errno)
+    {
+    case EACCES:
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_, FORBIDDEN_403));
+      return Delete;
+    case ENOENT:
+    case ENOTDIR:
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_, NOT_FOUND_404));
+      return Delete;
+    case ENAMETOOLONG:
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_, BAD_REQUEST_400));
+      return Delete;
+    case ENOMEM:
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_, INTERNAL_SERVER_ERROR_500));
+      return Delete;
+    }
+  }
+  if(S_ISDIR(statbuf.st_mode))
+  {
+    //pool_.postJob(new ListDirJob(pool_, context_, path));
+    std::cout << "We have to list directory " << request_->get_path() << std::endl;
+  }
+  else
+  {
+    pool_.postJob(new WriteJob(pool_,
+                               context_,
+                               request_->get_path()
+                              ));
   }
 
   // Check for file error (unreadable, not exist, etc.)

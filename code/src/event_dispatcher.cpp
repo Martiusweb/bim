@@ -73,8 +73,8 @@ EventDispatcher::~EventDispatcher()
 bool EventDispatcher::_listen(Listenable* const listenable, bool update, int mode)
 {
     epoll_event event;
-    event.events = mode | EPOLLET;
-    event.data.ptr = (void*) listenable;
+    event.events = mode | EPOLLET | EPOLLRDHUP | EPOLLHUP;
+    event.data.ptr = reinterpret_cast<void*>(listenable);
 
     if(epoll_ctl(_epoll, (update ? EPOLL_CTL_MOD : EPOLL_CTL_ADD),
                 listenable->getDescriptor(), &event) == -1) {
@@ -115,8 +115,7 @@ void EventDispatcher::dispatch()
         for(i = 0; i < nb_events_fetched; ++i) {
             listenable = (Listenable*) events[i].data.ptr;
 
-            // TODO Here we connect the job list
-            if(events[i].events & (EPOLLHUP|EPOLLERR)) {
+            if(events[i].events & (EPOLLHUP|EPOLLERR|EPOLLRDHUP)) {
                 listenable->onErr();
             }
             if(events[i].events & EPOLLIN) {

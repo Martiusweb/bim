@@ -73,6 +73,10 @@ Action ReadJob::act()
     pool_.postJob(this);
     return DontDelete;
   }
+  else if(rv == 0) // client closed connection
+  {
+    return Delete;
+  }
   else
   {
     pool_.postJob(new ParseJob(pool_, context_, request_));

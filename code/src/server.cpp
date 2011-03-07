@@ -35,8 +35,9 @@
  **/
 
 
-#include "server.h"
 #include "client.h"
+#include "macros.h"
+#include "server.h"
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -89,7 +90,7 @@ bool Server::init() {
         return false;
     }
 
-    setsockopt(_descriptor, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(int));
+    TEST_FAILURE(setsockopt(_descriptor, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(int)));
 
     if((flags = fcntl(_descriptor, F_GETFL, 0)) == -1) {
         close();
@@ -123,6 +124,7 @@ void Server::onIn()
 }
 
 void Server::onErr() {
+  std::cout << "Disconected ?" << std::cout;
 }
 
 void Server::close() {
