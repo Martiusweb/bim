@@ -36,31 +36,56 @@
 
 #include <unistd.h>
 #include <iostream>
+#include <fcntl.h>
 
 #include "action.h"
 #include "context.h"
+#include "macros.h"
 #include "thread_pool.h"
+#include "request.h"
 #include "write_job.h"
 
 namespace bim
 {
 
+const size_t BLOCK_SIZE = 4 * 4096;
+
 WriteJob::WriteJob(ThreadPool& pool,
                    Context& context,
-                   const std::string& data,
+                   int fd,
+                   const std::string& path,
                    const ContentType type,
                    const HttpStatusCode code)
 :Job(pool, context)
-,data_(data)
+,path_(path)
+,fd_(fd)
 ,buffer_content_(type)
 ,code_(code)
 { }
 
 Action WriteJob::act()
 {
-  std::cout << "About to write back : " 
-            << context_.get_document_root() + data_
-            << std::endl;
+  if(buffer_content_ == Path)
+  {
+    std::cout << "About to write " << path_.c_str() << std::endl;
+    int fd_in;
+    int pipe_des[2];
+    fd_in = open(path_.c_str(), O_RDONLY);
+
+    TEST_FAILURE(pipe(pipe_des));
+
+    TEST_FAILURE(posix_fadvise(fd_in, 0,0,POSIX_FADV_SEQUENTIAL | POSIX_FADV_WILLNEED));
+
+    int rv = 0;
+    {
+      do {
+        rv = splice(fd_in, 0, pipe_des[1], 0, BLOCK_SIZE, SPLICE_F_MORE|SPLICE_F_MOVE);
+        rv = splice(pipe_des[0], 0, fd_, 0, rv, SPLICE_F_MORE|SPLICE_F_MOVE);
+      } while (rv > 0); 
+    }
+    TEST_FAILURE(close(fd_));
+  }
+
   return Delete;
 }
 }

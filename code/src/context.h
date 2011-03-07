@@ -52,7 +52,7 @@ class Context
     Context();
     std::string& get_document_root();
     void set_document_root(const std::string& document_root);
-    std::string& get_error_document_path(const HttpStatusCode code); 
+    const std::string get_error_document_path(const HttpStatusCode code); 
     void set_error_document_path(const HttpStatusCode code, const std::string& path); 
   private:
     std::string document_root_;

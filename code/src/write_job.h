@@ -47,6 +47,7 @@ namespace bim
 
 class ThreadPool;
 class Context;
+class Request;
 
 class WriteJob : public Job
 {
@@ -73,17 +74,16 @@ class WriteJob : public Job
      */
     WriteJob(ThreadPool& pool,
              Context& context,
-             const std::string& data,
+             int fd,
+             const std::string& path,
              const ContentType type = Path,
              const HttpStatusCode code = OK_200);
 
     Action act();
 
   private:
-    /**
-     * This can either be the data to send back or the path of the file.
-     */
-    const std::string& data_;
+    std::string path_;
+    int fd_;
     ContentType buffer_content_;
     /**
      * The error code to put in the header

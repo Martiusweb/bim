@@ -57,8 +57,8 @@ namespace bim
       HttpErrorJob(ThreadPool& pool, Context& context, Request* request, HttpStatusCode code);
       Action act();
     private:
-      HttpStatusCode code_;
       Request* request_;
+      HttpStatusCode code_;
   };
 }
 

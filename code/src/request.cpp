@@ -37,6 +37,7 @@
 #include "request.h"
 #include "context.h"
 #include "assert.h"
+
 #include <iostream>
 
 namespace bim 
@@ -82,7 +83,6 @@ std::string& Request::get_path()
 {
   if(path_.empty())
   {
-    std::cout << "url" << get_url() <<std::endl;
     path_ = context_.get_document_root()+get_url();
   }
   return path_;

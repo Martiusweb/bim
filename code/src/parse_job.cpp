@@ -102,8 +102,8 @@ Action ParseJob::act()
   {
     pool_.postJob(new WriteJob(pool_,
                                context_,
-                               request_->get_path()
-                              ));
+                               request_->get_fd(),
+                               request_->get_path()));
   }
 
   // Check for file error (unreadable, not exist, etc.)

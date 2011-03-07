@@ -34,6 +34,8 @@
  *
  **/
 
+#include <iostream>
+
 #include "context.h"
 
 namespace bim
@@ -67,13 +69,16 @@ namespace bim
   void Context::set_document_root(const std::string& document_root)
   {
     document_root_=document_root;
-    if(document_root_[document_root_.size()] != '/')
+    if(document_root_[document_root_.size() - 1] != '/')
+    {
       document_root_ += '/';
+    }
+    std::cout << "document_root:" << document_root_ << ":" << std::endl;
   }
 
-  std::string& Context::get_error_document_path(const HttpStatusCode code)
+  const std::string Context::get_error_document_path(const HttpStatusCode code)
   {
-    return error_path_[code];
+    return document_root_ + error_path_[code];
   }
 
   void Context::set_error_document_path(const HttpStatusCode code, const std::string& path)
