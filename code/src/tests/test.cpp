@@ -47,6 +47,7 @@
 #include <cppunit/CompilerOutputter.h>
 
 #include "request_test.h"
+#include "log_test.h"
 
 using namespace CppUnit;
 
@@ -62,6 +63,7 @@ int main()
   controller.addListener( &progress );
 
   runner.addTest(RequestFixture::suite());
+  runner.addTest(LogFixture::suite());
 
   runner.run(controller);
   CompilerOutputter outputter( &result, CPPUNIT_NS::stdCOut() );

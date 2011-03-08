@@ -34,61 +34,54 @@
  *
  **/
 
+/// Author : Paul ADENOT <paul@paul.cx>
+/// License : WTFPL <http://sam.zoy.org/wtfpl/>
+
+#include <cppunit/BriefTestProgressListener.h>
+#include <cppunit/CompilerOutputter.h>
+#include <cppunit/Test.h>
+#include <cppunit/TestResult.h>
+#include <cppunit/TestResultCollector.h>
+#include <cppunit/XmlOutputter.h>
+#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/ui/text/TestRunner.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
-#include <iostream>
-#include <fcntl.h>
 
-#include "action.h"
-#include "context.h"
-#include "macros.h"
-#include "thread_pool.h"
-#include "request.h"
-#include "write_job.h"
 
-namespace bim
+#include "../log.h"
+
+#ifndef LOG_FIXTURE_CPP
+#define LOG_FIXTURE_CPP
+
+class LogFixture : public CppUnit::TestFixture
 {
-
-const size_t BLOCK_SIZE = 4 * 4096;
-
-WriteJob::WriteJob(ThreadPool& pool,
-                   Context& context,
-                   int fd,
-                   const std::string& path,
-                   const ContentType type,
-                   const HttpStatusCode code)
-:Job(pool, context)
-,path_(path)
-,fd_(fd)
-,buffer_content_(type)
-,code_(code)
-{ }
-
-Action WriteJob::act()
-{
-  if(buffer_content_ == Path)
-  {
-    std::cout << "About to write " << path_.c_str() << std::endl;
-    int fd_in;
-    int pipe_des[2];
-    fd_in = open(path_.c_str(), O_RDONLY);
-
-    TEST_FAILURE(pipe(pipe_des));
-
-    TEST_FAILURE(posix_fadvise(fd_in, 0,0,POSIX_FADV_SEQUENTIAL | POSIX_FADV_WILLNEED));
-
-    int rv = 0;
+  public:
+    void setUp()
     {
-      do {
-        rv = splice(fd_in, 0, pipe_des[1], 0, BLOCK_SIZE, SPLICE_F_MORE|SPLICE_F_MOVE);
-        rv = splice(pipe_des[0], 0, fd_, 0, rv, SPLICE_F_MORE|SPLICE_F_MOVE);
-      } while (rv > 0); 
     }
-    TEST_FAILURE(close(fd_));
-    TEST_FAILURE(close(fd_in));
-    TEST_FAILURE(close(pipe_des[0]));
-    TEST_FAILURE(close(pipe_des[1]));
-  }
 
-  return Delete;
-}
-}
+    void log_basic()
+    {
+      bim::error_log("plop ?");
+      bim::access_log("plop ?");
+
+      struct stat statbuf;
+      CPPUNIT_ASSERT(stat("error_log", &statbuf) == 0);
+      CPPUNIT_ASSERT(stat("access_log", &statbuf) == 0);
+
+      CPPUNIT_ASSERT(unlink("error_log") == 0);
+      CPPUNIT_ASSERT(unlink("access_log") == 0);
+    }
+
+    void tearDown()
+    {
+    }
+
+    CPPUNIT_TEST_SUITE( LogFixture );
+    CPPUNIT_TEST(log_basic);
+    CPPUNIT_TEST_SUITE_END();
+};
+
+#endif

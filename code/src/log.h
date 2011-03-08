@@ -34,61 +34,53 @@
  *
  **/
 
-#include <unistd.h>
-#include <iostream>
-#include <fcntl.h>
+#ifndef LOG_H
+#define LOG_H
 
-#include "action.h"
-#include "context.h"
-#include "macros.h"
-#include "thread_pool.h"
-#include "request.h"
-#include "write_job.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <pthread.h>
+
 
 namespace bim
 {
+  void access_log(const std::string& message);
+  void error_log(const std::string& message);
 
-const size_t BLOCK_SIZE = 4 * 4096;
 
-WriteJob::WriteJob(ThreadPool& pool,
-                   Context& context,
-                   int fd,
-                   const std::string& path,
-                   const ContentType type,
-                   const HttpStatusCode code)
-:Job(pool, context)
-,path_(path)
-,fd_(fd)
-,buffer_content_(type)
-,code_(code)
-{ }
 
-Action WriteJob::act()
-{
-  if(buffer_content_ == Path)
+  class Log
   {
-    std::cout << "About to write " << path_.c_str() << std::endl;
-    int fd_in;
-    int pipe_des[2];
-    fd_in = open(path_.c_str(), O_RDONLY);
+  protected:
+    std::ofstream access_log_;
+    std::ofstream error_log_;
+    static const char* access_log_file_;
+    static const char* error_log_file_;
+    pthread_mutex_t write_access_;
+    pthread_mutex_t write_error_;
 
-    TEST_FAILURE(pipe(pipe_des));
+    static Log *singleton_;
+    static bool already_opened_;
+    static char filename_access_[256];
+    static char filename_error_[256];
 
-    TEST_FAILURE(posix_fadvise(fd_in, 0,0,POSIX_FADV_SEQUENTIAL | POSIX_FADV_WILLNEED));
+    Log();
+    ~Log();
 
-    int rv = 0;
+  public:
+    enum LogFile
     {
-      do {
-        rv = splice(fd_in, 0, pipe_des[1], 0, BLOCK_SIZE, SPLICE_F_MORE|SPLICE_F_MOVE);
-        rv = splice(pipe_des[0], 0, fd_, 0, rv, SPLICE_F_MORE|SPLICE_F_MOVE);
-      } while (rv > 0); 
-    }
-    TEST_FAILURE(close(fd_));
-    TEST_FAILURE(close(fd_in));
-    TEST_FAILURE(close(pipe_des[0]));
-    TEST_FAILURE(close(pipe_des[1]));
-  }
+      Access = 1,
+      Error = 2,
+      Both = Access | Error
+    };
 
-  return Delete;
+    static Log *get_log();
+    void write(const std::string& message, LogFile access_type);
+    void close();
+};
+
 }
-}
+
+#endif

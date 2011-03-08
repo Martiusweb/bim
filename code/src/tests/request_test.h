@@ -68,7 +68,7 @@ class RequestFixture : public CppUnit::TestFixture
     void setUp()
     {
       context = new Context();
-      context->set_document_root("/home/site");
+      context->set_document_root(".");
 
       req_minimal = new Request(2, *context);
       req_firefox4 = new Request(2, *context);
@@ -77,14 +77,14 @@ class RequestFixture : public CppUnit::TestFixture
       req_minimal->append_data(CRLF2);
 
       req_firefox4->append_data("GET /static/index.html HTTP/1.1"
-                                "Host: localhost:8080"
-                                "User-Agent: Mozilla/5.0 (X11; Linux i686; rv:2.0b13pre) Gecko/20110226 Firefox/4.0b13pre"
-                                "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-                                "Accept-Language: en-us,en;q=0.5"
-                                "Accept-Encoding: gzip, deflate"
-                                "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7"
-                                "Keep-Alive: 115"
-                                "Connection: keep-alive");
+          "Host: localhost:8080"
+          "User-Agent: Mozilla/5.0 (X11; Linux i686; rv:2.0b13pre) Gecko/20110226 Firefox/4.0b13pre"
+          "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+          "Accept-Language: en-us,en;q=0.5"
+          "Accept-Encoding: gzip, deflate"
+          "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7"
+          "Keep-Alive: 115"
+          "Connection: keep-alive");
       req_firefox4->append_data(CRLF2);
     }
 
@@ -104,20 +104,20 @@ class RequestFixture : public CppUnit::TestFixture
 
     void test_get_path()
     {
-      CPPUNIT_ASSERT(req_minimal->get_path() == "/home/site/");
-      CPPUNIT_ASSERT(req_minimal->get_path() == "/home/site/"); //testing caching
-      CPPUNIT_ASSERT(req_firefox4->get_path() == "/home/site/static/index.html"); 
+      CPPUNIT_ASSERT(req_minimal->get_path() == ".");
+      CPPUNIT_ASSERT(req_minimal->get_path() == "."); //testing caching
+      CPPUNIT_ASSERT(req_firefox4->get_path() == "./static/index.html"); 
     }
 
     void tearDown()
     {
-    
+
     }
 
     CPPUNIT_TEST_SUITE( RequestFixture );
-      CPPUNIT_TEST(test_method);
-      CPPUNIT_TEST(test_get_url);
-      CPPUNIT_TEST(test_get_path);
+    CPPUNIT_TEST(test_method);
+    CPPUNIT_TEST(test_get_url);
+    CPPUNIT_TEST(test_get_path);
     CPPUNIT_TEST_SUITE_END();
 };
 
