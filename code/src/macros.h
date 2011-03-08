@@ -50,5 +50,6 @@
 			  strerror(errno) << std::endl;\
 	}
 #define DBG_LOG(x) { std::cerr << x << std::endl; }
+#define CRLF "\r\n"
 
 #endif

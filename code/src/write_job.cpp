@@ -34,69 +34,34 @@
  *
  **/
 
-#include "request.h"
-#include "context.h"
-#include "assert.h"
+#include <unistd.h>
 #include <iostream>
 
-namespace bim 
+#include "action.h"
+#include "context.h"
+#include "thread_pool.h"
+#include "write_job.h"
+
+namespace bim
 {
 
-using namespace std;
+WriteJob::WriteJob(ThreadPool& pool,
+    Context& context,
+    const std::string* data,
+    const ContentType type,
+    const HttpStatusCode code)
+:Job(pool, context)
+,data_(data)
+,buffer_content_(type)
+,code_(code)
+{ }
 
-Request::Request(const int fd, Context& context)
-:fd_(fd)
-,context_(context)
-{}
-
-std::string& Request::getMethod()
+Action WriteJob::act()
 {
-  if(method_.empty())
-  {
-    size_t pos = raw_.find_first_of(' ');
-
-    if(pos != std::string::npos)
-    {
-      method_ = raw_.substr(0,pos);
-    }
-  }
-  return method_;
-}
-
-std::string& Request::getUrl()
-{
-  if(url_.empty())
-  {
-    size_t begin_url = raw_.find_first_of(' ');
-    size_t end_url = raw_.find_first_of(' ', begin_url+1);
-
-    if(begin_url != string::npos && end_url != string::npos)
-    {
-      url_ = raw_.substr(begin_url+1, end_url - begin_url - 1); 
-    }
-  }
-  return url_;
-}
-
-std::string& Request::getPath()
-{
-  if(path_.empty())
-  {
-    path_ = context_.getDocumentRoot()+getUrl();
-  }
-  return path_;
-}
-
-
-int Request::getFd()
-{
-  return fd_;
-}
-
-void Request::appendData(const char* data)
-{
-  raw_ += data;
+  std::cout << "About to write back : " 
+            << context_.get_document_root() + *data_ 
+            << std::endl;
+  return Delete;
 }
 
 }
-

@@ -39,6 +39,8 @@
 
 #include <string>
 
+#include "http_status_code.h"
+
 namespace bim 
 {
   class Context;
@@ -90,6 +92,7 @@ class Request
     std::string method_;
     std::string raw_;
     int fd_;
+    int status_code_;
     Context& context_;
 };
 }

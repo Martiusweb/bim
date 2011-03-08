@@ -34,69 +34,64 @@
  *
  **/
 
-#include "request.h"
-#include "context.h"
-#include "assert.h"
-#include <iostream>
+#ifndef WRITE_JOB_H
+#define WRITE_JOB_H
 
-namespace bim 
+#include <string>
+
+#include "http_status_code.h"
+#include "job.h"
+
+namespace bim
 {
 
-using namespace std;
+class ThreadPool;
+class Context;
 
-Request::Request(const int fd, Context& context)
-:fd_(fd)
-,context_(context)
-{}
-
-std::string& Request::getMethod()
+class WriteJob : public Job
 {
-  if(method_.empty())
-  {
-    size_t pos = raw_.find_first_of(' ');
-
-    if(pos != std::string::npos)
+  public:
+    /**
+     * This specifies what to do with the data (i.e. which constructor has been
+     * called).
+     */
+    enum ContentType
     {
-      method_ = raw_.substr(0,pos);
-    }
-  }
-  return method_;
-}
+      Data,
+      Path
+    };
+    /**
+     * @brief A job to write the request back to the client
+     *
+     * @param pool The thread pool, to post job back (actually, for 
+     * consistency).
+     * @param context The context, to get contextual informations.
+     * @param data The data (file or path).
+     * @para type The type of the content of data : file or path.
+     * @param code An optionnal error code to include in the header. 200 (OK)
+     * is assumed if none is passed.
+     */
+    WriteJob(ThreadPool& pool,
+             Context& context,
+             const std::string* data,
+             const ContentType type = Path,
+             const HttpStatusCode code = OK_200);
 
-std::string& Request::getUrl()
-{
-  if(url_.empty())
-  {
-    size_t begin_url = raw_.find_first_of(' ');
-    size_t end_url = raw_.find_first_of(' ', begin_url+1);
+    Action act();
 
-    if(begin_url != string::npos && end_url != string::npos)
-    {
-      url_ = raw_.substr(begin_url+1, end_url - begin_url - 1); 
-    }
-  }
-  return url_;
-}
+  private:
+    /**
+     * This can either be the data to send back or the path of the file.
+     */
+    const std::string* data_;
+    ContentType buffer_content_;
+    /**
+     * The error code to put in the header
+     */
+    const HttpStatusCode code_;
 
-std::string& Request::getPath()
-{
-  if(path_.empty())
-  {
-    path_ = context_.getDocumentRoot()+getUrl();
-  }
-  return path_;
-}
-
-
-int Request::getFd()
-{
-  return fd_;
-}
-
-void Request::appendData(const char* data)
-{
-  raw_ += data;
-}
+};
 
 }
 
+#endif
