@@ -44,6 +44,7 @@
 #include "thread_pool.h"
 #include "request.h"
 #include "write_job.h"
+#include "log.h"
 
 namespace bim
 {
@@ -67,14 +68,19 @@ Action WriteJob::act()
 {
   if(buffer_content_ == Path)
   {
-    std::cout << "About to write " << path_.c_str() << std::endl;
     int fd_in;
     int pipe_des[2];
     fd_in = open(path_.c_str(), O_RDONLY);
 
+    if(fd_in == -1)
+    {
+      std::cerr << path_ << std::endl;
+      std::cerr << strerror(errno) << std::endl;
+    }
+
     TEST_FAILURE(pipe(pipe_des));
 
-    TEST_FAILURE(posix_fadvise(fd_in, 0,0,POSIX_FADV_SEQUENTIAL | POSIX_FADV_WILLNEED));
+    // TEST_FAILURE(posix_fadvise(fd_in, 0,0,POSIX_FADV_SEQUENTIAL | POSIX_FADV_WILLNEED));
 
     int rv = 0;
     {
@@ -87,6 +93,7 @@ Action WriteJob::act()
     TEST_FAILURE(close(fd_in));
     TEST_FAILURE(close(pipe_des[0]));
     TEST_FAILURE(close(pipe_des[1]));
+
   }
 
   return Delete;

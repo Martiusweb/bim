@@ -87,12 +87,20 @@ class Request
      */
     int get_fd();
 
+    /**
+     * @brief Get the request line, without CRLF
+     *
+     * @return the request line.
+     */
+    const std::string& get_request_line();
+
   private:
     /* Change that to ranges ? */
     std::string path_;
     std::string url_;
     std::string method_;
     std::string raw_;
+    std::string request_line_;
     int fd_;
     int status_code_;
     Context& context_;

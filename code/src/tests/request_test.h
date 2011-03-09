@@ -73,10 +73,10 @@ class RequestFixture : public CppUnit::TestFixture
       req_minimal = new Request(2, *context);
       req_firefox4 = new Request(2, *context);
 
-      req_minimal->append_data("GET / HTTP/1.1");
+      req_minimal->append_data("GET / HTTP/1.1\r\n");
       req_minimal->append_data(CRLF2);
 
-      req_firefox4->append_data("GET /static/index.html HTTP/1.1"
+      req_firefox4->append_data("GET /static/index.html HTTP/1.1\r\n"
           "Host: localhost:8080"
           "User-Agent: Mozilla/5.0 (X11; Linux i686; rv:2.0b13pre) Gecko/20110226 Firefox/4.0b13pre"
           "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
@@ -104,9 +104,18 @@ class RequestFixture : public CppUnit::TestFixture
 
     void test_get_path()
     {
-      CPPUNIT_ASSERT(req_minimal->get_path() == ".");
-      CPPUNIT_ASSERT(req_minimal->get_path() == "."); //testing caching
+      std::cout << req_minimal->get_path() << std::endl;
+      CPPUNIT_ASSERT(req_minimal->get_path() == "./");
+      CPPUNIT_ASSERT(req_minimal->get_path() == "./"); //testing caching
       CPPUNIT_ASSERT(req_firefox4->get_path() == "./static/index.html"); 
+    }
+
+    void test_get_request_line()
+    {
+      std::cerr << "req:" << req_minimal->get_request_line() << std::endl;
+      CPPUNIT_ASSERT(req_minimal->get_request_line() == "GET / HTTP/1.1");
+      CPPUNIT_ASSERT(req_minimal->get_request_line() == "GET / HTTP/1.1"); //testing caching
+      CPPUNIT_ASSERT(req_firefox4->get_request_line() == "GET /static/index.html HTTP/1.1");
     }
 
     void tearDown()
@@ -118,6 +127,7 @@ class RequestFixture : public CppUnit::TestFixture
     CPPUNIT_TEST(test_method);
     CPPUNIT_TEST(test_get_url);
     CPPUNIT_TEST(test_get_path);
+    CPPUNIT_TEST(test_get_request_line);
     CPPUNIT_TEST_SUITE_END();
 };
 

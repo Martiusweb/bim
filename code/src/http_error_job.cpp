@@ -53,7 +53,6 @@ namespace bim
 
   Action HttpErrorJob::act()
   {
-    std::cout << "An error occured : type :" << code_ << std::endl;
     pool_.postJob(new WriteJob(pool_, context_, request_->get_fd(), context_.get_error_document_path(code_), WriteJob::Path, code_));
 
     return Delete;

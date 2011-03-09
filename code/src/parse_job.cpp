@@ -38,9 +38,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-
 #include "context.h"
 #include "http_error_job.h"
+#include "log.h"
 #include "macros.h"
 #include "parse_job.h"
 #include "request.h"
@@ -56,8 +56,8 @@ ParseJob::ParseJob(bim::ThreadPool& pool, Context& context, Request* request)
 
 Action ParseJob::act()
 {
-  // Check for protocol error
-  std::cout <<"method:" << request_->get_method() << ":" << std::endl;
+  access_log(request_->get_request_line());
+
   if(request_->get_method() != "GET" && request_->get_method() != "POST")
   {
     if(request_->get_method() != "PUT" && request_->get_method() != "DELETE")
@@ -91,12 +91,15 @@ Action ParseJob::act()
     case ENOMEM:
       pool_.postJob(new HttpErrorJob(pool_, context_, request_, INTERNAL_SERVER_ERROR_500));
       return Delete;
+    default:
+      TEST_FAILURE(rv);
+      return Delete;
     }
   }
   if(S_ISDIR(statbuf.st_mode))
   {
     //pool_.postJob(new ListDirJob(pool_, context_, path));
-    std::cout << "We have to list directory " << request_->get_path() << std::endl;
+    pool_.postJob(new HttpErrorJob(pool_, context_, request_, NOT_IMPLEMENTED_501));
   }
   else
   {

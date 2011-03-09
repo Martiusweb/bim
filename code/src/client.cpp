@@ -94,7 +94,6 @@ bool Client::registerEventDispatcher(EventDispatcher& ed) {
 }
 
 void Client::onIn() {
-  std::cout << "plop" << std::endl;
   thread_pool_.postJob(new ReadJob(thread_pool_, _descriptor, context_));
 }
 

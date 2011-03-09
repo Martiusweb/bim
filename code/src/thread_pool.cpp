@@ -34,6 +34,8 @@
  *
  **/
 
+#include <assert.h>
+
 #include "thread_pool.h"
 #include "job.h"
 #include "macros.h"
@@ -143,6 +145,9 @@ namespace bim
   {
     TEST_FAILURE(pthread_mutex_lock(&block_mutex_));
 
+    TEST_FAILURE(pthread_mutex_lock(&queue_mutex_));
+    assert(queue_.empty());
+    TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
     TEST_FAILURE(pthread_cond_wait(&cond_wait_, &block_mutex_));
 
     TEST_FAILURE(pthread_mutex_unlock(&block_mutex_));
@@ -153,7 +158,11 @@ namespace bim
 
   size_t ThreadPool::queue_length()
   {
-    return queue_.size();
+
+    TEST_FAILURE(pthread_mutex_lock(&queue_mutex_));
+    size_t size = queue_.size();
+    TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
+    return size;
   }
 }
 

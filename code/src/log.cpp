@@ -43,8 +43,8 @@ namespace bim
 {
   Log *Log::singleton_ = 0;
 
-  const char* Log::error_log_file_ = "access_log";
-  const char* Log::access_log_file_= "error_log";
+  const char* Log::error_log_file_ = "error_log";
+  const char* Log::access_log_file_= "access_log";
 
   void access_log(const std::string& message)
   {
@@ -80,6 +80,7 @@ namespace bim
     catch(...)
     {
       std::cerr << "error : can't open access log" << std::endl;
+      exit(EXIT_FAILURE);
     }
 
     pthread_mutex_init(&write_access_, NULL);
@@ -103,17 +104,26 @@ namespace bim
     if(file & Access)
     {
       time_t t = time(0);
+      std::string time(ctime(&t));
+      time[time.size() - 1] = 0;
+
       pthread_mutex_lock(&write_access_);
-      access_log_ << "[" << ctime(&t)  << "] # " <<
-        pthread_self()  << " # " << message << std::endl;
+
+      access_log_ << "[" << time << "] # " << pthread_self()  << " # " << message << std::endl;
+
       pthread_mutex_unlock(&write_access_);
     }
+
     if(file & Error)
     {
       time_t t = time(0);
+      std::string time(ctime(&t));
+      time[time.size() - 1] = 0;
+
       pthread_mutex_lock(&write_error_);
-      error_log_ << "[" << ctime(&t) << "] # " <<
-        pthread_self()  << " # " << message << std::endl;
+
+      error_log_ << "[" << time << "] # " << pthread_self()  << " # " << message << std::endl;
+
       pthread_mutex_unlock(&write_error_);
     }
   }

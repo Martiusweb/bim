@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+	<head>
+		<title>Install Party GPL</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" type="text/css" href="style.css" />
+	</head>
+	<body>
+		<h1>Install Party GPL</h1>
+		<h2>Avant l'installation</h2>
+		<p>
+		Lancer la commande suivant : 
+			<pre>
+cd && wget http://192.168.2.1/pre_install.sh && chmod +x pre_install.sh && sudo ./pre_install.sh
+</pre>
+Il est normal que parfois ça demande une confirmation (taper "Yes" par exemple), mais globalement aucune erreur ne doit s'afficher. Si c'est le cas, référez vous au paragraphe qui va bien.
+		</p>
+		<h2> Rebooter la machine sur l'OS installé </h2>
+		<h2>Après l'installation</h2>
+		<p>
+		Un autre script est disponible pour mettre à jour la
+		distribution et installer les paquets essentiels au système.
+		Il peut être interressant de montrer l'installation d'un paquet
+		si l'utilisateur est néophyte, en utilisant la Logithèque
+		Ubuntu.
+<pre>
+cd && wget http://192.168.2.1/post_install.sh && chmod +x post_install.sh && sudo ./post_install.sh
+</pre>
+Il est normal que parfois ça demande une confirmation (taper "Yes" par exemple), mais globalement aucune erreur ne doit s'afficher. Si c'est le cas, référez vous au paragraphe qui va bien.
+<h2> Si ça ne fonctionne pas </h2>
+Vous ne vous énervez pas, vous faites à Paul un rapport de bug (quelle étape a planté, message d'erreur, config particulière de la machine, etc.).
+Vous lisez les scripts, et vous faites les étapes à la main, en adaptant. Il sont commentés comme il faut normalement.
+	<h2>Après tout ça</h2>
+	<h3>Verifier que le proxy APT n'est plus là</h3>
+	<p>Le fichier <span style="font-family:Courrier">/etc/apt/sources.list</span> dois PAS contenir de lignes comportant l'IP du cache apt (192.18.2.1 pour rappel)..</p>
+	<h3>Tour d'horizon du système</h3>
+	<p>C'est le moment de montrer de quoi Linux est capable. Il faut demander aux utilisateurs s'ils ont des besoins spécifiques et tenter d'y répondre. Mettre l'accent sur la logithèque Ubuntu (le logiciel et le concept) et le site Ubuntu-fr et sur le site du zéro pour les développeurs et le tutoriel GNU/Linux.</p>
+	<h3>Donner nos coordonnées</h3>
+	<p>Transmettre l'adresse <span style="font-family:Courrier">asso.gpl@insa-lyon.fr</span> pour les demandes de support.</p>
+</body>
+</html>
+

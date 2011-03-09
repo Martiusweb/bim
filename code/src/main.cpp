@@ -42,10 +42,10 @@
 using namespace bim;
 using namespace std;
 
-int main(int argc, char** argv)
+int main(int /* argc */, char** /* argv */)
 {
     Context context;
-    context.set_document_root(".");
+    context.set_document_root("document_root");
     ThreadPool pool;
     Server server(7000, 10000, pool, context);
     EventDispatcher dispatcher(1024, 16);

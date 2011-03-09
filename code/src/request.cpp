@@ -104,5 +104,18 @@ const std::string& Request::get_raw() const
   return raw_;
 }
 
+const std::string& Request::get_request_line()
+{
+  if(request_line_.empty())
+  {
+    size_t eol = raw_.find('\r');
+    if(eol != string::npos)
+    {
+      request_line_ = raw_.substr(0, eol);
+    }
+  }
+  return request_line_;
+}
+
 }
 

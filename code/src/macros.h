@@ -40,14 +40,19 @@
 #include <iostream>
 #include <cerrno>
 #include <cstring>
+#include <sstream>
+
+#include "log.h"
 
 #define dump_var(x) {std::cerr << #x << ":" << x << ":" << std::endl;}
-#define LOG std::cerr
+
 #define TEST_FAILURE(x) if(x) {\
-	std::cerr << __FILE__ \
+  std::stringstream strs; \
+  	strs << __FILE__ \
 			  << ":" << __LINE__ \
 			  << ":" << #x << " : " << \
-			  strerror(errno) << std::endl;\
+			  strerror(errno);\
+        error_log(strs.str()); \
 	}
 
 #define CRLF "\r\n"

@@ -80,6 +80,8 @@ bool Server::init() {
     addr.sin6_port = htons(_port);
     addr.sin6_addr = in6addr_any;
 
+    TEST_FAILURE(setsockopt(_descriptor, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(int)));
+
     if(bind(_descriptor, (struct sockaddr*) &addr, sizeof(addr)) < 0) {
         close();
         return false;
@@ -90,7 +92,6 @@ bool Server::init() {
         return false;
     }
 
-    TEST_FAILURE(setsockopt(_descriptor, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(int)));
 
     if((flags = fcntl(_descriptor, F_GETFL, 0)) == -1) {
         close();
