@@ -38,16 +38,19 @@
 #define _REQUEST_H_
 
 #include <string>
+#include <map>
 
 #include "client.h"
 #include "http_status_code.h"
 
-namespace bim 
+namespace bim
 {
 class Context;
 class Request
 {
   public:
+    typedef std::map<std::string, std::string> HeadersMap;
+
     enum HttpVersion {UNKNOWN, HTTP10, HTTP11};
     /**
      * @brief Constructor for an HTTP request
@@ -116,11 +119,36 @@ class Request
      */
     const std::string& get_request_line();
 
+    /**
+     * @brief checks if an header key exists for this request
+     * @return true if the request exists
+     */
+    bool headerExists(std::string& header);
+
+    /**
+     * @brief Gets the value of the given header.
+     *
+     * You must check if the header key exists with headerExists() before.
+     *
+     * @return the header value
+     */
+    const std::string& getHeader(std::string& header);
+
+    /**
+     * @brief get a maps of headers.
+     * @return the request headers.
+     */
+    const HeadersMap& getHeaders();
+
   private:
     /**
      * @brief retrieves method, http version and url.
      */
     void _parse_request_line();
+    /**
+     * @brief parse request headers.
+     */
+    void _parse_headers();
 
     /* Change that to ranges ? */
     std::string path_;
@@ -128,6 +156,8 @@ class Request
     std::string method_;
     std::string raw_;
     std::string request_line_;
+    HeadersMap _headers;
+    bool _headers_parsed;
     HttpVersion _http_version;
     Client &_client;
     int status_code_;

@@ -38,13 +38,16 @@
 #include "context.h"
 #include "assert.h"
 
+#include <sstream>
+
 namespace bim 
 {
 
 using namespace std;
 
 Request::Request(Client &client, Context& context)
-:_http_version(UNKNOWN)
+:_headers_parsed(false)
+,_http_version(UNKNOWN)
 ,_client(client)
 ,context_(context)
 {
@@ -53,6 +56,7 @@ Request::Request(Client &client, Context& context)
 
 std::string& Request::getMethod()
 {
+  _parse_headers();
   if(method_.empty()) {
     _parse_request_line();
   }
@@ -113,26 +117,69 @@ Request::HttpVersion Request::getHttpVersion() {
   return _http_version;
 }
 
-void Request::_parse_request_line() {
-    // Parse the method
-    size_t end_method = raw_.find_first_of(' ');
-    if(end_method != std::string::npos)
-    {
-      method_ = raw_.substr(0,end_method);
-
-      // Parse the URL
-      size_t end_url = raw_.find_first_of(' ', end_method+1);
-
-      if(end_url != string::npos) {
-        url_ = raw_.substr(end_method+1, end_url - end_method - 1);
-
-        // Parse http version
-        size_t begin_version = raw_.find_first_of('/', end_url+1);
-        _http_version = raw_.substr(begin_version+1, 3) == "1.0" ? HTTP10 : HTTP11;
-      }
-    }
-
+bool Request::headerExists(std::string& header) {
+  if(!_headers_parsed) {
+    _parse_headers();
   }
+  return (_headers.find(header) == _headers.end());
+}
+
+const std::string& Request::getHeader(std::string& header) {
+  if(!_headers_parsed) {
+    _parse_headers();
+  }
+  return _headers[header];
+}
+
+const Request::HeadersMap& Request::getHeaders() {
+  if(!_headers_parsed) {
+    _parse_headers();
+  }
+  return _headers;
+}
+
+void Request::_parse_request_line() {
+  // Parse the method
+  size_t end_method = raw_.find_first_of(' ');
+  if(end_method != std::string::npos)
+  {
+    method_ = raw_.substr(0,end_method);
+
+    // Parse the URL
+    size_t end_url = raw_.find_first_of(' ', end_method+1);
+
+    if(end_url != string::npos) {
+      url_ = raw_.substr(end_method+1, end_url - end_method - 1);
+
+      // Parse http version
+      size_t begin_version = raw_.find_first_of('/', end_url+1);
+      _http_version = raw_.substr(begin_version+1, 3) == "1.0" ? HTTP10 : HTTP11;
+    }
+  }
+}
+
+void Request::_parse_headers() {
+  std::stringstream request(raw_);
+  std::string current;
+  size_t separator;
+  std::string key,value;
+
+  // Skip request line
+  getline(request, current);
+
+  while(!request.eof()) {
+    getline(request, current);
+
+    if(!current.empty() && (separator = current.find_first_of(' ')) !=
+        std::string::npos)
+    {
+      key = current.substr(0, separator);
+      value = current.substr(separator+1, current.find_first_of('\r')-separator-1);
+      _headers[key] = value;
+    }
+  }
+  _headers_parsed = true;
+}
 
 }
 
