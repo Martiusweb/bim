@@ -38,16 +38,19 @@
 #include "client.h"
 #include "thread_pool.h"
 #include "read_job.h"
+#include "macros.h"
 
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <iostream>
+#include <string.h>
 
 
 namespace bim {
 Client::Client(ThreadPool& pool, Context& context)
-  : Listenable(), thread_pool_(pool), context_(context) {
+  : Listenable(), _server(0), thread_pool_(pool), context_(context) {
+    bzero((char *) &_address, sizeof(_address));
 }
 
 Client::~Client() {
@@ -60,8 +63,10 @@ Client::~Client() {
 }
 
 bool Client::initialize(Server &server) {
+    _server = &server;
     socklen_t addrln = sizeof(_address);
     int flags = 0;
+
     if((_descriptor = accept(server.getDescriptor(), (sockaddr*) &_address,
                     &addrln)) == -1) {
         _descriptor = 0;
@@ -77,6 +82,7 @@ bool Client::initialize(Server &server) {
         close();
         return false;
     }
+    DBG_LOG("Client connected");
     return true;
 }
 

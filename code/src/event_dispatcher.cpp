@@ -70,7 +70,8 @@ EventDispatcher::~EventDispatcher()
     }
 }
 
-bool EventDispatcher::_listen(Listenable* const listenable, bool update, int mode)
+bool EventDispatcher::_listen(Listenable* const listenable,
+        ListenOperation update, int mode)
 {
     epoll_event event;
     event.events = mode | EPOLLET | EPOLLRDHUP | EPOLLHUP;
@@ -83,17 +84,20 @@ bool EventDispatcher::_listen(Listenable* const listenable, bool update, int mod
     return true;
 }
 
-bool EventDispatcher::listenIn(Listenable* const listenable, bool update)
+bool EventDispatcher::listenIn(Listenable* const listenable,
+        ListenOperation update)
 {
     return _listen(listenable, update, EPOLLIN);
 }
 
-bool EventDispatcher::listenOut(Listenable* const listenable, bool update)
+bool EventDispatcher::listenOut(Listenable* const listenable,
+        ListenOperation update)
 {
     return _listen(listenable, update, EPOLLOUT);
 }
 
-bool EventDispatcher::listenInOut(Listenable* const listenable, bool update)
+bool EventDispatcher::listenInOut(Listenable* const listenable,
+        ListenOperation update)
 {
     return _listen(listenable, update, EPOLLIN | EPOLLOUT);
 }

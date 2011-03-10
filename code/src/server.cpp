@@ -107,7 +107,7 @@ bool Server::init() {
 }
 
 bool Server::registerEventDispatcher(EventDispatcher& ed) {
-    if(ed.listenIn(this, false)) {
+    if(ed.listenIn(this)) {
         return Listenable::registerEventDispatcher(ed);
     }
 
@@ -116,7 +116,6 @@ bool Server::registerEventDispatcher(EventDispatcher& ed) {
 
 void Server::onIn()
 {
-
     Client* client = new Client(thread_pool_, context_);
     if(!(client->initialize(*this) &&
                 client->registerEventDispatcher(*_event_dispatcher))) {
@@ -125,7 +124,6 @@ void Server::onIn()
 }
 
 void Server::onErr() {
-  std::cout << "Disconected ?" << std::cout;
 }
 
 void Server::close() {

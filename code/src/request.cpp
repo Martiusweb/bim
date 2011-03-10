@@ -50,7 +50,7 @@ Request::Request(const int fd, Context& context)
 ,context_(context)
 {}
 
-std::string& Request::get_method()
+std::string& Request::getMethod()
 {
   if(method_.empty())
   {
@@ -64,7 +64,7 @@ std::string& Request::get_method()
   return method_;
 }
 
-std::string& Request::get_url()
+std::string& Request::getUrl()
 {
   if(url_.empty())
   {
@@ -79,22 +79,22 @@ std::string& Request::get_url()
   return url_;
 }
 
-std::string& Request::get_path()
+std::string& Request::getPath()
 {
   if(path_.empty())
   {
-    path_ = context_.get_document_root()+get_url();
+    path_ = context_.getDocumentRoot()+getUrl();
   }
   return path_;
 }
 
 
-int Request::get_fd()
+int Request::getFd()
 {
   return fd_;
 }
 
-void Request::append_data(const char* data)
+void Request::appendData(const char* data)
 {
   raw_ += data;
 }

@@ -61,12 +61,12 @@ namespace bim
     error_path_[SERVICE_UNAVAILABLE_503] = prefix + "503.html";
   }
 
-  std::string& Context::get_document_root()
+  std::string& Context::getDocumentRoot()
   {
       return document_root_;
   }
 
-  void Context::set_document_root(const std::string& document_root)
+  void Context::setDocumentRoot(const std::string& document_root)
   {
     document_root_=document_root;
     if(document_root_[document_root_.size() - 1] == '/')
@@ -76,12 +76,12 @@ namespace bim
     std::cout << "document_root:" << document_root_ << ":" << std::endl;
   }
 
-  const std::string Context::get_error_document_path(const HttpStatusCode code)
+  std::string& Context::getErrorDocumentPath(const HttpStatusCode code)
   {
     return error_path_[code];
   }
 
-  void Context::set_error_document_path(const HttpStatusCode code, const std::string& path)
+  void Context::setErrorDocumentPath(const HttpStatusCode code, const std::string& path)
   {
     error_path_[code] = path;
   }

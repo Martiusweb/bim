@@ -68,15 +68,31 @@ class Client: public Listenable
         virtual bool registerEventDispatcher(EventDispatcher& ed);
 
         /**
-         * @brief Data are available.
+         * @brief Data is available.
          */
         virtual void onIn();
         virtual void onOut();
         virtual void onErr();
 
     protected:
+        /**
+         * @brief Low-level structure address.
+         */
         struct sockaddr_in6 _address;
+
+        /**
+         * @brief pointer to the server that accepted the connection.
+         */
+        Server* _server;
+
+        /**
+         * @brief Thread pool that will manage the jobs processing.
+         */
         ThreadPool& thread_pool_;
+
+        /**
+         * @brief context object.
+         */
         Context& context_;
 };
 } // /bim

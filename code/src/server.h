@@ -82,15 +82,25 @@ class Server: public Listenable
         void close();
 
         virtual bool registerEventDispatcher(EventDispatcher& ed);
-
         virtual void onIn();
         virtual void onErr();
 
     protected:
+        /**
+         * @brief Listening port.
+         */
         int _port;
+        /**
+         * @brief Maximum of clients handled simultaneously by the server
+         */
         int _max_clients;
-        int _sock_domain;
+        /**
+         * @brief Thread pool processing jobs
+         */
         ThreadPool& thread_pool_;
+        /**
+         * @brief Context data
+         */
         Context& context_;
 };
 } // /bim

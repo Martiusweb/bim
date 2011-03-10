@@ -34,7 +34,6 @@
  *
  **/
 
-
 #include "listenable.h"
 
 namespace bim {

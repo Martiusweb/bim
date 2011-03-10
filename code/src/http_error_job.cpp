@@ -44,6 +44,8 @@
 #include "thread_pool.h"
 #include "write_job.h"
 
+#include "macros.h"
+
 namespace bim
 {
   HttpErrorJob::HttpErrorJob(ThreadPool& pool, Context& context, Request* request, HttpStatusCode code)
@@ -53,7 +55,8 @@ namespace bim
 
   Action HttpErrorJob::act()
   {
-    pool_.postJob(new WriteJob(pool_, context_, request_->get_fd(), context_.get_error_document_path(code_), WriteJob::Path, code_));
+    std::string& path = context_.getErrorDocumentPath(code_);
+    pool_.postJob(new WriteJob(pool_, context_, request_->getFd(), path, WriteJob::Path, code_));
 
     return Delete;
   }

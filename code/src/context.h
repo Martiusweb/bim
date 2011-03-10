@@ -49,11 +49,11 @@ namespace bim
 class Context
 {
   public:
+    std::string& getDocumentRoot();
+    void setDocumentRoot(const std::string& document_root);
+    std::string& getErrorDocumentPath(const HttpStatusCode code);
+    void setErrorDocumentPath(const HttpStatusCode code, const std::string& path); 
     Context();
-    std::string& get_document_root();
-    void set_document_root(const std::string& document_root);
-    const std::string get_error_document_path(const HttpStatusCode code); 
-    void set_error_document_path(const HttpStatusCode code, const std::string& path); 
   private:
     std::string document_root_;
     std::string error_path_[_HTTP_STATUS_CODE_SIZE];

@@ -80,7 +80,7 @@ Action WriteJob::act()
 
     TEST_FAILURE(pipe(pipe_des));
 
-    // TEST_FAILURE(posix_fadvise(fd_in, 0,0,POSIX_FADV_SEQUENTIAL | POSIX_FADV_WILLNEED));
+    TEST_FAILURE(posix_fadvise(fd_in, 0,0,POSIX_FADV_SEQUENTIAL | POSIX_FADV_WILLNEED));
 
     int rv = 0;
     {

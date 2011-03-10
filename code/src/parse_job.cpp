@@ -58,9 +58,9 @@ Action ParseJob::act()
 {
   access_log(request_->get_request_line());
 
-  if(request_->get_method() != "GET" && request_->get_method() != "POST")
+  if(request_->getMethod() != "GET" && request_->getMethod() != "POST")
   {
-    if(request_->get_method() != "PUT" && request_->get_method() != "DELETE")
+    if(request_->getMethod() != "PUT" && request_->getMethod() != "DELETE")
     {
       pool_.postJob(new HttpErrorJob(pool_, context_, request_, BAD_REQUEST_400));
       return Delete;
@@ -73,7 +73,7 @@ Action ParseJob::act()
   }
 
   struct stat statbuf;
-  int rv = stat(request_->get_path().c_str(), &statbuf);
+  int rv = stat(request_->getPath().c_str(), &statbuf);
   if(rv == -1)
   {
     switch(errno)
@@ -105,8 +105,8 @@ Action ParseJob::act()
   {
     pool_.postJob(new WriteJob(pool_,
                                context_,
-                               request_->get_fd(),
-                               request_->get_path()));
+                               request_->getFd(),
+                               request_->getPath()));
   }
 
   // Check for file error (unreadable, not exist, etc.)

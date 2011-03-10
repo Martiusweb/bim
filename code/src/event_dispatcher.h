@@ -41,23 +41,112 @@
 namespace bim {
 class Listenable;
 
+/**
+ * The event dispatcher will poll, collect and dispatch I/O events detected on
+ * Listenable objects.
+ */
 class EventDispatcher
 {
     public:
+        enum ListenOperation {CREATE, UPDATE};
+
+        /**
+         * @brief Constructs the dispatcher.
+         * @param nb_max_events Maximum of events collectables
+         * @param events_per_loop Number of events managed in one loop
+         *
+         * The object is created in an inactive stable mode.
+         */
         EventDispatcher(int nb_max_events = 1, int events_per_loop = 1);
+
+        /**
+         * @brief Destructs the dispatcher
+         */
         ~EventDispatcher();
+
+        /**
+         * @brief Initialise the object.
+         * It will create the mandatory objects. It must be called once before
+         * any other operation.
+         */
         bool init();
+
+        /**
+         * @brief Closes internal objects.
+         * It will be called if needed during the object destruction.
+         */
         void close();
-        bool listenIn(Listenable* const listenable, bool update = false);
-        bool listenOut(Listenable* const listenable, bool update = false);
-        bool listenInOut(Listenable* const listenable, bool update = false);
+
+        /**
+         * @brief Start listening input events on a Listenable.
+         * @param listenable Listenable object
+         * @param update CREATE or UPDATE listened events
+         *
+         * Do not try to update the state of a Listenable unknown to the
+         * disptacher.
+         */
+        bool listenIn(Listenable* const listenable,
+                ListenOperation update = CREATE);
+
+        /**
+         * @brief Start listening output events on a Listenable.
+         * @param listenable Listenable object
+         * @param update CREATE or UPDATE listened events
+         *
+         * Do not try to update the state of a Listenable unknown to the
+         * disptacher.
+         */
+        bool listenOut(Listenable* const listenable,
+                ListenOperation update = CREATE);
+        
+        /**
+         * @brief Start listening input and output events on a Listenable.
+         * @param listenable Listenable object
+         * @param update CREATE or UPDATE listened events
+         *
+         * Do not try to update the state of a Listenable unknown to the
+         * disptacher.
+         */
+        bool listenInOut(Listenable* const listenable,
+                ListenOperation update = CREATE);
+
+        /**
+         * @brief stop listening events on a Listenable.
+         *
+         * Do not try to stop listening a Listenable unknown to the disptacher.
+         */
         void stopListening(Listenable &listenable);
+
+        /**
+         * @brief Start dispatching events.
+         *
+         * This method is blocking and will never stops.
+         */
         void dispatch();
 
     protected:
-        bool _listen(Listenable* const listenable, bool update, int mode);
+        /**
+         * @brief Factored method listening control.
+         * @param listenable Listenable object
+         * @param update CREATE if the object is not known by the dispatcher
+         * @param mode E-poll events to listen (bitmask)
+         */
+        bool _listen(Listenable* const listenable, ListenOperation update,
+                int mode);
+
+        /**
+         * @brief E-poll descriptor.
+         */
         int _epoll;
+
+        /**
+         * @brief Maximum of events kept by epoll simultaneously.
+         */
         int _nb_max_events;
+
+        /**
+         * @brief Maximum of events fetched in one loop.
+         */
         int _events_per_loop;
 };
 } // /bim

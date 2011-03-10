@@ -2,9 +2,9 @@
 *.o
 *.sw[op]
 Session.vim
+access_log
 code/bin/*
 code/obj/*
 code/server
-tags
-access_log
 error_log
+tags
