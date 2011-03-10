@@ -48,7 +48,9 @@ using namespace std;
 Request::Request(Client &client, Context& context)
 :_client(client)
 ,context_(context)
-{}
+{
+  _client.requestHandled();
+}
 
 std::string& Request::getMethod()
 {

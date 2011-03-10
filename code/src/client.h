@@ -68,6 +68,11 @@ class Client: public Listenable
         virtual bool registerEventDispatcher(EventDispatcher& ed);
 
         /**
+         * @brief Called by a newly created request object.
+         */
+        void requestHandled();
+
+        /**
          * @brief Data is available.
          */
         virtual void onIn();

@@ -49,7 +49,7 @@
 
 namespace bim {
 Client::Client(ThreadPool& pool, Context& context)
-  : Listenable(), _server(0), thread_pool_(pool), context_(context) {
+  : Listenable(), _handled_requests(0), _server(0), thread_pool_(pool), context_(context){
     bzero((char *) &_address, sizeof(_address));
 }
 
@@ -87,7 +87,9 @@ bool Client::initialize(Server &server) {
 }
 
 void Client::close() {
-    DBG_LOG("Client (" << this << ") disconnected by server")
+    DBG_LOG("Client (" << this << ") disconnected by server, "
+        << _handled_requests << " request(s) handled");
+
     ::close(_descriptor);
     _descriptor = 0;
 }
@@ -98,6 +100,10 @@ bool Client::registerEventDispatcher(EventDispatcher& ed) {
     }
 
     return false;
+}
+
+void Client::requestHandled() {
+  ++_handled_requests;
 }
 
 void Client::onIn() {
