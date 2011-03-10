@@ -41,6 +41,7 @@
 
 #include "http_status_code.h"
 #include "job.h"
+#include "client.h"
 
 namespace bim
 {
@@ -67,14 +68,15 @@ class WriteJob : public Job
      * @param pool The thread pool, to post job back (actually, for 
      * consistency).
      * @param context The context, to get contextual informations.
-     * @param data The data (file or path).
+     * @param client Client to write to
+     * @param path path to the resource to send to the client
      * @para type The type of the content of data : file or path.
      * @param code An optionnal error code to include in the header. 200 (OK)
      * is assumed if none is passed.
      */
     WriteJob(ThreadPool& pool,
              Context& context,
-             int fd,
+             Client &client,
              const std::string& path,
              const ContentType type = Path,
              const HttpStatusCode code = OK_200);
@@ -83,7 +85,7 @@ class WriteJob : public Job
 
   private:
     std::string path_;
-    int fd_;
+    Client &_client;
     ContentType buffer_content_;
     /**
      * The error code to put in the header

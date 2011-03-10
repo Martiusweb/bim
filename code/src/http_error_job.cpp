@@ -56,7 +56,7 @@ namespace bim
   Action HttpErrorJob::act()
   {
     std::string& path = context_.getErrorDocumentPath(code_);
-    pool_.postJob(new WriteJob(pool_, context_, request_->getFd(), path, WriteJob::Path, code_));
+    pool_.postJob(new WriteJob(pool_, context_, request_->getClient(), path, WriteJob::Path, code_));
 
     return Delete;
   }

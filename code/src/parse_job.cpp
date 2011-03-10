@@ -105,7 +105,7 @@ Action ParseJob::act()
   {
     pool_.postJob(new WriteJob(pool_,
                                context_,
-                               request_->getFd(),
+                               request_->getClient(),
                                request_->getPath()));
   }
 

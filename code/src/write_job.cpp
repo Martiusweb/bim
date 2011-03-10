@@ -53,13 +53,13 @@ const size_t BLOCK_SIZE = 4 * 4096;
 
 WriteJob::WriteJob(ThreadPool& pool,
                    Context& context,
-                   int fd,
+                   Client &client,
                    const std::string& path,
                    const ContentType type,
                    const HttpStatusCode code)
 :Job(pool, context)
 ,path_(path)
-,fd_(fd)
+,_client(client)
 ,buffer_content_(type)
 ,code_(code)
 { }
@@ -86,10 +86,13 @@ Action WriteJob::act()
     {
       do {
         rv = splice(fd_in, 0, pipe_des[1], 0, BLOCK_SIZE, SPLICE_F_MORE|SPLICE_F_MOVE);
-        rv = splice(pipe_des[0], 0, fd_, 0, rv, SPLICE_F_MORE|SPLICE_F_MOVE);
+        rv = splice(pipe_des[0], 0, _client.getDescriptor(), 0, rv, SPLICE_F_MORE|SPLICE_F_MOVE);
       } while (rv > 0); 
     }
-    TEST_FAILURE(close(fd_));
+
+    // TODO persistent & close elsewhere in any case
+    _client.close();
+
     TEST_FAILURE(close(fd_in));
     TEST_FAILURE(close(pipe_des[0]));
     TEST_FAILURE(close(pipe_des[1]));
