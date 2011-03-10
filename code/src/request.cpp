@@ -38,6 +38,7 @@
 #include "context.h"
 #include "assert.h"
 
+#include <algorithm>
 #include <sstream>
 
 namespace bim 
@@ -117,14 +118,34 @@ Request::HttpVersion Request::getHttpVersion() {
   return _http_version;
 }
 
-bool Request::headerExists(std::string& header) {
+// TODO do it better ?
+static const std::string const_headerKeepAlive = "keep-alive";
+static const std::string const_headerKeepAliveClose = "close";
+bool Request::keepAlive() {
+  if(!headerExists(const_headerKeepAlive)) {
+    return (getHttpVersion() == HTTP11);
+  }
+
+  bool result(true);
+  std::string keepAlive = getHeader(const_headerKeepAlive);
+  std::transform(keepAlive.begin(), keepAlive.end(), keepAlive.begin(), ::tolower);
+  if(getHttpVersion() == HTTP11 && keepAlive != const_headerKeepAliveClose) {
+    result = false;
+  }
+  else if(getHttpVersion() == HTTP10 && keepAlive != const_headerKeepAlive) {
+    result = false;
+  }
+  return result;
+}
+
+bool Request::headerExists(const std::string& header) {
   if(!_headers_parsed) {
     _parse_headers();
   }
   return (_headers.find(header) == _headers.end());
 }
 
-const std::string& Request::getHeader(std::string& header) {
+const std::string& Request::getHeader(const std::string& header) {
   if(!_headers_parsed) {
     _parse_headers();
   }
@@ -170,11 +191,12 @@ void Request::_parse_headers() {
   while(!request.eof()) {
     getline(request, current);
 
-    if(!current.empty() && (separator = current.find_first_of(' ')) !=
+    if(!current.empty() && (separator = current.find_first_of(':')) !=
         std::string::npos)
     {
       key = current.substr(0, separator);
       value = current.substr(separator+1, current.find_first_of('\r')-separator-1);
+      std::transform(key.begin(), key.end(), key.begin(), ::tolower);
       _headers[key] = value;
     }
   }

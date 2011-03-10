@@ -121,24 +121,42 @@ class Request
 
     /**
      * @brief checks if an header key exists for this request
+     *
+     * Be aware that headers are case sensitives inside the request object.
+     * for convenience, headers are all lowercase.
+     *
      * @return true if the request exists
      */
-    bool headerExists(std::string& header);
+    bool headerExists(const std::string& header);
 
     /**
      * @brief Gets the value of the given header.
      *
      * You must check if the header key exists with headerExists() before.
+     * Be aware that headers are case sensitives inside the request object.
+     * for convenience, headers are all lowercase.
      *
      * @return the header value
      */
-    const std::string& getHeader(std::string& header);
+    const std::string& getHeader(const std::string& header);
 
     /**
      * @brief get a maps of headers.
+     *
+     * Be aware that headers are case sensitives inside the request object.
+     * for convenience, headers are all lowercase.
+     *
      * @return the request headers.
      */
     const HeadersMap& getHeaders();
+
+    /**
+     * @brief checks if the request asks or not for a persistent connection.
+     *
+     * Checks accoring to the headers and the protocol version.
+     * @return true if the connection should be persistent
+     */
+    bool keepAlive();
 
   private:
     /**
