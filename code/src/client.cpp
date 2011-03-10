@@ -82,7 +82,6 @@ bool Client::initialize(Server &server) {
         close();
         return false;
     }
-    DBG_LOG("Client connected");
     return true;
 }
 

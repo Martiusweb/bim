@@ -54,7 +54,7 @@ const size_t BLOCK_SIZE = 4 * 4096;
 WriteJob::WriteJob(ThreadPool& pool,
                    Context& context,
                    int fd,
-                   const std::string& path,
+                   const std::string path,
                    const ContentType type,
                    const HttpStatusCode code)
 :Job(pool, context)
@@ -93,7 +93,19 @@ Action WriteJob::act()
     TEST_FAILURE(close(fd_in));
     TEST_FAILURE(close(pipe_des[0]));
     TEST_FAILURE(close(pipe_des[1]));
+  }
+  else
+  {
+    int rv = 0;
+    size_t offset = 0;
+    size_t to_write = path_.size();
+    do {
+      rv = write(fd_, path_.c_str() + offset, (to_write > BLOCK_SIZE) ? BLOCK_SIZE : to_write);
+      offset += rv;
+      to_write -= rv;
+    } while(to_write > 0 && rv > 0);
 
+    TEST_FAILURE(close(fd_));
   }
 
   return Delete;

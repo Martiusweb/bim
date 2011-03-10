@@ -40,6 +40,7 @@
 
 #include "context.h"
 #include "http_error_job.h"
+#include "list_job.h"
 #include "log.h"
 #include "macros.h"
 #include "parse_job.h"
@@ -98,8 +99,8 @@ Action ParseJob::act()
   }
   if(S_ISDIR(statbuf.st_mode))
   {
-    //pool_.postJob(new ListDirJob(pool_, context_, path));
-    pool_.postJob(new HttpErrorJob(pool_, context_, request_, NOT_IMPLEMENTED_501));
+    pool_.postJob(new ListJob(pool_, context_, *request_));
+    //pool_.postJob(new HttpErrorJob(pool_, context_, request_, NOT_IMPLEMENTED_501));
   }
   else
   {

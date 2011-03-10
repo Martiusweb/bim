@@ -34,64 +34,26 @@
  *
  **/
 
-#ifndef WRITE_JOB_H
-#define WRITE_JOB_H
+#ifndef LIST_JOB_H
+#define LIST_JOB_H
 
 #include <string>
 
-#include "http_status_code.h"
 #include "job.h"
 
 namespace bim
 {
-
-class ThreadPool;
-class Context;
-class Request;
-
-class WriteJob : public Job
+  class Request;
+class ListJob : public Job
 {
   public:
-    /**
-     * This specifies what to do with the data (i.e. which constructor has been
-     * called).
-     */
-    enum ContentType
-    {
-      Data,
-      Path
-    };
-    /**
-     * @brief A job to write the request back to the client
-     *
-     * @param pool The thread pool, to post job back (actually, for 
-     * consistency).
-     * @param context The context, to get contextual informations.
-     * @param data The data (file or path).
-     * @para type The type of the content of data : file or path.
-     * @param code An optionnal error code to include in the header. 200 (OK)
-     * is assumed if none is passed.
-     */
-    WriteJob(ThreadPool& pool,
-             Context& context,
-             int fd,
-             const std::string path,
-             const ContentType type = Path,
-             const HttpStatusCode code = OK_200);
-
-    Action act();
-
+  ListJob(ThreadPool& pool, Context& context, Request& request);
+  virtual Action act();
   private:
-    std::string path_;
-    int fd_;
-    ContentType buffer_content_;
-    /**
-     * The error code to put in the header
-     */
-    const HttpStatusCode code_;
-
+  std::string html_page_;
+  Request& request_;
 };
-
 }
 
 #endif
+
