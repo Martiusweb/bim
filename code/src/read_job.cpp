@@ -47,10 +47,10 @@ namespace bim
 {
 const int READ_SIZE = 512;
 
-ReadJob::ReadJob(bim::ThreadPool& pool, int fd, Context& context)
-  :Job(pool, context)
+ReadJob::ReadJob(bim::ThreadPool& pool, Client &client, Context& context)
+  :Job(pool, context), _client(client)
 {
-  request_ = new bim::Request(fd, context);
+  request_ = new bim::Request(client, context);
 }
 
 Action ReadJob::act()
@@ -58,7 +58,7 @@ Action ReadJob::act()
   int rv = 0;
   char* buffer = new char[READ_SIZE];
 
-  rv = read(request_->getFd(), buffer, READ_SIZE);
+  rv = read(request_->getClient().getDescriptor(), buffer, READ_SIZE);
 
   // Typo on bitmask
   if(rv == -1 && (errno & (EAGAIN | EWOULDBLOCK)))

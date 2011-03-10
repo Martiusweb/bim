@@ -82,11 +82,12 @@ bool Client::initialize(Server &server) {
         close();
         return false;
     }
-    DBG_LOG("Client connected");
+    DBG_LOG("Client (" << this << ") connected");
     return true;
 }
 
 void Client::close() {
+    DBG_LOG("Client (" << this << ") disconnected by server")
     ::close(_descriptor);
     _descriptor = 0;
 }
@@ -100,7 +101,7 @@ bool Client::registerEventDispatcher(EventDispatcher& ed) {
 }
 
 void Client::onIn() {
-  thread_pool_.postJob(new ReadJob(thread_pool_, _descriptor, context_));
+  thread_pool_.postJob(new ReadJob(thread_pool_, *this, context_));
 }
 
 void Client::onOut() {

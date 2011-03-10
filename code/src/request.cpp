@@ -45,8 +45,8 @@ namespace bim
 
 using namespace std;
 
-Request::Request(const int fd, Context& context)
-:fd_(fd)
+Request::Request(Client &client, Context& context)
+:_client(client)
 ,context_(context)
 {}
 
@@ -89,9 +89,9 @@ std::string& Request::getPath()
 }
 
 
-int Request::getFd()
+int Request::getFd() const
 {
-  return fd_;
+  return _client.getDescriptor();
 }
 
 void Request::appendData(const char* data)

@@ -38,6 +38,7 @@
 #define _READ_JOB_H_
 
 #include "job.h"
+#include "client.h"
 
 namespace bim
 {
@@ -51,12 +52,13 @@ class ReadJob : public Job
         * for the first time
         *
         * @param pool The thread pool, to be able to post jobs
-        * @param fd The file descriptor, to read data
+        * @param client The client to read on
         * @param context The context, containing the document root
         */
-    ReadJob(bim::ThreadPool& pool, int fd, Context& context);
+    ReadJob(bim::ThreadPool& pool, Client &client, Context& context);
     Action act();
   private:
+    Client& _client;
     Request* request_;
 };
 }

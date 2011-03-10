@@ -81,6 +81,15 @@ class Client: public Listenable
         struct sockaddr_in6 _address;
 
         /**
+         * @brief Number of requests the current socket transmited.
+         *
+         * This value is used in the context of persistent connections, and
+         * is used to limit the number of requests a single connection will
+         * handle.
+         */
+        int _handled_requests;
+
+        /**
          * @brief pointer to the server that accepted the connection.
          */
         Server* _server;

@@ -39,6 +39,7 @@
 
 #include <string>
 
+#include "client.h"
 #include "http_status_code.h"
 
 namespace bim 
@@ -50,10 +51,10 @@ class Request
     /**
      * @brief Constructor for an HTTP request
      *
-     * @param fd the file descriptor of the client(s socket
+     * @param client The client object
      * @param context The context (document_root, etc.)
      */
-    Request(const int fd, Context& context);
+    Request(Client &client, Context& context);
     /**
      * @brief Get the method for the request
      *
@@ -82,10 +83,21 @@ class Request
 
     /**
      * @brief Get the fd back.
+     * use getClient().getDescriptor() instead.
      *
+     * @deprecated
      * @return the fd for this request.
      */
-    int getFd();
+    int getFd() const;
+
+    /**
+     * @brief returns the client who initiated the request.
+     * 
+     * @return the client of the request
+     */
+    inline Client& getClient() const {
+      return _client;
+    }
 
     /**
      * @brief Get the request line, without CRLF
@@ -101,7 +113,7 @@ class Request
     std::string method_;
     std::string raw_;
     std::string request_line_;
-    int fd_;
+    Client &_client;
     int status_code_;
     Context& context_;
 };
