@@ -38,15 +38,14 @@
 #include "context.h"
 #include "assert.h"
 
-#include <iostream>
-
 namespace bim 
 {
 
 using namespace std;
 
 Request::Request(Client &client, Context& context)
-:_client(client)
+:_http_version(UNKNOWN)
+,_client(client)
 ,context_(context)
 {
   _client.requestHandled();
@@ -54,29 +53,16 @@ Request::Request(Client &client, Context& context)
 
 std::string& Request::getMethod()
 {
-  if(method_.empty())
-  {
-    size_t pos = raw_.find_first_of(' ');
-
-    if(pos != std::string::npos)
-    {
-      method_ = raw_.substr(0,pos);
-    }
+  if(method_.empty()) {
+    _parse_request_line();
   }
   return method_;
 }
 
 std::string& Request::getUrl()
 {
-  if(url_.empty())
-  {
-    size_t begin_url = raw_.find_first_of(' ');
-    size_t end_url = raw_.find_first_of(' ', begin_url+1);
-
-    if(begin_url != string::npos && end_url != string::npos)
-    {
-      url_ = raw_.substr(begin_url+1, end_url - begin_url - 1); 
-    }
+  if(url_.empty()) {
+    _parse_request_line();
   }
   return url_;
 }
@@ -89,7 +75,6 @@ std::string& Request::getPath()
   }
   return path_;
 }
-
 
 int Request::getFd() const
 {
@@ -118,6 +103,36 @@ const std::string& Request::get_request_line()
   }
   return request_line_;
 }
+
+
+Request::HttpVersion Request::getHttpVersion() {
+
+  if(_http_version == UNKNOWN) {
+    _parse_request_line();
+  }
+  return _http_version;
+}
+
+void Request::_parse_request_line() {
+    // Parse the method
+    size_t end_method = raw_.find_first_of(' ');
+    if(end_method != std::string::npos)
+    {
+      method_ = raw_.substr(0,end_method);
+
+      // Parse the URL
+      size_t end_url = raw_.find_first_of(' ', end_method+1);
+
+      if(end_url != string::npos) {
+        url_ = raw_.substr(end_method+1, end_url - end_method - 1);
+
+        // Parse http version
+        size_t begin_version = raw_.find_first_of('/', end_url+1);
+        _http_version = raw_.substr(begin_version+1, 3) == "1.0" ? HTTP10 : HTTP11;
+      }
+    }
+
+  }
 
 }
 

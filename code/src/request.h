@@ -44,10 +44,11 @@
 
 namespace bim 
 {
-  class Context;
+class Context;
 class Request
 {
   public:
+    enum HttpVersion {UNKNOWN, HTTP10, HTTP11};
     /**
      * @brief Constructor for an HTTP request
      *
@@ -55,18 +56,21 @@ class Request
      * @param context The context (document_root, etc.)
      */
     Request(Client &client, Context& context);
+
     /**
      * @brief Get the method for the request
      *
      * @return empty in case of error, the method otherwise
      */
     std::string& getMethod();
+
     /**
      * @brief Get the url of this request
      *
      * @return empty in case of error, the url otherwise
      */
     std::string& getUrl();
+
     /**
      * @brief Get the path for this request
      * @todo get document_root from context
@@ -100,6 +104,12 @@ class Request
     }
 
     /**
+     * @brief returns the http version (1.0 or 1.1).
+     * @return version code
+     */
+    HttpVersion getHttpVersion();
+
+    /**
      * @brief Get the request line, without CRLF
      *
      * @return the request line.
@@ -107,12 +117,18 @@ class Request
     const std::string& get_request_line();
 
   private:
+    /**
+     * @brief retrieves method, http version and url.
+     */
+    void _parse_request_line();
+
     /* Change that to ranges ? */
     std::string path_;
     std::string url_;
     std::string method_;
     std::string raw_;
     std::string request_line_;
+    HttpVersion _http_version;
     Client &_client;
     int status_code_;
     Context& context_;
