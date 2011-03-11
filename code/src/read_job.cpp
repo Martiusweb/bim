@@ -57,6 +57,8 @@ Action ReadJob::act()
 {
   int rv = 0;
   char* buffer = new char[READ_SIZE];
+  char tmp;
+  char* str_request = buffer;
 
   rv = read(request_->getClient().getDescriptor(), buffer, READ_SIZE);
 
@@ -68,7 +70,20 @@ Action ReadJob::act()
     return DontDelete;
   }
 
-  request_->appendData(buffer);
+  for(int i = 0; i < READ_SIZE; ++i)
+  {
+    if(buffer[i] == '\r' && buffer[i+1] == '\n'
+        && buffer[i+2] == '\r' && buffer[i+3] == '\n')
+    {
+      // End of the request
+      tmp = buffer[i+4];
+      buffer[i+4] = '\0';
+      request_->appendData(str_request);
+      str_request = buffer+4;
+      str_request[0] = tmp;
+    }
+  }
+  //request_->appendData(buffer);
 
   if(rv == READ_SIZE) // More data to read
   {
