@@ -48,6 +48,7 @@ namespace bim
   void access_log(const std::string& message);
   void error_log(const std::string& message);
   void trace_log(const std::string& message);
+  void all_log(const std::string& message);
 
   class Log
   {
@@ -78,6 +79,7 @@ namespace bim
     };
 
     static Log *get_log();
+    static void close_log();
     void write(const std::string& message, LogFile access_type);
     void close();
 };

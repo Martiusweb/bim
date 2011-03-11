@@ -38,7 +38,7 @@ vars.Add('THREADS_PER_CORE', 'Number of threads per core', 2)
 env = Environment(variables = vars,
                  CPPDEFINES={'BIM_THREADPOOL_THREADS_PER_CORE' :
                  '${THREADS_PER_CORE}'})
-env.Replace(CXX = "clang++")
+#env.Replace(CXX = "clang++")
 
 
 env.Append(LIBS = ['pthread'])

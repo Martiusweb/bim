@@ -91,7 +91,7 @@ namespace bim
 
     try
     {
-      access_log_.open(trace_log_file_, std::ios_base::out|std::ios_base::app);
+      trace_log_.open(trace_log_file_, std::ios_base::out|std::ios_base::app);
     }
     catch(...)
     {
@@ -114,6 +114,11 @@ namespace bim
     if( ! singleton_ )
       singleton_ = new Log();
     return singleton_;
+  }
+
+  void Log::close_log()
+  {
+    get_log()->close();
   }
 
   void Log::write(const std::string& message, LogFile file)
@@ -151,13 +156,13 @@ namespace bim
     access_log_.close();
     pthread_mutex_unlock(&write_access_);
 
-    pthread_mutex_lock(&write_access_);
+    pthread_mutex_lock(&write_error_);
     error_log_.close();
-    pthread_mutex_unlock(&write_access_);
+    pthread_mutex_unlock(&write_error_);
 
     pthread_mutex_lock(&write_trace_);
     trace_log_.close();
-    pthread_mutex_lock(&write_trace_);
+    pthread_mutex_unlock(&write_trace_);
 
     pthread_mutex_destroy(&write_access_);
     pthread_mutex_destroy(&write_error_);
