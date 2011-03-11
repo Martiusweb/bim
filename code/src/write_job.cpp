@@ -89,7 +89,7 @@ Action WriteJob::act()
         rv = splice(pipe_des[0], 0, _client.getDescriptor(), 0, rv, SPLICE_F_MORE|SPLICE_F_MOVE);
       } while (rv > 0); 
     }
-
+    send();
     _client.requestProcessed();
 
     TEST_FAILURE(close(fd_in));

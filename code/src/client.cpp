@@ -93,6 +93,13 @@ void Client::close() {
 
     ::close(_descriptor);
     _descriptor = 0;
+
+    Request* r;
+    while(!_queued_requests.empty()) {
+      r = _queued_requests.front();
+      _queued_requests.pop();
+      delete r;
+    }
 }
 
 bool Client::registerEventDispatcher(EventDispatcher& ed) {
@@ -116,10 +123,12 @@ void Client::requestParsed() {
 
 void Client::requestProcessed() {
   Request* processed = _queued_requests.front();
+  _queued_requests.pop();
   // Good bye request ! Paul liked you !
   delete processed;
   // TODO persistent !
   close();
+  _server->clientDisconnected(this);
 }
 
 void Client::onIn() {
@@ -130,7 +139,8 @@ void Client::onOut() {
 }
 
 void Client::onErr() {
-  DBG_LOG("client closed");
+  DBG_LOG("client closed the connection (" << this << ")");
+_server->clientDisconnected(this);
 }
 
 } // /bim

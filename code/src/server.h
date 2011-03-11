@@ -43,6 +43,7 @@
 #include "context.h"
 
 namespace bim {
+class Client;
 /**
  * @brief Manages a listening socket
  * IO operations are non blocking. You must use an event-based model to try to
@@ -81,6 +82,8 @@ class Server: public Listenable
          */
         void close();
 
+        void clientDisconnected(Client* client) const;
+
         virtual bool registerEventDispatcher(EventDispatcher& ed);
         virtual void onIn();
         virtual void onErr();
@@ -105,5 +108,6 @@ class Server: public Listenable
 };
 } // /bim
 
+#include "client.h"
 #endif
 

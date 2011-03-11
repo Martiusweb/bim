@@ -35,7 +35,6 @@
  **/
 
 
-#include "client.h"
 #include "macros.h"
 #include "server.h"
 
@@ -129,6 +128,11 @@ void Server::onErr() {
 void Server::close() {
     ::close(_descriptor);
     _descriptor = 0;
+}
+
+void Server::clientDisconnected(Client* client) const {
+  DBG_LOG("Client memory freed");
+  delete client;
 }
 
 } // /bim
