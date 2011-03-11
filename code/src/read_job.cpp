@@ -64,6 +64,7 @@ Action ReadJob::act()
   if(rv == -1 && (errno & (EAGAIN | EWOULDBLOCK)))
   {
     pool_.postJob(this);
+    delete[] buffer;
     return DontDelete;
   }
 
@@ -72,15 +73,18 @@ Action ReadJob::act()
   if(rv == READ_SIZE) // More data to read
   {
     pool_.postJob(this);
+    delete[] buffer;
     return DontDelete;
   }
   else if(rv == 0) // client closed connection
   {
+    delete[] buffer;
     return Delete;
   }
   else
   {
     pool_.postJob(new ParseJob(pool_, context_, request_));
+    delete[] buffer;
     return Delete;
   }
 }

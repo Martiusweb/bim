@@ -42,15 +42,20 @@
 #include "server.h"
 
 #include <arpa/inet.h>
+#include <queue>
 
 namespace bim {
 class ThreadPool;
+class Request;
+
 /**
  * A client object represent a connection of a client through socket.
  */
 class Client: public Listenable
 {
     public:
+        typedef std::queue<Request> RequestsQueue;
+
         Client(ThreadPool& pool, Context& context);
         virtual ~Client();
         /**
@@ -69,8 +74,24 @@ class Client: public Listenable
 
         /**
          * @brief Called by a newly created request object.
+         * @param request The request handled
          */
-        void requestHandled();
+        void requestHandled(Request& request);
+
+        /**
+         * @breif Called by the read job when its work is over.
+         */
+        void requestsRead();
+
+        /**
+         * @brief Called by a parse job when its work is over.
+         */
+        void requestParsed();
+
+        /**
+         * @brief Called when a response had been sent to the client.
+         */
+        void requestProcessed();
 
         /**
          * @brief Data is available.
@@ -108,8 +129,15 @@ class Client: public Listenable
          * @brief context object.
          */
         Context& context_;
+
+        /**
+         * @brief Requests currently processed for this client ordered.
+         */
+        RequestsQueue _queued_requests;
 };
 } // /bim
+
+#include "request.h"
 
 #endif
 

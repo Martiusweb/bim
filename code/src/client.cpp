@@ -49,7 +49,8 @@
 
 namespace bim {
 Client::Client(ThreadPool& pool, Context& context)
-  : Listenable(), _handled_requests(0), _server(0), thread_pool_(pool), context_(context){
+  : Listenable(), _handled_requests(0), _server(0), thread_pool_(pool),
+  context_(context), _queued_requests() {
     bzero((char *) &_address, sizeof(_address));
 }
 
@@ -102,8 +103,18 @@ bool Client::registerEventDispatcher(EventDispatcher& ed) {
     return false;
 }
 
-void Client::requestHandled() {
+void Client::requestHandled(Request& request) {
   ++_handled_requests;
+  _queued_requests.push(request);
+}
+
+void Client::requestsRead() {
+}
+
+void Client::requestParsed() {
+}
+
+void Client::requestProcessed() {
 }
 
 void Client::onIn() {
@@ -114,6 +125,7 @@ void Client::onOut() {
 }
 
 void Client::onErr() {
+  DBG_LOG("client closed");
 }
 
 } // /bim
