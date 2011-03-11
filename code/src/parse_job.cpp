@@ -62,11 +62,13 @@ Action ParseJob::act()
   {
     if(request_->getMethod() != "PUT" && request_->getMethod() != "DELETE")
     {
+      request_->getClient().requestParsed();
       pool_.postJob(new HttpErrorJob(pool_, context_, request_, BAD_REQUEST_400));
       return Delete;
     }
     else
     {
+      request_->getClient().requestParsed();
       pool_.postJob(new HttpErrorJob(pool_, context_, request_,  NOT_IMPLEMENTED_501));
       return Delete;
     }
@@ -80,16 +82,20 @@ Action ParseJob::act()
     {
     case EACCES:
       pool_.postJob(new HttpErrorJob(pool_, context_, request_, FORBIDDEN_403));
+      request_->getClient().requestParsed();
       return Delete;
     case ENOENT:
     case ENOTDIR:
       pool_.postJob(new HttpErrorJob(pool_, context_, request_, NOT_FOUND_404));
+      request_->getClient().requestParsed();
       return Delete;
     case ENAMETOOLONG:
       pool_.postJob(new HttpErrorJob(pool_, context_, request_, BAD_REQUEST_400));
+      request_->getClient().requestParsed();
       return Delete;
     case ENOMEM:
       pool_.postJob(new HttpErrorJob(pool_, context_, request_, INTERNAL_SERVER_ERROR_500));
+      request_->getClient().requestParsed();
       return Delete;
     default:
       TEST_FAILURE(rv);
@@ -100,6 +106,7 @@ Action ParseJob::act()
   {
     //pool_.postJob(new ListDirJob(pool_, context_, path));
     pool_.postJob(new HttpErrorJob(pool_, context_, request_, NOT_IMPLEMENTED_501));
+    request_->getClient().requestParsed();
   }
   else
   {
@@ -107,6 +114,7 @@ Action ParseJob::act()
                                context_,
                                request_->getClient(),
                                request_->getPath()));
+    request_->getClient().requestParsed();
   }
 
   // Check for file error (unreadable, not exist, etc.)

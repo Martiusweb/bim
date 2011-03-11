@@ -54,7 +54,7 @@ class Request;
 class Client: public Listenable
 {
     public:
-        typedef std::queue<Request> RequestsQueue;
+        typedef std::queue<Request*> RequestsQueue;
 
         Client(ThreadPool& pool, Context& context);
         virtual ~Client();
@@ -76,7 +76,7 @@ class Client: public Listenable
          * @brief Called by a newly created request object.
          * @param request The request handled
          */
-        void requestHandled(Request& request);
+        void requestHandled(Request* request);
 
         /**
          * @breif Called by the read job when its work is over.

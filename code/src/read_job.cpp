@@ -84,6 +84,7 @@ Action ReadJob::act()
   else
   {
     pool_.postJob(new ParseJob(pool_, context_, request_));
+    _client.requestsRead();
     delete[] buffer;
     return Delete;
   }

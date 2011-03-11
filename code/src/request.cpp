@@ -52,7 +52,7 @@ Request::Request(Client &client, Context& context)
 ,_client(client)
 ,context_(context)
 {
-  _client.requestHandled(*this);
+  _client.requestHandled(this);
 }
 
 std::string& Request::getMethod()

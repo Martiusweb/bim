@@ -90,8 +90,7 @@ Action WriteJob::act()
       } while (rv > 0); 
     }
 
-    // TODO persistent & close elsewhere in any case
-    _client.close();
+    _client.requestProcessed();
 
     TEST_FAILURE(close(fd_in));
     TEST_FAILURE(close(pipe_des[0]));

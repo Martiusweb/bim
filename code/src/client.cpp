@@ -103,7 +103,7 @@ bool Client::registerEventDispatcher(EventDispatcher& ed) {
     return false;
 }
 
-void Client::requestHandled(Request& request) {
+void Client::requestHandled(Request* request) {
   ++_handled_requests;
   _queued_requests.push(request);
 }
@@ -115,6 +115,11 @@ void Client::requestParsed() {
 }
 
 void Client::requestProcessed() {
+  Request* processed = _queued_requests.front();
+  // Good bye request ! Paul liked you !
+  delete processed;
+  // TODO persistent !
+  close();
 }
 
 void Client::onIn() {

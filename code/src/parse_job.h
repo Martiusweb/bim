@@ -48,14 +48,14 @@ class ThreadPool;
 class ParseJob : public Job
 {
   public:
-       /**
-        * @brief This constructor is used when constructing this job 
-        * for the first time
-        *
-        * @param pool The thread pool, to be able to post jobs
-        * @param context The context, containing the document root
-        * @param request The request, i.e. the data sent by the client
-        */
+   /**
+    * @brief This constructor is used when constructing this job 
+    * for the first time
+    *
+    * @param pool The thread pool, to be able to post jobs
+    * @param context The context, containing the document root
+    * @param request The request, i.e. the data sent by the client
+    */
     ParseJob(bim::ThreadPool& pool, Context& context, Request* request);
     Action act();
   private:
