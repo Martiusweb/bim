@@ -97,7 +97,7 @@ class Listenable
          * @brief called by the event dispatcher when an input action can be
          * performed.
          */
-        virtual void onIn() {};
+        virtual void onIn() = 0;
 
         /**
          * @brief called by the event dispatcher when an output action cna be
@@ -105,13 +105,13 @@ class Listenable
          * You can not check if an output action is ready to be done and check
          * the EAGAIN ernno.
          */
-        virtual void onOut() {};
+        virtual void onOut() = 0;
 
         /**
          * @brief Called by the event dispatcher when an error is detected.
          * Use errno to get the error code.
          */
-        virtual void onErr() {};
+        virtual void onErr() = 0;
 
     protected:
         /**

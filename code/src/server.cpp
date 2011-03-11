@@ -126,6 +126,11 @@ void Server::onIn()
 void Server::onErr() {
 }
 
+void Server::onOut() 
+{
+
+}
+
 void Server::close() {
     ::close(_descriptor);
     _descriptor = 0;

@@ -50,6 +50,17 @@ class ListJob : public Job
   ListJob(ThreadPool& pool, Context& context, Request& request);
   virtual Action act();
   private:
+  /**
+   * @brief Get the parent of the path
+   *
+   * /plap/plop -> /plap/
+   * /plap/plop/ -> /plap/
+   *
+   * @param path The path to be processed.
+   *
+   * @return the parent of the path
+   */
+  std::string get_parent(std::string& path);
   std::string html_page_;
   Request& request_;
 };

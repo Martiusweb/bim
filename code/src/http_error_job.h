@@ -38,6 +38,8 @@
 #define HTTP_ERROR_H
 
 #include "job.h"
+#include "http_status_code.h"
+#include "action.h"
 
 namespace bim
 {
@@ -45,8 +47,6 @@ namespace bim
   class ThreadPool;
   class Context;
   class Request;
-  enum HttpStatusCode;
-  enum Action;
 
   /**
    * This gets the error text, and post a write job.
