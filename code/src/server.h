@@ -87,6 +87,7 @@ class Server: public Listenable
         virtual bool registerEventDispatcher(EventDispatcher& ed);
         virtual void onIn();
         virtual void onErr();
+        virtual void onOut();
 
     protected:
         /**

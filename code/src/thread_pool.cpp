@@ -163,9 +163,15 @@ bool ThreadPool::init() {
     TEST_FAILURE(pthread_mutex_lock(&block_mutex_));
 
     TEST_FAILURE(pthread_mutex_lock(&queue_mutex_));
-    assert(queue_.empty());
-    TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
-    TEST_FAILURE(pthread_cond_wait(&cond_wait_, &block_mutex_));
+    if(queue_.empty())
+    {
+      TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
+      TEST_FAILURE(pthread_cond_wait(&cond_wait_, &block_mutex_));
+    }
+    else
+    {
+      TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
+    }
 
     TEST_FAILURE(pthread_mutex_unlock(&block_mutex_));
 

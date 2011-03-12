@@ -66,21 +66,38 @@ class LogFixture : public CppUnit::TestFixture
     {
       bim::error_log("plop ?");
       bim::access_log("plop ?");
+      bim::trace_log("plop ?");
 
       struct stat statbuf;
       CPPUNIT_ASSERT(stat("error_log", &statbuf) == 0);
       CPPUNIT_ASSERT(stat("access_log", &statbuf) == 0);
-
-      CPPUNIT_ASSERT(unlink("error_log") == 0);
-      CPPUNIT_ASSERT(unlink("access_log") == 0);
+      CPPUNIT_ASSERT(stat("trace_log", &statbuf) == 0);
     }
+
+
+    void log_all()
+    {
+      bim::all_log("plop ?");
+
+      struct stat statbuf;
+      CPPUNIT_ASSERT(stat("error_log", &statbuf) == 0);
+      CPPUNIT_ASSERT(stat("access_log", &statbuf) == 0);
+      CPPUNIT_ASSERT(stat("trace_log", &statbuf) == 0);
+      perror("stat");
+    }
+
 
     void tearDown()
     {
+      CPPUNIT_ASSERT(unlink("error_log") == 0);
+      CPPUNIT_ASSERT(unlink("access_log") == 0);
+      CPPUNIT_ASSERT(unlink("trace_log") == 0);
+      bim::Log::close_log();
     }
 
     CPPUNIT_TEST_SUITE( LogFixture );
     CPPUNIT_TEST(log_basic);
+    CPPUNIT_TEST(log_all);
     CPPUNIT_TEST_SUITE_END();
 };
 

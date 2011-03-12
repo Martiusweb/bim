@@ -68,15 +68,15 @@ class RequestFixture : public CppUnit::TestFixture
     void setUp()
     {
       context = new Context();
-      context->set_document_root(".");
+      context->setDocumentRoot(".");
 
       req_minimal = new Request(2, *context);
       req_firefox4 = new Request(2, *context);
 
-      req_minimal->append_data("GET / HTTP/1.1\r\n");
-      req_minimal->append_data(CRLF2);
+      req_minimal->appendData("GET / HTTP/1.1\r\n");
+      req_minimal->appendData(CRLF2);
 
-      req_firefox4->append_data("GET /static/index.html HTTP/1.1\r\n"
+      req_firefox4->appendData("GET /static/index.html HTTP/1.1\r\n"
           "Host: localhost:8080"
           "User-Agent: Mozilla/5.0 (X11; Linux i686; rv:2.0b13pre) Gecko/20110226 Firefox/4.0b13pre"
           "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
@@ -85,29 +85,29 @@ class RequestFixture : public CppUnit::TestFixture
           "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7"
           "Keep-Alive: 115"
           "Connection: keep-alive");
-      req_firefox4->append_data(CRLF2);
+      req_firefox4->appendData(CRLF2);
     }
 
     void test_method()
     {
-      CPPUNIT_ASSERT(req_minimal->get_method() == "GET");
-      CPPUNIT_ASSERT(req_minimal->get_method() == "GET"); // testing caching
-      CPPUNIT_ASSERT(req_firefox4->get_method() == "GET");
+      CPPUNIT_ASSERT(req_minimal->getMethod() == "GET");
+      CPPUNIT_ASSERT(req_minimal->getMethod() == "GET"); // testing caching
+      CPPUNIT_ASSERT(req_firefox4->getMethod() == "GET");
     }
 
-    void test_get_url()
+    void test_getUrl()
     {
-      CPPUNIT_ASSERT(req_minimal->get_url() == "/");
-      CPPUNIT_ASSERT(req_minimal->get_url() == "/"); // testing caching
-      CPPUNIT_ASSERT(req_firefox4->get_url() == "/static/index.html");
+      CPPUNIT_ASSERT(req_minimal->getUrl() == "/");
+      CPPUNIT_ASSERT(req_minimal->getUrl() == "/"); // testing caching
+      CPPUNIT_ASSERT(req_firefox4->getUrl() == "/static/index.html");
     }
 
-    void test_get_path()
+    void test_getPath()
     {
-      std::cout << req_minimal->get_path() << std::endl;
-      CPPUNIT_ASSERT(req_minimal->get_path() == "./");
-      CPPUNIT_ASSERT(req_minimal->get_path() == "./"); //testing caching
-      CPPUNIT_ASSERT(req_firefox4->get_path() == "./static/index.html"); 
+      std::cout << req_minimal->getPath() << std::endl;
+      CPPUNIT_ASSERT(req_minimal->getPath() == "./");
+      CPPUNIT_ASSERT(req_minimal->getPath() == "./"); //testing caching
+      CPPUNIT_ASSERT(req_firefox4->getPath() == "./static/index.html"); 
     }
 
     void test_get_request_line()
@@ -125,8 +125,8 @@ class RequestFixture : public CppUnit::TestFixture
 
     CPPUNIT_TEST_SUITE( RequestFixture );
     CPPUNIT_TEST(test_method);
-    CPPUNIT_TEST(test_get_url);
-    CPPUNIT_TEST(test_get_path);
+    CPPUNIT_TEST(test_getUrl);
+    CPPUNIT_TEST(test_getPath);
     CPPUNIT_TEST(test_get_request_line);
     CPPUNIT_TEST_SUITE_END();
 };

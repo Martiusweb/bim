@@ -8,3 +8,5 @@ code/obj/*
 code/server
 error_log
 tags
+trace_log
+test_suite

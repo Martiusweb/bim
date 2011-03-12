@@ -45,6 +45,7 @@ namespace bim
 
   const char* Log::error_log_file_ = "error_log";
   const char* Log::access_log_file_= "access_log";
+  const char* Log::trace_log_file_ = "trace_log";
 
   void access_log(const std::string& message)
   {
@@ -56,9 +57,14 @@ namespace bim
     Log::get_log()->write(message, Log::Error);
   }
 
-  void both_log(const std::string& message)
+  void trace_log(const std::string& message)
   {
-    Log::get_log()->write(message, Log::Both);
+    Log::get_log()->write(message, Log::Trace);
+  }
+
+  void all_log(const std::string& message)
+  {
+    Log::get_log()->write(message, Log::All);
   }
 
   Log::Log()
@@ -83,9 +89,20 @@ namespace bim
       exit(EXIT_FAILURE);
     }
 
+    try
+    {
+      trace_log_.open(trace_log_file_, std::ios_base::out|std::ios_base::app);
+    }
+    catch(...)
+    {
+      std::cerr << "error : can't open trace log" << std::endl;
+      exit(EXIT_FAILURE);
+    }
+
     pthread_mutex_init(&write_access_, NULL);
     pthread_mutex_init(&write_error_, NULL);
-    write("-- Log opening", Both);
+    pthread_mutex_init(&write_trace_, NULL);
+    write("-- Log opening", All);
   }
 
   Log::~Log()
@@ -99,49 +116,57 @@ namespace bim
     return singleton_;
   }
 
+  void Log::close_log()
+  {
+    get_log()->close();
+  }
+
   void Log::write(const std::string& message, LogFile file)
   {
+    time_t t = time(0);
+    std::string time(ctime(&t));
+    time[time.size() - 1] = 0;
+
     if(file & Access)
     {
-      time_t t = time(0);
-      std::string time(ctime(&t));
-      time[time.size() - 1] = 0;
-
       pthread_mutex_lock(&write_access_);
-
       access_log_ << "[" << time << "] # " << pthread_self()  << " # " << message << std::endl;
-
       pthread_mutex_unlock(&write_access_);
     }
 
     if(file & Error)
     {
-      time_t t = time(0);
-      std::string time(ctime(&t));
-      time[time.size() - 1] = 0;
-
       pthread_mutex_lock(&write_error_);
-
       error_log_ << "[" << time << "] # " << pthread_self()  << " # " << message << std::endl;
-
       pthread_mutex_unlock(&write_error_);
+    }
+
+    if(file & Trace)
+    {
+      pthread_mutex_lock(&write_trace_);
+      trace_log_ << "[" << time << "] # " << pthread_self()  << " # " << message << std::endl;
+      pthread_mutex_unlock(&write_trace_);
     }
   }
 
-  //close the log file
   void Log::close()
   {
-    write("-- LOG CLOSING", Both);
+    write("-- LOG CLOSING", All);
     pthread_mutex_lock(&write_access_);
     access_log_.close();
     pthread_mutex_unlock(&write_access_);
 
-    pthread_mutex_lock(&write_access_);
+    pthread_mutex_lock(&write_error_);
     error_log_.close();
-    pthread_mutex_unlock(&write_access_);
+    pthread_mutex_unlock(&write_error_);
+
+    pthread_mutex_lock(&write_trace_);
+    trace_log_.close();
+    pthread_mutex_unlock(&write_trace_);
 
     pthread_mutex_destroy(&write_access_);
     pthread_mutex_destroy(&write_error_);
+    pthread_mutex_destroy(&write_trace_);
     delete singleton_;
     singleton_ = 0;
   }

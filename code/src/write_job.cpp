@@ -89,15 +89,29 @@ Action WriteJob::act()
         rv = splice(pipe_des[0], 0, _client.getDescriptor(), 0, rv, SPLICE_F_MORE|SPLICE_F_MOVE);
       } while (rv > 0); 
     }
-    send();
+
     _client.requestProcessed();
 
     TEST_FAILURE(close(fd_in));
     TEST_FAILURE(close(pipe_des[0]));
     TEST_FAILURE(close(pipe_des[1]));
+  }
+  else
+  {
+    int rv = 0;
+    size_t offset = 0;
+    size_t to_write = path_.size();
+    do {
+      rv = write(_client.getDescriptor(), path_.c_str() + offset, (to_write > BLOCK_SIZE) ? BLOCK_SIZE : to_write);
+      offset += rv;
+      to_write -= rv;
+    } while(to_write > 0 && rv > 0);
 
+    _client.requestProcessed();
   }
 
   return Delete;
 }
+
 }
+

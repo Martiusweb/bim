@@ -34,32 +34,37 @@
  *
  **/
 
-#ifndef HTTP_ERROR_H
-#define HTTP_ERROR_H
+#ifndef LIST_JOB_H
+#define LIST_JOB_H
+
+#include <string>
 
 #include "job.h"
-#include "http_status_code.h"
-#include "action.h"
 
 namespace bim
 {
-
-  class ThreadPool;
-  class Context;
   class Request;
-
+class ListJob : public Job
+{
+  public:
+  ListJob(ThreadPool& pool, Context& context, Request& request);
+  virtual Action act();
+  private:
   /**
-   * This gets the error text, and post a write job.
+   * @brief Get the parent of the path
+   *
+   * /plap/plop -> /plap/
+   * /plap/plop/ -> /plap/
+   *
+   * @param path The path to be processed.
+   *
+   * @return the parent of the path
    */
-  class HttpErrorJob : public Job
-  {
-    public:
-      HttpErrorJob(ThreadPool& pool, Context& context, Request* request, HttpStatusCode code);
-      Action act();
-    private:
-      Request* request_;
-      HttpStatusCode code_;
-  };
+  std::string get_parent(std::string& path);
+  std::string html_page_;
+  Request& request_;
+};
 }
 
 #endif
+

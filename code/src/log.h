@@ -47,23 +47,24 @@ namespace bim
 {
   void access_log(const std::string& message);
   void error_log(const std::string& message);
-
-
+  void trace_log(const std::string& message);
+  void all_log(const std::string& message);
 
   class Log
   {
   protected:
     std::ofstream access_log_;
     std::ofstream error_log_;
+    std::ofstream trace_log_;
     static const char* access_log_file_;
     static const char* error_log_file_;
+    static const char* trace_log_file_;
     pthread_mutex_t write_access_;
     pthread_mutex_t write_error_;
+    pthread_mutex_t write_trace_;
 
     static Log *singleton_;
     static bool already_opened_;
-    static char filename_access_[256];
-    static char filename_error_[256];
 
     Log();
     ~Log();
@@ -73,10 +74,12 @@ namespace bim
     {
       Access = 1,
       Error = 2,
-      Both = Access | Error
+      Trace = 4,
+      All = Access | Error | Trace
     };
 
     static Log *get_log();
+    static void close_log();
     void write(const std::string& message, LogFile access_type);
     void close();
 };
