@@ -50,7 +50,7 @@ class Client;
  * find out when the socket is ready for IO operations.
  *
  * Socket is implicitely closed when the object is destructed if it was still
- * opened. 
+ * opened.
  */
 class Server: public Listenable
 {

@@ -55,7 +55,7 @@ class Response
     /**
      * @brief Returns a string of the response header
      */
-    std::string getHeader();
+    std::string& getHeader();
 
     /**
      * @brief allows to update the request status code.
@@ -70,6 +70,11 @@ class Response
     inline HttpStatusCode getStatusCode() {
       return _status_code;
     }
+
+    /**
+     * @brief Adds an header to send.
+     */
+    void addHeader(std::string key, std::string value);
 
     /**
      * @brief Notify that response header had been sent to client.

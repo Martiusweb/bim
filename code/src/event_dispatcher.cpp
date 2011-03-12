@@ -37,6 +37,7 @@
 
 #include "event_dispatcher.h"
 #include "listenable.h"
+#include "macros.h"
 
 #include <sys/epoll.h>
 #include <unistd.h>
@@ -122,11 +123,14 @@ void EventDispatcher::dispatch()
             if(events[i].events & (EPOLLHUP|EPOLLERR|EPOLLRDHUP)) {
                 listenable->onErr();
             }
-            if(events[i].events & EPOLLIN) {
-                listenable->onIn();
-            }
-            if(events[i].events & EPOLLERR) {
-                listenable->onOut();
+            else {
+              if(events[i].events & EPOLLIN) {
+                  listenable->onIn();
+              }
+              // Cannot be EPOLLERR there !
+              if(events[i].events & EPOLLOUT) {
+                  listenable->onOut();
+              }
             }
         }
     }

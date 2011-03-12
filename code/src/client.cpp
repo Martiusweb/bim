@@ -88,9 +88,7 @@ bool Client::initialize(Server &server) {
 }
 
 void Client::close() {
-    DBG_LOG("Client (" << this << ") disconnected by server, "
-        << _handled_requests << " request(s) handled");
-
+    DBG_LOG(_handled_requests << " request(s) handled");
     ::close(_descriptor);
     _descriptor = 0;
 
@@ -122,13 +120,21 @@ void Client::requestParsed() {
 }
 
 void Client::requestProcessed() {
+  bool keep_alive;
+
   Request* processed = _queued_requests.front();
   _queued_requests.pop();
+
+  keep_alive = processed->keepAlive() || !_queued_requests.empty();
   // Good bye request ! Paul liked you !
+
   delete processed;
-  // TODO persistent !
-  close();
-  _server->clientDisconnected(this);
+
+  if(!keep_alive) {
+    DBG_LOG("Client (" << this << ") disconnected by server, ");
+    close();
+    _server->clientDisconnected(this);
+  }
 }
 
 void Client::onIn() {
@@ -140,7 +146,8 @@ void Client::onOut() {
 
 void Client::onErr() {
   DBG_LOG("client closed the connection (" << this << ")");
-_server->clientDisconnected(this);
+  close();
+  _server->clientDisconnected(this);
 }
 
 } // /bim

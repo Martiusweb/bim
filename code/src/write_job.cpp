@@ -35,8 +35,9 @@
  **/
 
 #include <unistd.h>
-#include <iostream>
+#include <sstream>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 #include "action.h"
 #include "context.h"
@@ -55,11 +56,14 @@ WriteJob::WriteJob(ThreadPool& pool,
                    Context& context,
                    Request &request,
                    const std::string& path,
-                   const ContentType type)
+                   const ContentType type,
+                   size_t file_size
+                   )
 :Job(pool, context)
 ,path_(path)
 ,_request(request)
 ,buffer_content_(type)
+,_file_size(file_size)
 { }
 
 Action WriteJob::act()
@@ -68,6 +72,22 @@ Action WriteJob::act()
   {
     int fd_in;
     int pipe_des[2];
+
+    // Content length
+    if(_file_size == 0) {
+      struct stat statbuf;
+      if(stat(path_.c_str(), &statbuf) == 0)
+        _file_size = statbuf.st_size;
+    }
+    _add_content_length(_file_size);
+    _write_headers();
+
+    if(_file_size == 0) {
+      _request.getClient().requestProcessed();
+      return Delete;
+    }
+
+    // Write
     fd_in = open(path_.c_str(), O_RDONLY);
 
     if(fd_in == -1)
@@ -99,6 +119,10 @@ Action WriteJob::act()
     int rv = 0;
     size_t offset = 0;
     size_t to_write = path_.size();
+
+    _add_content_length(to_write);
+    _write_headers();
+
     do {
       rv = write(_request.getClient().getDescriptor(), path_.c_str() + offset,
           (to_write > BLOCK_SIZE) ? BLOCK_SIZE : to_write);
@@ -110,6 +134,26 @@ Action WriteJob::act()
   }
 
   return Delete;
+}
+
+void WriteJob::_add_content_length(size_t length) {
+  std::ostringstream sstr;
+  sstr << length;
+  _request.getResponse().addHeader(std::string("Content-Length"), sstr.str());
+}
+
+void WriteJob::_write_headers() {
+  std::string& headers = _request.getResponse().getHeader();
+  int rv = 0;
+  size_t offset = 0;
+  size_t to_write = headers.size();
+
+  do {
+    rv = write(_request.getClient().getDescriptor(), headers.c_str() + offset,
+        (to_write > BLOCK_SIZE) ? BLOCK_SIZE : to_write);
+    offset += rv;
+    to_write -= rv;
+  } while(to_write > 0 && rv > 0);
 }
 
 }

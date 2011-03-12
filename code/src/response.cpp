@@ -34,14 +34,14 @@
  *
  **/
 
-#include "response.h";
+#include "response.h"
 
 namespace bim {
 
 Response::Response(HttpStatusCode code): _status_code(code), _headers(), _headers_sent(false), _str_head() {
 }
 
-std::string Response::getHeader() {
+std::string& Response::getHeader() {
   if(_str_head.empty())
   {
     _str_head += "HTTP/1.1 ";
@@ -151,9 +151,7 @@ std::string Response::getHeader() {
       case EXPECTATION_FAILED_417:
 					_str_head += "417 Expectation Failed";
         break;
-      case INTERNAL_SERVER_ERROR_500:
-					_str_head += "500 Internal Server Error";
-        break;
+      // 500 = default because it's then an error...
       case NOT_IMPLEMENTED_501:
 					_str_head += "501 Not Implemented";
         break;
@@ -169,13 +167,17 @@ std::string Response::getHeader() {
       case HTTP_VERSION_NOT_SUPPORTED_505:
 					_str_head += "505 HTTP Version not supported";
         break;
+      case INTERNAL_SERVER_ERROR_500:
+      default:
+					_str_head += "500 Internal Server Error";
+        break;
     }
     _str_head += "\r\n";
 
     // Put headers
-    for(HeadersMap::iterator header_it _headers.begin(); header_it !=
-        _headers.end(); ++it) {
-      _str_head += it->first + ":" + it->second + "\r\n";
+    for(HeadersMap::iterator header_it = _headers.begin(); header_it !=
+        _headers.end(); ++header_it) {
+      _str_head += header_it->first + ":" + header_it->second + "\r\n";
     }
 
     // End of headers
@@ -186,6 +188,10 @@ std::string Response::getHeader() {
 
 void Response::setStatusCode(HttpStatusCode code) {
   _status_code = code;
+}
+
+void Response::addHeader(std::string key, std::string value) {
+  _headers[key] = value;
 }
 
 void Response::setHeaderSent() {

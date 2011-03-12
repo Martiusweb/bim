@@ -119,7 +119,9 @@ Action ParseJob::act()
     pool_.postJob(new WriteJob(pool_,
                                context_,
                                request_,
-                               request_.getPath()));
+                               request_.getPath(),
+                               WriteJob::Path,
+                               (size_t) statbuf.st_size));
     request_.getClient().requestParsed();
   }
 

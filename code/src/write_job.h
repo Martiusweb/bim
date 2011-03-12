@@ -37,6 +37,7 @@
 #ifndef WRITE_JOB_H
 #define WRITE_JOB_H
 
+#include <unistd.h>
 #include <string>
 
 #include "http_commons.h"
@@ -69,20 +70,25 @@ class WriteJob : public Job
      * @param context The context, to get contextual informations.
      * @param request Request we are responding to
      * @param path path to the resource to send to the client
-     * @para type The type of the content of data : file or path.
+     * @param type The type of the content of data : file or path.
+     * @param file_size size of the file to be send, if known
      */
     WriteJob(ThreadPool& pool,
              Context& context,
              Request& request,
              const std::string& path,
-             const ContentType type = Path);
+             const ContentType type = Path,
+             size_t file_size = 0);
 
     Action act();
 
   private:
+    void _add_content_length(size_t length);
+    void _write_headers();
     std::string path_;
     Request& _request;
     ContentType buffer_content_;
+    size_t _file_size;
 };
 
 }

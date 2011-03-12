@@ -111,7 +111,7 @@ const std::string& Request::get_request_line()
 }
 
 
-Request::HttpVersion Request::getHttpVersion() {
+HttpVersion Request::getHttpVersion() {
 
   if(_http_version == UNKNOWN) {
     _parse_request_line();

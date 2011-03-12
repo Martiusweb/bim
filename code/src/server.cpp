@@ -118,6 +118,7 @@ void Server::onIn()
     Client* client = new Client(thread_pool_, context_);
     if(!(client->initialize(*this) &&
                 client->registerEventDispatcher(*_event_dispatcher))) {
+        DBG_LOG("Client memory freed");
         delete client;
     }
 }
@@ -125,8 +126,7 @@ void Server::onIn()
 void Server::onErr() {
 }
 
-void Server::onOut() 
-{
+void Server::onOut() {
 
 }
 
