@@ -34,8 +34,8 @@
  *
  **/
 
-#ifndef _PARSE_JOB_H_
-#define _PARSE_JOB_H_
+#ifndef BIM_PARSE_JOB_H_
+#define BIM_PARSE_JOB_H_
 
 #include "job.h"
 

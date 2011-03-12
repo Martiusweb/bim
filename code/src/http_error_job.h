@@ -34,8 +34,8 @@
  *
  **/
 
-#ifndef HTTP_ERROR_H
-#define HTTP_ERROR_H
+#ifndef BIM_HTTP_ERROR_JOB_H
+#define BIM_HTTP_ERROR_JOB_H
 
 #include "job.h"
 #include "action.h"

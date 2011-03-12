@@ -85,7 +85,9 @@ class Response
 
   protected:
     HttpStatusCode _status_code;
+    HeadersMap _headers;
     bool _headers_sent;
+    std::string _str_head;
 };
 
 }

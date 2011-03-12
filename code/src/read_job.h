@@ -34,8 +34,8 @@
  *
  **/
 
-#ifndef _READ_JOB_H_
-#define _READ_JOB_H_
+#ifndef BIM_READ_JOB_H_
+#define BIM_READ_JOB_H_
 
 #include "job.h"
 #include "client.h"
