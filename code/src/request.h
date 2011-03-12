@@ -42,6 +42,7 @@
 
 #include "client.h"
 #include "http_status_code.h"
+#include "response.h"
 
 namespace bim
 {
@@ -150,6 +151,10 @@ class Request
      */
     const HeadersMap& getHeaders();
 
+    inline Response& getResponse() {
+      return _response;
+    }
+
     /**
      * @brief checks if the request asks or not for a persistent connection.
      *
@@ -180,6 +185,7 @@ class Request
     Client &_client;
     int status_code_;
     Context& context_;
+    Response _response;
 };
 }
 

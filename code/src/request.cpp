@@ -51,6 +51,7 @@ Request::Request(Client &client, Context& context)
 ,_http_version(UNKNOWN)
 ,_client(client)
 ,context_(context)
+,_response()
 {
   _client.requestHandled(this);
 }
