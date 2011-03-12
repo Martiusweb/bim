@@ -170,7 +170,7 @@ namespace bim
     TEST_FAILURE(closedir(dir));
 
     pool_.postJob(new WriteJob(pool_, context_,
-                               request_.getClient(),
+                               request_,
                                html_page_,
                                WriteJob::Data));
 

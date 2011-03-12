@@ -53,15 +53,13 @@ const size_t BLOCK_SIZE = 4 * 4096;
 
 WriteJob::WriteJob(ThreadPool& pool,
                    Context& context,
-                   Client &client,
+                   Request &request,
                    const std::string& path,
-                   const ContentType type,
-                   const HttpStatusCode code)
+                   const ContentType type)
 :Job(pool, context)
 ,path_(path)
-,_client(client)
+,_request(request)
 ,buffer_content_(type)
-,code_(code)
 { }
 
 Action WriteJob::act()
@@ -86,11 +84,11 @@ Action WriteJob::act()
     {
       do {
         rv = splice(fd_in, 0, pipe_des[1], 0, BLOCK_SIZE, SPLICE_F_MORE|SPLICE_F_MOVE);
-        rv = splice(pipe_des[0], 0, _client.getDescriptor(), 0, rv, SPLICE_F_MORE|SPLICE_F_MOVE);
+        rv = splice(pipe_des[0], 0, _request.getClient().getDescriptor(), 0, rv, SPLICE_F_MORE|SPLICE_F_MOVE);
       } while (rv > 0); 
     }
 
-    _client.requestProcessed();
+    _request.getClient().requestProcessed();
 
     TEST_FAILURE(close(fd_in));
     TEST_FAILURE(close(pipe_des[0]));
@@ -102,12 +100,13 @@ Action WriteJob::act()
     size_t offset = 0;
     size_t to_write = path_.size();
     do {
-      rv = write(_client.getDescriptor(), path_.c_str() + offset, (to_write > BLOCK_SIZE) ? BLOCK_SIZE : to_write);
+      rv = write(_request.getClient().getDescriptor(), path_.c_str() + offset,
+          (to_write > BLOCK_SIZE) ? BLOCK_SIZE : to_write);
       offset += rv;
       to_write -= rv;
     } while(to_write > 0 && rv > 0);
 
-    _client.requestProcessed();
+    _request.getClient().requestProcessed();
   }
 
   return Delete;

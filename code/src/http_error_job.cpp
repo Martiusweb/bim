@@ -48,15 +48,17 @@
 
 namespace bim
 {
-  HttpErrorJob::HttpErrorJob(ThreadPool& pool, Context& context, Request* request, HttpStatusCode code)
-    :Job(pool, context), request_(request), code_(code)
+  HttpErrorJob::HttpErrorJob(ThreadPool& pool, Context& context, Request& request)
+    :Job(pool, context), request_(request)
   { }
-
 
   Action HttpErrorJob::act()
   {
-    std::string& path = context_.getErrorDocumentPath(code_);
-    pool_.postJob(new WriteJob(pool_, context_, request_->getClient(), path, WriteJob::Path, code_));
+    HttpStatusCode code = request_.getResponse().getStatusCode();
+
+    std::string& path =
+      context_.getErrorDocumentPath(code);
+    pool_.postJob(new WriteJob(pool_, context_, request_, path, WriteJob::Path));
 
     return Delete;
   }

@@ -83,7 +83,6 @@ Action ReadJob::act()
       str_request[0] = tmp;
     }
   }
-  //request_->appendData(buffer);
 
   if(rv == READ_SIZE) // More data to read
   {
@@ -98,7 +97,7 @@ Action ReadJob::act()
   }
   else
   {
-    pool_.postJob(new ParseJob(pool_, context_, request_));
+    pool_.postJob(new ParseJob(pool_, context_, *request_));
     _client.requestsRead();
     delete[] buffer;
     return Delete;

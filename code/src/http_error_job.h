@@ -38,7 +38,6 @@
 #define HTTP_ERROR_H
 
 #include "job.h"
-#include "http_status_code.h"
 #include "action.h"
 
 namespace bim
@@ -54,11 +53,10 @@ namespace bim
   class HttpErrorJob : public Job
   {
     public:
-      HttpErrorJob(ThreadPool& pool, Context& context, Request* request, HttpStatusCode code);
+      HttpErrorJob(ThreadPool& pool, Context& context, Request& request);
       Action act();
     private:
-      Request* request_;
-      HttpStatusCode code_;
+      Request& request_;
   };
 }
 

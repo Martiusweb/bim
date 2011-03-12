@@ -56,10 +56,10 @@ class ParseJob : public Job
     * @param context The context, containing the document root
     * @param request The request, i.e. the data sent by the client
     */
-    ParseJob(bim::ThreadPool& pool, Context& context, Request* request);
+    ParseJob(bim::ThreadPool& pool, Context& context, Request& request);
     Action act();
   private:
-    Request* request_;
+    Request& request_;
 };
 }
 

@@ -51,52 +51,58 @@
 
 namespace bim
 {
-ParseJob::ParseJob(bim::ThreadPool& pool, Context& context, Request* request)
+ParseJob::ParseJob(bim::ThreadPool& pool, Context& context, Request& request)
   :Job(pool, context), request_(request)
 { }
 
 Action ParseJob::act()
 {
-  access_log(request_->get_request_line());
+  access_log(request_.get_request_line());
 
-  if(request_->getMethod() != "GET" && request_->getMethod() != "POST")
+  if(request_.getMethod() != "GET" && request_.getMethod() != "POST")
   {
-    if(request_->getMethod() != "PUT" && request_->getMethod() != "DELETE")
+    if(request_.getMethod() != "PUT" && request_.getMethod() != "DELETE")
     {
-      request_->getClient().requestParsed();
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_, BAD_REQUEST_400));
+      request_.getClient().requestParsed();
+      request_.getResponse().setStatusCode(BAD_REQUEST_400);
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
       return Delete;
     }
     else
     {
-      request_->getClient().requestParsed();
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_,  NOT_IMPLEMENTED_501));
+      request_.getClient().requestParsed();
+      request_.getResponse().setStatusCode(NOT_IMPLEMENTED_501);
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
       return Delete;
     }
   }
 
   struct stat statbuf;
-  int rv = stat(request_->getPath().c_str(), &statbuf);
+  int rv = stat(request_.getPath().c_str(), &statbuf);
   if(rv == -1)
   {
     switch(errno)
     {
     case EACCES:
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_, FORBIDDEN_403));
-      request_->getClient().requestParsed();
+      request_.getResponse().setStatusCode(FORBIDDEN_403);
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getClient().requestParsed();
       return Delete;
     case ENOENT:
     case ENOTDIR:
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_, NOT_FOUND_404));
-      request_->getClient().requestParsed();
+      request_.getResponse().setStatusCode(NOT_FOUND_404);
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getClient().requestParsed();
       return Delete;
     case ENAMETOOLONG:
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_, BAD_REQUEST_400));
-      request_->getClient().requestParsed();
+      request_.getResponse().setStatusCode(BAD_REQUEST_400);
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getClient().requestParsed();
       return Delete;
     case ENOMEM:
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_, INTERNAL_SERVER_ERROR_500));
-      request_->getClient().requestParsed();
+      request_.getResponse().setStatusCode(INTERNAL_SERVER_ERROR_500);
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getClient().requestParsed();
       return Delete;
     default:
       TEST_FAILURE(rv);
@@ -105,16 +111,16 @@ Action ParseJob::act()
   }
   if(S_ISDIR(statbuf.st_mode))
   {
-    pool_.postJob(new ListJob(pool_, context_, *request_));
-    request_->getClient().requestParsed();
+    pool_.postJob(new ListJob(pool_, context_, request_));
+    request_.getClient().requestParsed();
   }
   else
   {
     pool_.postJob(new WriteJob(pool_,
                                context_,
-                               request_->getClient(),
-                               request_->getPath()));
-    request_->getClient().requestParsed();
+                               request_,
+                               request_.getPath()));
+    request_.getClient().requestParsed();
   }
 
   // Check for file error (unreadable, not exist, etc.)
