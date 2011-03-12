@@ -34,14 +34,13 @@
  *
  **/
 
-#ifndef _REQUEST_H_
-#define _REQUEST_H_
+#ifndef BIM_REQUEST_H_
+#define BIM_REQUEST_H_
 
 #include <string>
-#include <map>
 
 #include "client.h"
-#include "http_status_code.h"
+#include "http_commons.h"
 #include "response.h"
 
 namespace bim
@@ -50,9 +49,6 @@ class Context;
 class Request
 {
   public:
-    typedef std::map<std::string, std::string> HeadersMap;
-
-    enum HttpVersion {UNKNOWN, HTTP10, HTTP11};
     /**
      * @brief Constructor for an HTTP request
      *

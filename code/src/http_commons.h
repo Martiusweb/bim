@@ -34,9 +34,11 @@
  *
  **/
 
-#ifndef HTTP_STATUS_CODE_H
-#define HTTP_STATUS_CODE_H
+#ifndef BIM_HTTP_COMMONS_H
+#define BIM_HTTP_COMMONS_H
 
+#include <string>
+#include <map>
 
 namespace bim
 {
@@ -60,6 +62,10 @@ namespace bim
     SERVICE_UNAVAILABLE_503,
     _HTTP_STATUS_CODE_SIZE
   };
+
+  typedef std::map<std::string, std::string> HeadersMap;
+
+  enum HttpVersion {UNKNOWN, HTTP10, HTTP11};
 }
 
 #endif

@@ -153,7 +153,7 @@ const std::string& Request::getHeader(const std::string& header) {
   return _headers[header];
 }
 
-const Request::HeadersMap& Request::getHeaders() {
+const HeadersMap& Request::getHeaders() {
   if(!_headers_parsed) {
     _parse_headers();
   }
