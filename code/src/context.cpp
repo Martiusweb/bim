@@ -40,6 +40,8 @@
 
 namespace bim
 {
+  static const std::string DEFAULT_CONTENT_TYPE = "text/html";
+
   Context::Context()
   {
     const std::string prefix = "errors/";
@@ -81,9 +83,35 @@ namespace bim
     return error_path_[code];
   }
 
-  void Context::setErrorDocumentPath(const HttpStatusCode code, const std::string& path)
+  void Context::setErrorDocumentPath(const HttpStatusCode code,
+      const std::string& path)
   {
     error_path_[code] = path;
+  }
+
+  std::string parseContentType(const std::string &file_path) const {
+    size_t extpos = file_path.find_last_of('.');
+    if(extpos == file_path.npos) {
+      return DEFAULT_CONTENT_TYPE;
+    }
+    std::string ext = file_path.substr(extpos+1);
+
+    if(ext == "html" || ext == "htm")
+      return "text/html";
+    if(ext == "css")
+      return "text/css";
+    if(ext == "javascript")
+      return "text/javascript";
+    if(ext == "json")
+      return "application/json";
+    if(ext == "jpg")
+      return "image/jpeg";
+    if(ext == "png")
+      return "image/png";
+    if(ext == "gif")
+      return "image/gif";
+
+    return DEFAULT_CONTENT_TYPE;
   }
 }
 

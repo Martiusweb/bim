@@ -52,8 +52,10 @@ class Context
     std::string& getDocumentRoot();
     void setDocumentRoot(const std::string& document_root);
     std::string& getErrorDocumentPath(const HttpStatusCode code);
-    void setErrorDocumentPath(const HttpStatusCode code, const std::string& path); 
+    void setErrorDocumentPath(const HttpStatusCode code,
+        const std::string& path);
     Context();
+    std::string parseContentType(const std::string &file_path) const;
   private:
     std::string document_root_;
     std::string error_path_[_HTTP_STATUS_CODE_SIZE];
