@@ -42,6 +42,7 @@
 #include "server.h"
 
 #include <arpa/inet.h>
+#include <pthread.h>
 #include <queue>
 
 namespace bim {
@@ -105,7 +106,10 @@ class Client: public Listenable
          * @brief Low-level structure address.
          */
         struct sockaddr_in6 _address;
-
+        /**
+         * @brief Synchronisation of the access to the requests queue.
+         */
+        pthread_mutex_t _queue_mutex;
         /**
          * @brief Number of requests the current socket transmited.
          *

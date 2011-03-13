@@ -68,6 +68,10 @@ bool Client::initialize(Server &server) {
     socklen_t addrln = sizeof(_address);
     int flags = 0;
 
+    if(pthread_mutex_init(&_queue_mutex, 0) != 0) {
+      return false;
+    }
+
     if((_descriptor = accept(server.getDescriptor(), (sockaddr*) &_address,
                     &addrln)) == -1) {
         _descriptor = 0;
@@ -93,11 +97,15 @@ void Client::close() {
     _descriptor = 0;
 
     Request* r;
+    pthread_mutex_lock(&_queue_mutex);
     while(!_queued_requests.empty()) {
       r = _queued_requests.front();
       _queued_requests.pop();
       delete r;
     }
+    pthread_mutex_unlock(&_queue_mutex);
+
+    pthread_mutex_destroy(&_queue_mutex);
 }
 
 bool Client::registerEventDispatcher(EventDispatcher& ed) {
@@ -109,8 +117,10 @@ bool Client::registerEventDispatcher(EventDispatcher& ed) {
 }
 
 void Client::requestHandled(Request* request) {
+  pthread_mutex_lock(&_queue_mutex);
   ++_handled_requests;
   _queued_requests.push(request);
+  pthread_mutex_unlock(&_queue_mutex);
 }
 
 void Client::requestsRead() {
@@ -122,10 +132,12 @@ void Client::requestParsed() {
 void Client::requestProcessed() {
   bool keep_alive;
 
+  pthread_mutex_lock(&_queue_mutex);
   Request* processed = _queued_requests.front();
   _queued_requests.pop();
 
   keep_alive = processed->keepAlive() || !_queued_requests.empty();
+  pthread_mutex_unlock(&_queue_mutex);
   // Good bye request ! Paul liked you !
 
   delete processed;
@@ -147,7 +159,9 @@ void Client::onOut() {
 void Client::onErr() {
   DBG_LOG("client closed the connection (" << this << ")");
   close();
-  _server->clientDisconnected(this);
+  // We should not consider client dead since we don't know if the workers are
+  // terminated
+  //_server->clientDisconnected(this);
 }
 
 } // /bim
