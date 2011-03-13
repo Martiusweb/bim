@@ -45,6 +45,7 @@
 #include <sys/socket.h>
 #include <iostream>
 #include <string.h>
+#include <assert.h>
 
 
 namespace bim {
@@ -122,6 +123,8 @@ void Client::requestParsed() {
 void Client::requestProcessed() {
   bool keep_alive;
 
+  // this kills the program
+  // assert( ! _queued_requests.empty());
   Request* processed = _queued_requests.front();
   _queued_requests.pop();
 

@@ -74,7 +74,7 @@ EventDispatcher::~EventDispatcher()
 bool EventDispatcher::_listen(Listenable* const listenable,
         ListenOperation update, int mode)
 {
-    epoll_event event;
+    epoll_event event = {0,{0}};
     event.events = mode | EPOLLET | EPOLLRDHUP | EPOLLHUP;
     event.data.ptr = reinterpret_cast<void*>(listenable);
 
@@ -104,7 +104,7 @@ bool EventDispatcher::listenInOut(Listenable* const listenable,
 }
 
 void EventDispatcher::stopListening(Listenable& listenable) {
-    /* static */ epoll_event event;
+    epoll_event event = {0,{0}};
     epoll_ctl(_epoll, EPOLL_CTL_DEL, listenable.getDescriptor(), &event);
 }
 
