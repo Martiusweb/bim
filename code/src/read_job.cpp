@@ -87,6 +87,13 @@ Action ReadJob::act()
       request_->appendData(str_request);
       str_request = buffer+4;
       str_request[0] = tmp;
+
+      // Not the end we have got something else to read
+      if(str_request[0] != '\0') {
+        pool_.postJob(new ParseJob(pool_, context_, *request_));
+        // Dealing with a new request.
+        request_ = new Request(_client, context_);
+      }
     }
   }
 

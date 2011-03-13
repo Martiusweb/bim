@@ -138,6 +138,7 @@ class Client: public Listenable
          * @brief Requests currently processed for this client ordered.
          */
         RequestsQueue _queued_requests;
+        bool _can_respond;
 };
 } // /bim
 

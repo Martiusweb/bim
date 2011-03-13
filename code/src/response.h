@@ -39,6 +39,7 @@
 
 #include <string>
 
+#include "job.h"
 #include "http_commons.h"
 
 namespace bim
@@ -88,11 +89,21 @@ class Response
       return _headers_sent;
     }
 
+    void setResponseJob(Job* response_job);
+
+    /**
+     * @brief Returns the job to queue to write the response.
+     */
+    inline Job* getResponseJob() {
+      return _response_job;
+    }
+
   protected:
     HttpStatusCode _status_code;
     HeadersMap _headers;
     bool _headers_sent;
     std::string _str_head;
+    Job* _response_job;
 };
 
 }

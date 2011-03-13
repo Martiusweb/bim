@@ -65,14 +65,16 @@ Action ParseJob::act()
     {
       request_.getClient().requestParsed();
       request_.getResponse().setStatusCode(BAD_REQUEST_400);
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getResponse().setResponseJob(
+          new HttpErrorJob(pool_, context_, request_));
       return Delete;
     }
     else
     {
       request_.getClient().requestParsed();
       request_.getResponse().setStatusCode(NOT_IMPLEMENTED_501);
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getResponse().setResponseJob(
+          new HttpErrorJob(pool_, context_, request_));
       return Delete;
     }
   }
@@ -85,23 +87,27 @@ Action ParseJob::act()
     {
     case EACCES:
       request_.getResponse().setStatusCode(FORBIDDEN_403);
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getResponse().setResponseJob(
+          new HttpErrorJob(pool_, context_, request_));
       request_.getClient().requestParsed();
       return Delete;
     case ENOENT:
     case ENOTDIR:
       request_.getResponse().setStatusCode(NOT_FOUND_404);
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getResponse().setResponseJob(
+          new HttpErrorJob(pool_, context_, request_));
       request_.getClient().requestParsed();
       return Delete;
     case ENAMETOOLONG:
       request_.getResponse().setStatusCode(BAD_REQUEST_400);
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getResponse().setResponseJob(
+          new HttpErrorJob(pool_, context_, request_));
       request_.getClient().requestParsed();
       return Delete;
     case ENOMEM:
       request_.getResponse().setStatusCode(INTERNAL_SERVER_ERROR_500);
-      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getResponse().setResponseJob(
+          new HttpErrorJob(pool_, context_, request_));
       request_.getClient().requestParsed();
       return Delete;
     default:
@@ -111,12 +117,13 @@ Action ParseJob::act()
   }
   if(S_ISDIR(statbuf.st_mode))
   {
-    pool_.postJob(new ListJob(pool_, context_, request_));
+    request_.getResponse().setResponseJob(
+        new ListJob(pool_, context_, request_));
     request_.getClient().requestParsed();
   }
   else
   {
-    pool_.postJob(new WriteJob(pool_,
+    request_.getResponse().setResponseJob(new WriteJob(pool_,
                                context_,
                                request_,
                                request_.getPath(),

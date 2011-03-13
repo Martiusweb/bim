@@ -47,11 +47,13 @@
 #include <string.h>
 #include <assert.h>
 
-
+/**
+ * TODO : synchronize reading
+ */
 namespace bim {
 Client::Client(ThreadPool& pool, Context& context)
   : Listenable(), _handled_requests(0), _server(0), thread_pool_(pool),
-  context_(context), _queued_requests() {
+  context_(context), _queued_requests(), _can_respond(false) {
     bzero((char *) &_address, sizeof(_address));
 }
 
@@ -125,28 +127,59 @@ void Client::requestHandled(Request* request) {
 }
 
 void Client::requestsRead() {
+  _can_respond = true;
 }
 
 void Client::requestParsed() {
+  if(_can_respond)
+  {
+    Request* first_rq(0);
+    Job* response_job;
+    pthread_mutex_lock(&_queue_mutex);
+    if(!_queued_requests.empty()) {
+      first_rq = _queued_requests.front();
+    }
+    pthread_mutex_unlock(&_queue_mutex);
+
+    if(first_rq != 0 &&
+        (response_job = first_rq->getResponse().getResponseJob()) != 0)
+    {
+      thread_pool_.postJob(response_job);
+      _can_respond = false;
+    }
+  }
 }
 
 void Client::requestProcessed() {
   bool keep_alive;
+  Request* processed;
+  Request* next(0);
+  Job* response_job;
 
   pthread_mutex_lock(&_queue_mutex);
-  Request* processed = _queued_requests.front();
+  processed = _queued_requests.front();
   _queued_requests.pop();
 
-  keep_alive = processed->keepAlive() || !_queued_requests.empty();
+  keep_alive = processed->keepAlive();
+  if(!_queued_requests.empty()) {
+    keep_alive = true;
+    next = _queued_requests.front();
+  }
   pthread_mutex_unlock(&_queue_mutex);
-  // Good bye request ! Paul liked you !
 
+  // Good bye request ! Paul liked you !
   delete processed;
 
   if(!keep_alive) {
     DBG_LOG("Client (" << this << ") disconnected by server, ");
     close();
     _server->clientDisconnected(this);
+  }
+  else {
+    if(next != 0 && (response_job = next->getResponse().getResponseJob()) != 0)
+    {
+      thread_pool_.postJob(response_job);
+    }
   }
 }
 

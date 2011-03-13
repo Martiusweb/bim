@@ -38,7 +38,7 @@
 
 namespace bim {
 
-Response::Response(HttpStatusCode code): _status_code(code), _headers(), _headers_sent(false), _str_head() {
+Response::Response(HttpStatusCode code): _status_code(code), _headers(), _headers_sent(false), _str_head(), _response_job(0) {
 }
 
 std::string& Response::getHeader() {
@@ -196,6 +196,10 @@ void Response::addHeader(std::string key, std::string value) {
 
 void Response::setHeaderSent() {
   _headers_sent = true;
+}
+
+void Response::setResponseJob(Job* response_job) {
+  _response_job = response_job;
 }
 
 }
