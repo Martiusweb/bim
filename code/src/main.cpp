@@ -36,12 +36,30 @@
 
 
 #include <iostream>
+#include <signal.h>
+#include <stdlib.h>
 #include "server.h"
 #include "event_dispatcher.h"
 #include "macros.h"
 
 using namespace bim;
 using namespace std;
+
+
+// The event dispatcher notifies server and clients when they can act, then
+// they will use the thread pool to work.
+//
+// This instance shall be declared as global since it has to be in scope for
+// handle_exit.
+EventDispatcher dispatcher(1024, 16);
+
+void handle_exit(int signal_number, siginfo_t* infos, void* context)
+{
+  cerr << "signal_number" << signal_number << endl;
+  cerr << "" << endl;
+  dispatcher.close();
+}
+
 
 /**
  * This is the Bim entry point for tests and standalone server.
@@ -52,27 +70,36 @@ using namespace std;
  */
 int main(int /* argc */, char** /* argv */)
 {
+  // Set up signal handling
+
+   struct sigaction action;
+   struct sigaction save;
+
+   sigemptyset(&action.sa_mask);
+
+   action.sa_sigaction = handle_exit;
+   action.sa_flags = SA_SIGINFO;
+
+   TEST_FAILURE(sigaction(SIGINT,&action,&save));
+
+
+  // The thread pool is the object that manage how the server jobs are
+  // processed
+#ifdef BIM_THREADPOOL_THREADS_PER_CORE
+      ThreadPool pool(BIM_THREADPOOL_THREADS_PER_CORE);
+#else
+      ThreadPool pool;
+#endif
+
     // The context provide informations the server will use as configuration
     // keys
     Context context;
     context.setDocumentRoot("document_root");
 
-    // The thread pool is the object that manage how the server jobs are
-    // processed
-#ifdef BIM_THREADPOOL_THREADS_PER_CORE
-    ThreadPool pool(BIM_THREADPOOL_THREADS_PER_CORE);
-#else
-    ThreadPool pool;
-#endif
 
     // The server object, do we need to say more ?
     Server server(7000, 10000, pool, context);
 
-    // The event dispatcher notifies server and clients when they can act, then
-    // they will use the thread pool to work.
-    EventDispatcher dispatcher(1024, 16);
-
-    DBG_LOG("Welcome, ready to initialize");
 
     // Order does not matters here
     TEST_FAILURE(!(pool.init() && dispatcher.init() && server.init()));

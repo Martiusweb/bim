@@ -38,11 +38,13 @@
 #include "macros.h"
 #include "server.h"
 
-#include <sys/socket.h>
+#include <algorithm>
 #include <arpa/inet.h>
-#include <unistd.h>
+#include <cassert>
 #include <fcntl.h>
 #include <iostream>
+#include <sys/socket.h>
+#include <unistd.h>
 
 namespace bim {
 Server::Server(int port, int max_clients, ThreadPool& pool, Context& context)
@@ -60,6 +62,12 @@ Server::~Server() {
     if(_descriptor != 0) {
         close();
     }
+
+    std::vector<Client*>::iterator e = clients_.end();
+    for(std::vector<Client*>::iterator i = clients_.begin(); i != e; i++)
+    {
+      delete *i;
+    }
 }
 
 bool Server::init() {
@@ -76,8 +84,10 @@ bool Server::init() {
     // Linux only : by default, an IPv6 socket is backward compatible.
     // This is not the common case !
     addr.sin6_family = AF_INET6;
+    addr.sin6_flowinfo = 0;
     addr.sin6_port = htons(_port);
     addr.sin6_addr = in6addr_any;
+    addr.sin6_scope_id = 0;
 
     TEST_FAILURE(setsockopt(_descriptor, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(int)));
 
@@ -116,9 +126,9 @@ bool Server::registerEventDispatcher(EventDispatcher& ed) {
 void Server::onIn()
 {
     Client* client = new Client(thread_pool_, context_);
+    clients_.push_back(client);
     if(!(client->initialize(*this) &&
                 client->registerEventDispatcher(*_event_dispatcher))) {
-        DBG_LOG("Client memory freed");
         delete client;
     }
 }
@@ -135,8 +145,12 @@ void Server::close() {
     _descriptor = 0;
 }
 
-void Server::clientDisconnected(Client* client) const {
-  DBG_LOG("Client memory freed");
+void Server::clientDisconnected(Client* client) {
+
+  //std::vector<Client*>::iterator found = std::find(clients_.begin(), clients_.end(), client);
+  //if(found != clients)
+  // clients_.erase(found);
+
   delete client;
 }
 

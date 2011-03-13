@@ -45,6 +45,7 @@
 #include <sys/socket.h>
 #include <iostream>
 #include <string.h>
+#include <assert.h>
 
 
 namespace bim {
@@ -83,12 +84,10 @@ bool Client::initialize(Server &server) {
         close();
         return false;
     }
-    DBG_LOG("Client (" << this << ") connected");
     return true;
 }
 
 void Client::close() {
-    DBG_LOG(_handled_requests << " request(s) handled");
     ::close(_descriptor);
     _descriptor = 0;
 
@@ -122,6 +121,8 @@ void Client::requestParsed() {
 void Client::requestProcessed() {
   bool keep_alive;
 
+  // this kills the program
+  // assert( ! _queued_requests.empty());
   Request* processed = _queued_requests.front();
   _queued_requests.pop();
 
@@ -131,7 +132,6 @@ void Client::requestProcessed() {
   delete processed;
 
   if(!keep_alive) {
-    DBG_LOG("Client (" << this << ") disconnected by server, ");
     close();
     _server->clientDisconnected(this);
   }
@@ -145,7 +145,7 @@ void Client::onOut() {
 }
 
 void Client::onErr() {
-  DBG_LOG("client closed the connection (" << this << ")");
+  trace_log(std::string("client closed the connection..."));
   close();
   _server->clientDisconnected(this);
 }

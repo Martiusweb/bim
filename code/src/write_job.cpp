@@ -55,7 +55,7 @@ const size_t BLOCK_SIZE = 4 * 4096;
 WriteJob::WriteJob(ThreadPool& pool,
                    Context& context,
                    Request &request,
-                   const std::string& path,
+                   std::string path,
                    const ContentType type,
                    size_t file_size
                    )

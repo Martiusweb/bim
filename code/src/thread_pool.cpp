@@ -116,7 +116,6 @@ bool ThreadPool::init() {
 
       // unblock all thread, if they were on no-op
       TEST_FAILURE(pthread_cond_broadcast(&cond_wait_));
-
       pthread_join(threads_[i], 0);
     }
   }

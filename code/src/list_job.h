@@ -49,6 +49,7 @@ class ListJob : public Job
   public:
   ListJob(ThreadPool& pool, Context& context, Request& request);
   virtual Action act();
+  virtual ~ListJob();
   private:
   /**
    * @brief Get the parent of the path

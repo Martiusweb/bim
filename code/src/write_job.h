@@ -54,10 +54,6 @@ class Request;
 class WriteJob : public Job
 {
   public:
-    /**
-     * This specifies what to do with the data (i.e. which constructor has been
-     * called).
-     */
     enum ContentType
     {
       Data,
@@ -76,7 +72,7 @@ class WriteJob : public Job
     WriteJob(ThreadPool& pool,
              Context& context,
              Request& request,
-             const std::string& path,
+             std::string path,
              const ContentType type = Path,
              size_t file_size = 0);
 

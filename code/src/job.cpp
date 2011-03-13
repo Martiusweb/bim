@@ -42,4 +42,7 @@ Job::Job(ThreadPool& pool, Context& context)
   :pool_(pool),
   context_(context)
 { }
+
+Job::~Job()
+{ }
 }

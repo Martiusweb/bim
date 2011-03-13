@@ -148,6 +148,10 @@ class EventDispatcher
          * @brief Maximum of events fetched in one loop.
          */
         int _events_per_loop;
+        /**
+         * @brief This is truc is the server shall close.
+         */
+        bool closing_requested_;
 };
 } // /bim
 

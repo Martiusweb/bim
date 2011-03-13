@@ -82,7 +82,7 @@ class Server: public Listenable
          */
         void close();
 
-        void clientDisconnected(Client* client) const;
+        void clientDisconnected(Client* client);
 
         virtual bool registerEventDispatcher(EventDispatcher& ed);
         virtual void onIn();
@@ -106,6 +106,10 @@ class Server: public Listenable
          * @brief Context data
          */
         Context& context_;
+        /**
+         * @brief This eases the deletion on shutdown.
+         */
+        std::vector<Client*> clients_;
 };
 } // /bim
 

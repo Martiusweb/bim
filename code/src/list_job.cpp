@@ -68,18 +68,23 @@ namespace bim
      ,request_(request)
   { }
 
+  ListJob::~ListJob()
+  { }
+
   Action ListJob::act()
   {
-    DIR* dir  = opendir(request_.getPath().c_str());
     struct dirent* entry = 0;
     struct dirent* entryp = 0;
+    DIR* dir  = opendir(request_.getPath().c_str());
+
+    TEST_FAILURE_REVERSE(dir);
 
     // prefered way to allocate for readdir_r usage (see man 2 readdir).
+    // _PC_NAME_MAX is the longest name for a file on this system.
     size_t len = offsetof(struct dirent, d_name) +
       pathconf(request_.getPath().c_str(), _PC_NAME_MAX) + 1;
 
     entry = reinterpret_cast<dirent*>(new char[len]);
-
     // operator+ would create temporary std::string.
     // we try to avoid this here.
     html_page_ = HTML_BEGIN;
@@ -173,6 +178,7 @@ namespace bim
                                request_,
                                html_page_,
                                WriteJob::Data));
+
 
     return Delete;
   }

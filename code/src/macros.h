@@ -54,7 +54,16 @@
 			  strerror(errno);\
         error_log(strs.str()); \
 	}
-#define DBG_LOG(x) { std::cerr << x << std::endl; }
+
+#define TEST_FAILURE_REVERSE(x) if(!x) {\
+  std::stringstream strs; \
+  	strs << __FILE__ \
+			  << ":" << __LINE__ \
+			  << ":" << #x << " : " << \
+			  strerror(errno);\
+        error_log(strs.str()); \
+	}
+//#define DBG_LOG(x) { std::cerr << x << std::endl; }
 #define CRLF "\r\n"
 
 #endif

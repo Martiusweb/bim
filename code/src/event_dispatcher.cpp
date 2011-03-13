@@ -46,7 +46,9 @@
 namespace bim {
 
 EventDispatcher::EventDispatcher(int nb_max_events, int events_per_loop):
-    _epoll(0), _nb_max_events(nb_max_events), _events_per_loop(events_per_loop)
+    _epoll(0), _nb_max_events(nb_max_events),
+    _events_per_loop(events_per_loop),
+    closing_requested_(false)
 {
 }
 
@@ -61,7 +63,9 @@ bool EventDispatcher::init()
 
 void EventDispatcher::close()
 {
+    closing_requested_ = true;
     ::close(_epoll);
+    _epoll = 0;
 }
 
 EventDispatcher::~EventDispatcher()
@@ -74,7 +78,7 @@ EventDispatcher::~EventDispatcher()
 bool EventDispatcher::_listen(Listenable* const listenable,
         ListenOperation update, int mode)
 {
-    epoll_event event;
+    epoll_event event = {0,{0}};
     event.events = mode | EPOLLET | EPOLLRDHUP | EPOLLHUP;
     event.data.ptr = reinterpret_cast<void*>(listenable);
 
@@ -104,7 +108,7 @@ bool EventDispatcher::listenInOut(Listenable* const listenable,
 }
 
 void EventDispatcher::stopListening(Listenable& listenable) {
-    /* static */ epoll_event event;
+    epoll_event event = {0,{0}};
     epoll_ctl(_epoll, EPOLL_CTL_DEL, listenable.getDescriptor(), &event);
 }
 
@@ -114,12 +118,12 @@ void EventDispatcher::dispatch()
     epoll_event *events = new epoll_event[_events_per_loop];
     Listenable* listenable;
 
-    for(;;) {
+    while( ! closing_requested_ ) {
         // We wait infinitely for an event
         nb_events_fetched = epoll_wait(_epoll, events, _events_per_loop, -1);
         for(i = 0; i < nb_events_fetched; ++i) {
             listenable = (Listenable*) events[i].data.ptr;
-
+ 
             if(events[i].events & (EPOLLHUP|EPOLLERR|EPOLLRDHUP)) {
                 listenable->onErr();
             }
@@ -134,7 +138,8 @@ void EventDispatcher::dispatch()
             }
         }
     }
-    delete[] events;
+
+    delete [] events;
 }
 
 } // /bim

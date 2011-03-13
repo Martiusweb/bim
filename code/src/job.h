@@ -52,6 +52,7 @@ class Job
      * thread.
      */
     virtual bim::Action act() = 0;
+    virtual ~Job();
 
   protected:
     bim::ThreadPool& pool_;

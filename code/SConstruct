@@ -43,4 +43,4 @@ env = Environment(variables = vars,
 
 env.Append(LIBS = ['pthread'])
 source =  Glob('src/*.cpp')
-env.Program('server', source ,CXXFLAGS='-Wall -O2 -pedantic -g -ansi -Wextra')
+env.Program('server', source ,CXXFLAGS='-Wall -pedantic -g -ansi -Wextra')
