@@ -35,6 +35,7 @@
  **/
 
 #include <unistd.h>
+#include <cstring>
 
 #include "context.h"
 #include "macros.h"
@@ -60,6 +61,10 @@ Action ReadJob::act()
   char tmp;
   char* str_request = buffer;
 
+  // valgrind was complaining about unitialiazed memory.
+  // this is maybe not necessary
+  TEST_FAILURE(memset(buffer, READ_SIZE, 1));
+
   rv = read(request_->getClient().getDescriptor(), buffer, READ_SIZE);
 
   // Typo on bitmask
@@ -70,7 +75,8 @@ Action ReadJob::act()
     return DontDelete;
   }
 
-  for(int i = 0; i < READ_SIZE; ++i)
+  // rv was readsize, here
+  for(int i = 0; i < rv; ++i)
   {
     if(buffer[i] == '\r' && buffer[i+1] == '\n'
         && buffer[i+2] == '\r' && buffer[i+3] == '\n')

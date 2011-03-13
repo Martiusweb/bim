@@ -76,8 +76,10 @@ bool Server::init() {
     // Linux only : by default, an IPv6 socket is backward compatible.
     // This is not the common case !
     addr.sin6_family = AF_INET6;
+    addr.sin6_flowinfo = 0;
     addr.sin6_port = htons(_port);
     addr.sin6_addr = in6addr_any;
+    addr.sin6_scope_id = 0;
 
     TEST_FAILURE(setsockopt(_descriptor, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(int)));
 

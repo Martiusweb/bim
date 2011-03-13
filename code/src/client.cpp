@@ -45,6 +45,7 @@
 #include <sys/socket.h>
 #include <iostream>
 #include <string.h>
+#include <assert.h>
 
 
 namespace bim {
