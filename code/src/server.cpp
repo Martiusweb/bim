@@ -129,7 +129,9 @@ void Server::onIn()
     clients_.push_back(client);
     if(!(client->initialize(*this) &&
                 client->registerEventDispatcher(*_event_dispatcher))) {
+      trace_log("About to delete client");
         delete client;
+        trace_log("client deleted by server");
     }
 }
 
@@ -151,6 +153,7 @@ void Server::clientDisconnected(Client* client) {
   //if(found != clients)
   // clients_.erase(found);
 
+  trace_log(std::string("Client delete in ") + __func__);
   delete client;
 }
 

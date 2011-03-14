@@ -56,6 +56,7 @@ Client::Client(ThreadPool& pool, Context& context)
 }
 
 Client::~Client() {
+  trace_log("Deleting client");
     if(_event_dispatcher != 0) {
         unregisterEventDispatcher();
     }
