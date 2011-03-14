@@ -169,8 +169,8 @@ namespace bim
     delete [] reinterpret_cast<char*>(entry);
     TEST_FAILURE(closedir(dir));
 
-    request_.getResponse().addHeader(string("Content-type"),
-        string("text/html"));
+    request_.getResponse().addHeader(std::string("Content-type"),
+        std::string("text/html"));
 
     pool_.postJob(new WriteJob(pool_, context_,
                                request_,

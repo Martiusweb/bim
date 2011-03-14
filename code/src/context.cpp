@@ -89,7 +89,7 @@ namespace bim
     error_path_[code] = path;
   }
 
-  std::string parseContentType(const std::string &file_path) const {
+  std::string Context::parseContentType(const std::string &file_path) const {
     size_t extpos = file_path.find_last_of('.');
     if(extpos == file_path.npos) {
       return DEFAULT_CONTENT_TYPE;

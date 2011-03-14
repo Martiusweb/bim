@@ -81,7 +81,7 @@ Action WriteJob::act()
     }
     _add_content_length(_file_size);
     _request.getResponse().addHeader("Content-Type",
-        context.parseContentType(path_));
+        context_.parseContentType(path_));
     _write_headers();
 
     if(_file_size == 0) {
