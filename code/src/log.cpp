@@ -151,7 +151,7 @@ namespace bim
 
   void Log::close()
   {
-    write("-- LOG CLOSING", All);
+    write("-- LOG Closing", All);
     pthread_mutex_lock(&write_access_);
     access_log_.close();
     pthread_mutex_unlock(&write_access_);

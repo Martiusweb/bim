@@ -38,9 +38,10 @@
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
-#include "server.h"
 #include "event_dispatcher.h"
+#include "log.h"
 #include "macros.h"
+#include "server.h"
 
 using namespace bim;
 using namespace std;
@@ -55,8 +56,6 @@ EventDispatcher dispatcher(1024, 16);
 
 void handle_exit(int signal_number, siginfo_t* infos, void* context)
 {
-  cerr << "signal_number" << signal_number << endl;
-  cerr << "" << endl;
   dispatcher.close();
 }
 
@@ -74,6 +73,8 @@ int main(int /* argc */, char** /* argv */)
 
    struct sigaction action;
    struct sigaction save;
+
+   Log::get_log();
 
    sigemptyset(&action.sa_mask);
 
