@@ -63,6 +63,16 @@
 			  strerror(errno);\
         error_log(strs.str()); \
 	}
+
+#define TEST_FAILURE_MINUS_ONE(x) if(x == -1) {\
+  std::stringstream strs; \
+  	strs << __FILE__ \
+			  << ":" << __LINE__ \
+			  << ":" << #x << " : " << \
+			  strerror(errno);\
+        error_log(strs.str()); \
+	}
+
 //#define DBG_LOG(x) { std::cerr << x << std::endl; }
 #define CRLF "\r\n"
 

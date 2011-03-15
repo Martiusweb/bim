@@ -31,4 +31,4 @@
 #
 # File author : Paul ADENOT <paul@paul.cx>
 
-THREADS_PER_CORE = 2
+THREADS_PER_CORE = 1

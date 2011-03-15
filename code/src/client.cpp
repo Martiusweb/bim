@@ -66,6 +66,7 @@ Client::~Client() {
 }
 
 bool Client::initialize(Server &server) {
+  static int count = 0;
     _server = &server;
     socklen_t addrln = sizeof(_address);
     int flags = 0;
@@ -74,18 +75,24 @@ bool Client::initialize(Server &server) {
       return false;
     }
 
-    if((_descriptor = accept(server.getDescriptor(), (sockaddr*) &_address,
-                    &addrln)) == -1) {
+    if((_descriptor = accept(server.getDescriptor(), (sockaddr*) &_address, &addrln)) == -1) {
+        error_log("Client accept failure");
         _descriptor = 0;
         return false;
     }
 
+    std::stringstream strs;
+    strs << "total accepted : " << ++count;
+    trace_log(strs.str());
+
     if((flags = fcntl(_descriptor, F_GETFL, 0)) == -1) {
+        error_log("fcntl : get flags");
         close();
         return false;
     }
 
     if(fcntl(_descriptor, F_SETFL, flags|O_NONBLOCK) == -1) {
+      error_log("fcntl : set non block");
         close();
         return false;
     }
@@ -149,6 +156,10 @@ void Client::requestProcessed() {
 }
 
 void Client::onIn() {
+  static int i = 0;
+  std::stringstream strs;
+  strs << __func__ << " " << i++;
+  trace_log(strs.str());
   thread_pool_.postJob(new ReadJob(thread_pool_, *this, context_));
 }
 

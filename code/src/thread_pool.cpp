@@ -53,17 +53,11 @@ namespace bim
   }
 
 bool ThreadPool::init() {
-    if(pthread_mutex_init(&block_mutex_, 0) != 0) {
-        return false;
-    }
-
     if(pthread_mutex_init(&queue_mutex_, 0)) {
-        pthread_mutex_destroy(&block_mutex_);
         return false;
     }
 
     if(pthread_cond_init(&cond_wait_, 0)) {
-        pthread_mutex_destroy(&block_mutex_);
         pthread_mutex_destroy(&queue_mutex_);
         return false;
     }
@@ -100,12 +94,10 @@ bool ThreadPool::init() {
     // Yes, two locks here : one for the condition, which, according to the
     // manpages, shall be locked when calling pthread_cond_signal, and one for
     // mutual exclusion of the queue.
-    TEST_FAILURE(pthread_mutex_lock(&block_mutex_));
     TEST_FAILURE(pthread_mutex_lock(&queue_mutex_));
     queue_.push(job);
-    TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
     TEST_FAILURE(pthread_cond_signal(&cond_wait_));
-    TEST_FAILURE(pthread_mutex_unlock(&block_mutex_));
+    TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
   }
 
   void ThreadPool::join()
@@ -159,20 +151,19 @@ bool ThreadPool::init() {
 
   void ThreadPool::noop_job()
   {
-    TEST_FAILURE(pthread_mutex_lock(&block_mutex_));
 
     TEST_FAILURE(pthread_mutex_lock(&queue_mutex_));
     if(queue_.empty())
     {
-      TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
-      TEST_FAILURE(pthread_cond_wait(&cond_wait_, &block_mutex_));
-    }
-    else
-    {
-      TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
+      trace_log("client about to noop");
+      std::stringstream strs;
+      strs << "queue state: " << queue_.size();
+      trace_log(strs.str());
+      TEST_FAILURE(pthread_cond_wait(&cond_wait_, &queue_mutex_));
+      trace_log("client exiting noop");
     }
 
-    TEST_FAILURE(pthread_mutex_unlock(&block_mutex_));
+    TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
 
     if(join_requested_)
       pthread_exit(0);
@@ -180,7 +171,6 @@ bool ThreadPool::init() {
 
   size_t ThreadPool::queue_length()
   {
-
     TEST_FAILURE(pthread_mutex_lock(&queue_mutex_));
     size_t size = queue_.size();
     TEST_FAILURE(pthread_mutex_unlock(&queue_mutex_));
