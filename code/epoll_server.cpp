@@ -1,6 +1,6 @@
 /**
- * A simple server implemented using e-poll.
- */
+* A simple server implemented using e-poll.
+*/
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -16,12 +16,12 @@
 /* Server port */
 static const uint16_t SERVER_PORT = 7001;
 /* Max clients */
-static const int MAX_CLIENTS = 1000;
+static const int MAX_CLIENTS = 10;
 /* Max epoll events that can be caught
- * TODO explain how to choose this value (currently *rand*) */
+* TODO explain how to choose this value (currently *rand*) */
 static const int MAX_EPOLL_EVENTS = 64;
 /* Max epoll events processed per loop
- * TODO explain this one too */
+* TODO explain this one too */
 static const int MAX_EPOLL_EVENTS_PER_LOOP = 16;
 
 typedef struct {
@@ -30,15 +30,15 @@ typedef struct {
 } bim_connection_t;
 
 /**
- * Sets the socket described by fd as non-blocking.
- * Returns the socket fd or -1 in case of error.
- */
+* Sets the socket described by fd as non-blocking.
+* Returns the socket fd or -1 in case of error.
+*/
 static int socket_set_nonblocking(int fd)
 {
     int socket_flags = 1;
     /* Reuse address : tells the kernel that even if this port is busy (in the
-       TIME_WAIT state), go ahead and reuse it anyway. Avoid "Already in use"
-       error when restarting the program.  */
+TIME_WAIT state), go ahead and reuse it anyway. Avoid "Already in use"
+error when restarting the program. */
     if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &socket_flags, sizeof(int))
             < 0) {
         return -1;
@@ -57,15 +57,15 @@ static int socket_set_nonblocking(int fd)
 }
 
 /**
- * Create a socket ready to accept connections.
- * @param port listening port
- * @param max_clients maximum of clients allowed by the server
- * Returns a file descriptor or -1 in case of error.
- */
+* Create a socket ready to accept connections.
+* @param port listening port
+* @param max_clients maximum of clients allowed by the server
+* Returns a file descriptor or -1 in case of error.
+*/
 static int create_server(uint16_t port, int max_clients)
 {
     int socket_server, epollq;
-    struct sockaddr_in addr_server = {0}; 
+    struct sockaddr_in addr_server = {0};
 
     /* Initialize the server socket */
     socket_server = socket(AF_INET, SOCK_STREAM, 0);
@@ -77,6 +77,8 @@ static int create_server(uint16_t port, int max_clients)
     addr_server.sin_family = AF_INET;
     addr_server.sin_port = htons(port);
     addr_server.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    socket_set_nonblocking(socket_server);
 
     if(bind(socket_server, (struct sockaddr*) &addr_server,
                 sizeof(addr_server)) != 0) {
@@ -95,12 +97,12 @@ static int create_server(uint16_t port, int max_clients)
 }
 
 /**
- * Add the socket to the I/O descriptors watched by our epoll structure.
- * @param epollq epoll file descriptor
- * @param socket_server server socket to watch
- * @param mode epoll_ctl mode (EPOLL_CTL_ADD or EPOLL_CTL_MOD)
- * Returns the epoll fd or -1 in case of error
- */
+* Add the socket to the I/O descriptors watched by our epoll structure.
+* @param epollq epoll file descriptor
+* @param socket_server server socket to watch
+* @param mode epoll_ctl mode (EPOLL_CTL_ADD or EPOLL_CTL_MOD)
+* Returns the epoll fd or -1 in case of error
+*/
 static int epoll_watch_in(int epollq, int socket_server, int mode =
         EPOLL_CTL_ADD)
 {
@@ -120,12 +122,12 @@ static int epoll_watch_in(int epollq, int socket_server, int mode =
 }
 
 /**
- * Add the socket to the I/O descriptors watched by our epoll structure.
- * @param epollq epoll file descriptor
- * @param socket_client client socket to watch
- * @param mode epoll_ctl mode (EPOLL_CTL_ADD or EPOLL_CTL_MOD)
- * Returns the epoll fd or -1 in case of error
- */
+* Add the socket to the I/O descriptors watched by our epoll structure.
+* @param epollq epoll file descriptor
+* @param socket_client client socket to watch
+* @param mode epoll_ctl mode (EPOLL_CTL_ADD or EPOLL_CTL_MOD)
+* Returns the epoll fd or -1 in case of error
+*/
 static int epoll_watch_inout(int epollq, int socket_client, int mode =
         EPOLL_CTL_ADD)
 {
@@ -148,11 +150,11 @@ static int epoll_watch_inout(int epollq, int socket_client, int mode =
 }
 
 /**
- * Remove the file descriptor fd of those watched by epollq.
- * @param epollq epoll descriptor
- * @param fd file descriptor
- * Returns the epoll fd or -1 in case of error
- */
+* Remove the file descriptor fd of those watched by epollq.
+* @param epollq epoll descriptor
+* @param fd file descriptor
+* Returns the epoll fd or -1 in case of error
+*/
 static int epoll_unwatch(int epollq, int fd)
 {
     /* We could be bitches and use a static structure */
@@ -163,9 +165,11 @@ static int epoll_unwatch(int epollq, int fd)
     return epollq;
 }
 
+static const char* response = "HTTP/1.1 200 OK\r\nContent-Length: 9\r\nContent-Type: text/html\r\n\r\n<p>OK</p>";
+
 /**
- * Enter the program, create the server socket.
- */
+* Enter the program, create the server socket.
+*/
 int main()
 {
     int socket_server = 0, socket_client = 0, epollq = 0, nb_events = 0,
@@ -216,8 +220,8 @@ int main()
                 epoll_unwatch(epollq, c->fd);
                 close(c->fd);
             }
-            else if(c->fd == socket_server && (events[i].events &
-                        EPOLLIN)) {
+            else if(c->fd == socket_server) {
+              if(events[i].events & EPOLLIN) {
                 if((socket_client = accept(socket_server, (struct sockaddr*)
                                 &addr_client, &addr_ln)) > 0) {
 
@@ -230,6 +234,7 @@ int main()
                         perror("Can not watch the client with epoll\n");
                     }
                 }
+              }
             }
             else {
                 if(events[i].events & EPOLLIN) {
@@ -242,7 +247,7 @@ int main()
                 }
                 if(events[i].events & EPOLLOUT) {
                     printf("persistant data ? %s\n", c->string);
-                    send(c->fd, "plop\n", 5,
+                    send(c->fd, response, strlen(response),
                             MSG_DONTWAIT|MSG_NOSIGNAL);
                     epoll_unwatch(epollq, c->fd);
                     close(c->fd);
@@ -258,4 +263,5 @@ int main()
     printf("Good bye !\n");
     return 0;
 }
+
 
