@@ -64,6 +64,7 @@ bool EventDispatcher::init()
 
 void EventDispatcher::close()
 {
+    trace_log("Close called");
     closing_requested_ = true;
     ::close(_epoll);
     _epoll = 0;
@@ -115,43 +116,44 @@ void EventDispatcher::stopListening(Listenable& listenable) {
 
 void EventDispatcher::dispatch()
 {
-    int nb_events_fetched, i;
-    static int total_events_fetched_out = 0;
-    static int total_events_fetched_in = 0;
-    epoll_event *events = new epoll_event[_events_per_loop];
-    Listenable* listenable;
+  int nb_events_fetched, i;
+  static int total_events_fetched_out = 0;
+  static int total_events_fetched_in = 0;
+  epoll_event *events = new epoll_event[_events_per_loop];
+  Listenable* listenable;
 
-    while( ! closing_requested_ ) {
-        // We wait infinitely for an event
-        nb_events_fetched = epoll_wait(_epoll, events, _events_per_loop, 5);
-        assert(nb_events_fetched <= _events_per_loop);
-        TEST_FAILURE_MINUS_ONE(nb_events_fetched);
-        for(i = 0; i < nb_events_fetched; ++i) {
-            listenable = (Listenable*) events[i].data.ptr;
- 
-            if(events[i].events & (EPOLLHUP|EPOLLERR|EPOLLRDHUP)) {
-              error_log("got error");
-                listenable->onErr();
-            }
-            else {
-              if(events[i].events & EPOLLIN) {
-                  listenable->onIn();
-                  std::stringstream strs;
-                  strs << "nb fetched in: " << total_events_fetched_in++;
-                  trace_log(strs.str());
-              }
-              // Cannot be EPOLLERR there !
-              if(events[i].events & EPOLLOUT) {
-                  listenable->onOut();
-                  std::stringstream strs;
-                  strs << "nb fetched out: " << total_events_fetched_out++;
-                  trace_log(strs.str());
-              }
-            }
+  while( ! closing_requested_ ) {
+    // We wait infinitely for an event
+    nb_events_fetched = epoll_wait(_epoll, events, _events_per_loop, 5);
+    assert(nb_events_fetched <= _events_per_loop);
+    TEST_FAILURE_MINUS_ONE(nb_events_fetched);
+    for(i = 0; i < nb_events_fetched; ++i) {
+      listenable = (Listenable*) events[i].data.ptr;
+
+      if(events[i].events & (EPOLLHUP|EPOLLERR)) {
+        std::cout << strerror(errno) << std::endl;
+        listenable->onErr();
+      }
+      else {
+        if(events[i].events & EPOLLIN) {
+          listenable->onIn();
+          std::stringstream strs;
+          strs << "nb fetched in: " << total_events_fetched_in++;
+          trace_log(strs.str());
         }
+        // Cannot be EPOLLERR there !
+        if(events[i].events & EPOLLOUT) {
+          listenable->onOut();
+          std::stringstream strs;
+          strs << "nb fetched out: " << total_events_fetched_out++;
+          trace_log(strs.str());
+        }
+      }
     }
+  }
 
-    delete [] events;
+  delete [] events;
+  trace_log("On sort de dispatch");
 }
 
 } // /bim

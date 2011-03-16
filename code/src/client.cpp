@@ -66,7 +66,7 @@ Client::~Client() {
 }
 
 bool Client::initialize(Server &server) {
-  static int count = 0;
+    static int count = 0;
     _server = &server;
     socklen_t addrln = sizeof(_address);
     int flags = 0;
@@ -75,15 +75,19 @@ bool Client::initialize(Server &server) {
       return false;
     }
 
+    std::stringstream strs;
+    strs << "about to accept : " << count;
+    trace_log(strs.str());
+
     if((_descriptor = accept(server.getDescriptor(), (sockaddr*) &_address, &addrln)) == -1) {
         error_log("Client accept failure");
         _descriptor = 0;
         return false;
     }
 
-    std::stringstream strs;
+    std::stringstream strs_;
     strs << "total accepted : " << ++count;
-    trace_log(strs.str());
+    trace_log(strs_.str());
 
     if((flags = fcntl(_descriptor, F_GETFL, 0)) == -1) {
         error_log("fcntl : get flags");
@@ -116,7 +120,7 @@ void Client::close() {
 }
 
 bool Client::registerEventDispatcher(EventDispatcher& ed) {
-    if(ed.listenInOut(this)) {
+    if(ed.listenIn(this)) {
         return Listenable::registerEventDispatcher(ed);
     }
 

@@ -85,6 +85,16 @@ bool Server::init() {
 
     TEST_FAILURE(setsockopt(_descriptor, SOL_SOCKET, SO_REUSEADDR, &flags, sizeof(int)));
 
+    if((flags = fcntl(_descriptor, F_GETFL, 0)) == -1) {
+        close();
+        return false;
+    }
+
+    if(fcntl(_descriptor, F_SETFL, flags|O_NONBLOCK) == -1) {
+        close();
+        return false;
+    }
+
     if(bind(_descriptor, (struct sockaddr*) &addr, sizeof(addr)) < 0) {
         close();
         return false;
@@ -96,15 +106,6 @@ bool Server::init() {
     }
 
 
-    if((flags = fcntl(_descriptor, F_GETFL, 0)) == -1) {
-        close();
-        return false;
-    }
-
-    if(fcntl(_descriptor, F_SETFL, flags|O_NONBLOCK) == -1) {
-        close();
-        return false;
-    }
 
     return true;
 }

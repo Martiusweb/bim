@@ -52,7 +52,7 @@ using namespace std;
 //
 // This instance shall be declared as global since it has to be in scope for
 // handle_exit.
-EventDispatcher dispatcher(1024, 32);
+EventDispatcher dispatcher(10240, 32);
 
 void handle_exit(int signal_number, siginfo_t* infos, void* context)
 {
