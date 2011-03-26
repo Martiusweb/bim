@@ -36,9 +36,10 @@
 
 #include "request.h"
 #include "context.h"
-#include "assert.h"
+#include "parser/http11_parser.h"
 
 #include <algorithm>
+#include <assert.h>
 #include <sstream>
 
 namespace bim 
@@ -47,8 +48,7 @@ namespace bim
 using namespace std;
 
 Request::Request(Client &client, Context& context)
-:_headers_parsed(false)
-,_http_version(UNKNOWN)
+:request_(0)
 ,_client(client)
 ,context_(context)
 ,_response()
@@ -56,29 +56,27 @@ Request::Request(Client &client, Context& context)
   _client.requestHandled(this);
 }
 
+Request::~Request()
+{
+  delete request_;
+}
+
 std::string& Request::getMethod()
 {
-  _parse_headers();
-  if(method_.empty()) {
-    _parse_request_line();
-  }
-  return method_;
+  parse();
+  return request_->request_method;
 }
 
 std::string& Request::getUrl()
 {
-  if(url_.empty()) {
-    _parse_request_line();
-  }
-  return url_;
+  parse();
+  return request_->request_uri;
 }
 
 std::string& Request::getPath()
 {
-  if(path_.empty())
-  {
-    path_ = context_.getDocumentRoot()+getUrl();
-  }
+  parse();
+  path_ = context_.getDocumentRoot()+getUrl();
   return path_;
 }
 
@@ -112,11 +110,8 @@ const std::string& Request::get_request_line()
 
 
 HttpVersion Request::getHttpVersion() {
-
-  if(_http_version == UNKNOWN) {
-    _parse_request_line();
-  }
-  return _http_version;
+  parse();
+  return request_->http_version;
 }
 
 // TODO do it better ?
@@ -140,68 +135,27 @@ bool Request::keepAlive() {
 }
 
 bool Request::headerExists(const std::string& header) {
-  if(!_headers_parsed) {
-    _parse_headers();
-  }
-  return (_headers.find(header) == _headers.end());
+  parse();
+  return (request_->header_fields.find(header) == request_->header_fields.end());
 }
 
 const std::string& Request::getHeader(const std::string& header) {
-  if(!_headers_parsed) {
-    _parse_headers();
-  }
-  return _headers[header];
+  parse();
+  return request_->header_fields[header];
 }
 
 const HeadersMap& Request::getHeaders() {
-  if(!_headers_parsed) {
-    _parse_headers();
-  }
-  return _headers;
+  parse();
+  return request_->header_fields;
 }
 
-void Request::_parse_request_line() {
-  // Parse the method
-  size_t end_method = raw_.find_first_of(' ');
-  if(end_method != std::string::npos)
-  {
-    method_ = raw_.substr(0,end_method);
-
-    // Parse the URL
-    size_t end_url = raw_.find_first_of(' ', end_method+1);
-
-    if(end_url != string::npos) {
-      url_ = raw_.substr(end_method+1, end_url - end_method - 1);
-
-      // Parse http version
-      size_t begin_version = raw_.find_first_of('/', end_url+1);
-      _http_version = raw_.substr(begin_version+1, 3) == "1.0" ? HTTP10 : HTTP11;
-    }
+void Request::parse()
+{
+  if( ! request_ ) {
+    http11_parser parser(raw_.c_str());
+    parser.execute();
+    request_ = parser.finished();
   }
-}
-
-void Request::_parse_headers() {
-  std::stringstream request(raw_);
-  std::string current;
-  size_t separator;
-  std::string key,value;
-
-  // Skip request line
-  getline(request, current);
-
-  while(!request.eof()) {
-    getline(request, current);
-
-    if(!current.empty() && (separator = current.find_first_of(':')) !=
-        std::string::npos)
-    {
-      key = current.substr(0, separator);
-      value = current.substr(separator+1, current.find_first_of('\r')-separator-1);
-      std::transform(key.begin(), key.end(), key.begin(), ::tolower);
-      _headers[key] = value;
-    }
-  }
-  _headers_parsed = true;
 }
 
 }

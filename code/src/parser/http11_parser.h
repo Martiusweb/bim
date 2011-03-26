@@ -43,6 +43,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+namespace bim {
 class http11_parser
 {
   public:
@@ -77,5 +78,6 @@ class http11_parser
     http11_request* request_;
 };
 
+}
 
 #endif

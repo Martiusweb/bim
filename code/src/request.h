@@ -42,6 +42,8 @@
 #include "client.h"
 #include "http_commons.h"
 #include "response.h"
+#include "parser/http11_request.h"
+#include "http_commons.h"
 
 namespace bim
 {
@@ -56,6 +58,8 @@ class Request
      * @param context The context (document_root, etc.)
      */
     Request(Client &client, Context& context);
+
+    ~Request();
 
     /**
      * @brief Get the method for the request
@@ -160,28 +164,16 @@ class Request
     bool keepAlive();
 
   private:
-    /**
-     * @brief retrieves method, http version and url.
-     */
-    void _parse_request_line();
-    /**
-     * @brief parse request headers.
-     */
-    void _parse_headers();
-
+    void parse();
     /* Change that to ranges ? */
-    std::string path_;
-    std::string url_;
-    std::string method_;
-    std::string raw_;
-    std::string request_line_;
-    HeadersMap _headers;
-    bool _headers_parsed;
-    HttpVersion _http_version;
+    http11_request* request_;
     Client &_client;
     int status_code_;
     Context& context_;
     Response _response;
+    std::string raw_;
+    std::string path_;
+    std::string request_line_;
 };
 }
 

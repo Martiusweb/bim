@@ -39,16 +39,19 @@
 
 #include <string>
 #include <map>
+#include "../http_commons.h"
 
+namespace bim {
 struct http11_request {
-	std::map<std::string, std::string> header_fields;
+	HeadersMap header_fields;
 	std::string request_method;
 	std::string request_uri;
 	std::string fragment;
 	std::string request_path;
 	std::string query_string;
-	std::string http_version;
+	HttpVersion http_version;
 	std::string header_done;
 };
+}
 
 #endif // HTTP11_REQUEST_H

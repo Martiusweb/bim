@@ -37,6 +37,8 @@
 #include "http11_parser.h"
 #include <cassert>
 
+namespace bim {
+
   http11_parser::http11_parser(const char* buffer)
 :buffer_(buffer)
 {
@@ -79,50 +81,59 @@ http11_request* http11_parser::finished()
   }
 }
 
-void http11_parser::http_field(void *data, const char *field, size_t flen, const char *value, size_t vlen)
+void http11_parser::http_field(void* /* data */, const char *field, size_t flen, const char *value, size_t vlen)
 {
   std::string key(field, flen);
   std::string val(value, vlen);
   request_->header_fields[key] = val;
 }
 
-void http11_parser::http_field_(void* instance, void *data, const char *field, size_t flen, const char *value, size_t vlen)
+void http11_parser::http_field_(void* instance, void*  data, const char *field, size_t flen, const char *value, size_t vlen)
 {
   reinterpret_cast<http11_parser*>(instance)->http_field(data, field, flen, value, vlen);
 }
 
 
-void http11_parser::request_method(void *data, const char *at, size_t length)
+void http11_parser::request_method(void* /* data */, const char *at, size_t length)
 {
   request_->request_method=std::string(at, length);
 }
 
-void http11_parser::request_uri(void *data, const char *at, size_t length)
+void http11_parser::request_uri(void* /* data */, const char *at, size_t length)
 {
   request_->request_uri = std::string(at, length);
 }
 
-void http11_parser::fragment(void *data, const char *at, size_t length)
+void http11_parser::fragment(void* /* data */, const char *at, size_t length)
 {
   request_->fragment = std::string(at, length);
 }
 
-void http11_parser::request_path(void *data, const char *at, size_t length)
+void http11_parser::request_path(void* /* data */, const char *at, size_t length)
 {
   request_->request_path = std::string(at, length);
 }
 
-void http11_parser::query_string(void *data, const char *at, size_t length)
+void http11_parser::query_string(void* /* data */, const char *at, size_t length)
 {
   request_->query_string = std::string(at, length);
 }
 
-void http11_parser::http_version(void *data, const char *at, size_t length)
+void http11_parser::http_version(void* /* data */, const char *at, size_t length)
 {
-  request_->http_version = std::string(at, length);
+  std::string str(at,length);
+
+  if(str == "HTTP/1.1")
+    request_->http_version = HTTP11;
+  else if (str == "HTTP/1.0")
+    request_->http_version = HTTP10;
+  else
+    request_->http_version = UNKNOWN;
+
+  request_->http_version;
 }
 
-void http11_parser::header_done(void *data, const char *at, size_t length)
+void http11_parser::header_done(void* /* data */, const char *at, size_t length)
 {
   request_->header_done = std::string(at, length);
 }
@@ -160,4 +171,5 @@ void http11_parser::http_version_(void* instance, void *data, const char *at, si
 void http11_parser::header_done_(void* instance, void *data, const char *at, size_t length)
 {
   reinterpret_cast<http11_parser*>(instance)->header_done(data, at, length);
+}
 }

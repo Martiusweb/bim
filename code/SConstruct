@@ -42,5 +42,6 @@ env = Environment(variables = vars,
 
 
 env.Append(LIBS = ['pthread'])
-source =  Glob('src/*.cpp')
+source =  Glob('src/*.cpp', 'src/parser/*.cpp')
+source +=  Glob('src/parser/*.cpp')
 env.Program('server', source ,CXXFLAGS='-Wall -pedantic -g -ansi -Wextra -std=gnu++0x')

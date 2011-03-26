@@ -38,6 +38,7 @@
 #define BIM_PARSE_JOB_H_
 
 #include "job.h"
+#include "parser/http11_parser_mongrel.h"
 
 namespace bim
 {
