@@ -275,20 +275,21 @@ int main()
             read++;
             var_dump(read);
           } while(received != -1 && errno != EAGAIN);
-          std::cerr << "Got EAGAIN, exiting loop" << std::endl;
-        }
-        if(events[i].events & EPOLLOUT) {
+
+          /* Ok, time to write back */
+
           int sent = 0;
+          int totalsent = 0;
           const char* resp = "HTTP/1.0 200 OK\r\nContent-Length: 4\r\nConnection: close\r\n\r\nplop\r\n";
-          do 
+          do
           {
-            sent = send(c->fd, resp, strlen(resp), MSG_DONTWAIT|MSG_NOSIGNAL);
+            sent = send(c->fd, resp+totalsent, strlen(resp), MSG_DONTWAIT|MSG_NOSIGNAL);
+            totalsent += sent;
             if(sent == -1 && errno != EAGAIN)
             {
               perror("send");
               exit(1);
             }
-
           } while(sent != strlen(resp));
 
           // epoll_unwatch(epollq, c->fd);
