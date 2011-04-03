@@ -85,6 +85,10 @@ bool Client::initialize(Server &server) {
         return false;
     }
 
+    int rv = accept(server.getDescriptor(), (sockaddr*) &_address, &addrln);
+    std::cerr << "rv: " << rv << std::endl;
+    assert(rv == -1 && errno == EAGAIN);
+
     std::stringstream strs_;
     strs << "total accepted : " << ++count;
     trace_log(strs_.str());
