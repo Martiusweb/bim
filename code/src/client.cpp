@@ -49,14 +49,15 @@
 
 
 namespace bim {
-Client::Client(ThreadPool& pool, Context& context)
-  : Listenable(), _handled_requests(0), _server(0), thread_pool_(pool),
+Client::Client(ThreadPool& pool, Context& context, int fd)
+  : Listenable(fd), _handled_requests(0), _server(0), thread_pool_(pool),
   context_(context), _queued_requests() {
     bzero((char *) &_address, sizeof(_address));
 }
 
 Client::~Client() {
-  trace_log("Deleting client");
+    trace_log("Deleting client");
+
     if(_event_dispatcher != 0) {
         unregisterEventDispatcher();
     }
@@ -66,32 +67,12 @@ Client::~Client() {
 }
 
 bool Client::initialize(Server &server) {
-    static int count = 0;
     _server = &server;
-    socklen_t addrln = sizeof(_address);
     int flags = 0;
 
     if(pthread_mutex_init(&_queue_mutex, 0) != 0) {
       return false;
     }
-
-    std::stringstream strs;
-    strs << "about to accept : " << count;
-    trace_log(strs.str());
-
-    if((_descriptor = accept(server.getDescriptor(), (sockaddr*) &_address, &addrln)) == -1) {
-        error_log("Client accept failure");
-        _descriptor = 0;
-        return false;
-    }
-
-    int rv = accept(server.getDescriptor(), (sockaddr*) &_address, &addrln);
-    std::cerr << "rv: " << rv << std::endl;
-    assert(rv == -1 && errno == EAGAIN);
-
-    std::stringstream strs_;
-    strs << "total accepted : " << ++count;
-    trace_log(strs_.str());
 
     if((flags = fcntl(_descriptor, F_GETFL, 0)) == -1) {
         error_log("fcntl : get flags");
@@ -113,11 +94,13 @@ void Client::close() {
 
     Request* r;
     pthread_mutex_lock(&_queue_mutex);
+
     while(!_queued_requests.empty()) {
       r = _queued_requests.front();
       _queued_requests.pop();
       delete r;
     }
+
     pthread_mutex_unlock(&_queue_mutex);
 
     pthread_mutex_destroy(&_queue_mutex);

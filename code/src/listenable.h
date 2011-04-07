@@ -57,6 +57,7 @@ class Listenable
          * The object is in a stable inactive state.
          */
         Listenable();
+        Listenable(int fd);
         /**
          * @brief destruct the object.
          * Unregister the event dispatcher, but don't check if the object
@@ -77,7 +78,7 @@ class Listenable
         inline int getDescriptor() const {
             return _descriptor;
         }
-        
+
         /**
          * @brief Registers callbacks to the event dispatcher.
          * @param ed The event dispatcher instance

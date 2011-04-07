@@ -57,13 +57,8 @@ class Client: public Listenable
     public:
         typedef std::queue<Request*> RequestsQueue;
 
-        Client(ThreadPool& pool, Context& context);
+        Client(ThreadPool& pool, Context& context, int fd);
         virtual ~Client();
-        /**
-         * @brief accept a client
-         * Accepts connection and set the client socket non blocking. These
-         * operations are mandatory. Returns false if any operation fails.
-         */
         bool initialize(Server& server);
 
         /**

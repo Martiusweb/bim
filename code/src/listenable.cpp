@@ -41,6 +41,10 @@ Listenable::Listenable():
     _descriptor(0), _event_dispatcher(0) {
 }
 
+Listenable::Listenable(int fd):
+    _descriptor(fd), _event_dispatcher(0) {
+}
+
 Listenable::~Listenable() {
     if(_event_dispatcher != 0) {
         unregisterEventDispatcher();

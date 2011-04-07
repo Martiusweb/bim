@@ -120,14 +120,33 @@ bool Server::registerEventDispatcher(EventDispatcher& ed) {
 
 void Server::onIn()
 {
-    Client* client = new Client(thread_pool_, context_);
-    clients_.push_back(client);
-    if(!(client->initialize(*this) && client->registerEventDispatcher(*_event_dispatcher))) 
+  int rv = 0;
+  struct sockaddr_in6 address;
+  size_t addrln = sizeof(address);
+
+  do 
+  {
+    rv = accept(_descriptor, (sockaddr*) &address, &addrln);
+
+    if(rv != -1)
     {
-      trace_log("About to delete client");
+      Client* client = new Client(thread_pool_, context_, rv);
+      clients_.push_back(client);
+      if(!(client->initialize(*this) && client->registerEventDispatcher(*_event_dispatcher))) 
+      {
+        trace_log("About to delete client");
         delete client;
         trace_log("client deleted by server");
+      }
     }
+  } while(rv != -1);
+
+  if(errno != EAGAIN)
+  {
+    std::stringstream strs;
+    strs << "On accept() : " << strerror(errno) << std::endl;
+    trace_log(strs.str());
+  }
 }
 
 void Server::onErr() {

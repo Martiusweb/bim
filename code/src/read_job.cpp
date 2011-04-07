@@ -73,7 +73,7 @@ Action ReadJob::act()
   rv = read(request_->getClient().getDescriptor(), buffer, READ_SIZE);
 
   // Typo on bitmask
-  if(rv == -1 && (errno & (EAGAIN | EWOULDBLOCK)))
+  if(rv == -1 && (errno == EAGAIN))
   {
     pool_.postJob(this);
     delete[] buffer;
