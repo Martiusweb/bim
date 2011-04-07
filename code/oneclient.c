@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <stdio.h>
 
+
 /* The answer of the server */
 static const char* SERVER_ANSWER = "plop\n";
 
