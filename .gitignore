@@ -6,7 +6,14 @@ access_log
 code/bin/*
 code/obj/*
 code/server
+<<<<<<< HEAD
 error_log
 tags
 trace_log
 test_suite
+=======
+trace_log
+error_log
+access_log
+.sconsign.dblite
+>>>>>>> labs
