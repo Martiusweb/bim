@@ -51,75 +51,83 @@
 
 namespace bim
 {
-  ParseJob::ParseJob(bim::ThreadPool& pool, Context& context, Request& request)
-    :Job(pool, context), request_(request)
-  { }
+ParseJob::ParseJob(bim::ThreadPool& pool, Context& context, Request& request)
+  :Job(pool, context), request_(request)
+{ }
 
-  Action ParseJob::act()
+Action ParseJob::act()
+{
+  access_log(request_.get_request_line());
+
+  if(request_.getMethod() != "GET" && request_.getMethod() != "POST")
   {
-    access_log(request_.get_request_line());
-
-    if(request_.getMethod() != "GET" && request_.getMethod() != "POST")
+    if(request_.getMethod() != "PUT" && request_.getMethod() != "DELETE")
     {
-      if(request_.getMethod() != "PUT" && request_.getMethod() != "DELETE")
-      {
-        request_.getClient().requestParsed();
-        request_.getResponse().setStatusCode(BAD_REQUEST_400);
-        HttpErrorJob ejob(pool_, context_, request_);
-        ejob.act();
-        return Delete;
-      }
-      else
-      {
-        request_.getClient().requestParsed();
-        request_.getResponse().setStatusCode(NOT_IMPLEMENTED_501);
-        HttpErrorJob ejob(pool_, context_, request_);
-        ejob.act();
-        return Delete;
-      }
-    }
-
-    struct stat statbuf;
-    int rv = stat(request_.getPath().c_str(), &statbuf);
-    if(rv == -1)
-    {
-      switch(errno)
-      {
-        case EACCES:
-          request_.getResponse().setStatusCode(FORBIDDEN_403);
-        case ENOENT:
-        case ENOTDIR:
-          request_.getResponse().setStatusCode(NOT_FOUND_404);
-        case ENAMETOOLONG:
-          request_.getResponse().setStatusCode(BAD_REQUEST_400);
-        case ENOMEM:
-          request_.getResponse().setStatusCode(INTERNAL_SERVER_ERROR_500);
-        default:
-          TEST_FAILURE(rv);
-          return Delete;
-      }
-
       request_.getClient().requestParsed();
-      HttpErrorJob ej(pool_, context_, request_);
-      ej.act();
+      request_.getResponse().setStatusCode(BAD_REQUEST_400);
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
       return Delete;
-    }
-    if(S_ISDIR(statbuf.st_mode))
-    {
-      ListJob lj(pool_, context_, request_);
-      lj.act();
-      request_.getClient().requestParsed();
     }
     else
     {
-      WriteJob wj(pool_, context_, request_, request_.getPath(), WriteJob::Path, (size_t) statbuf.st_size);
-      wj.act();
       request_.getClient().requestParsed();
+      request_.getResponse().setStatusCode(NOT_IMPLEMENTED_501);
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      return Delete;
     }
-
-    // Check for file error (unreadable, not exist, etc.)
-    return Delete;
   }
+
+  struct stat statbuf;
+  int rv = stat(request_.getPath().c_str(), &statbuf);
+  if(rv == -1)
+  {
+    switch(errno)
+    {
+    case EACCES:
+      request_.getResponse().setStatusCode(FORBIDDEN_403);
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getClient().requestParsed();
+      return Delete;
+    case ENOENT:
+    case ENOTDIR:
+      request_.getResponse().setStatusCode(NOT_FOUND_404);
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getClient().requestParsed();
+      return Delete;
+    case ENAMETOOLONG:
+      request_.getResponse().setStatusCode(BAD_REQUEST_400);
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getClient().requestParsed();
+      return Delete;
+    case ENOMEM:
+      request_.getResponse().setStatusCode(INTERNAL_SERVER_ERROR_500);
+      pool_.postJob(new HttpErrorJob(pool_, context_, request_));
+      request_.getClient().requestParsed();
+      return Delete;
+    default:
+      TEST_FAILURE(rv);
+      return Delete;
+    }
+  }
+  if(S_ISDIR(statbuf.st_mode))
+  {
+    pool_.postJob(new ListJob(pool_, context_, request_));
+    request_.getClient().requestParsed();
+  }
+  else
+  {
+    pool_.postJob(new WriteJob(pool_,
+                               context_,
+                               request_,
+                               request_.getPath(),
+                               WriteJob::Path,
+                               (size_t) statbuf.st_size));
+    request_.getClient().requestParsed();
+  }
+
+  // Check for file error (unreadable, not exist, etc.)
+  return Delete;
+}
 
 }
 

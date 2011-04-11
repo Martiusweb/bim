@@ -49,17 +49,17 @@ namespace bim
 
   void access_log(const std::string& message)
   {
-    //Log::get_log()->write(message, Log::Access);
+    Log::get_log()->write(message, Log::Access);
   }
 
   void error_log(const std::string& message)
   {
-    //Log::get_log()->write(message, Log::Error);
+    Log::get_log()->write(message, Log::Error);
   }
 
   void trace_log(const std::string& message)
   {
-    //Log::get_log()->write(message, Log::Trace);
+    Log::get_log()->write(message, Log::Trace);
   }
 
   void all_log(const std::string& message)

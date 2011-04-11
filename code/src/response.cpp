@@ -174,14 +174,10 @@ std::string& Response::getHeader() {
     }
     _str_head += "\r\n";
 
-    HeadersMap::iterator end = _headers.end();
     // Put headers
     for(HeadersMap::iterator header_it = _headers.begin(); header_it !=
-       end ; ++header_it) {
-      _str_head += header_it->first;
-      _str_head += ":";
-      _str_head += header_it->second;
-      _str_head += "\r\n";
+        _headers.end(); ++header_it) {
+      _str_head += header_it->first + ":" + header_it->second + "\r\n";
     }
 
     // End of headers

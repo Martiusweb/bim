@@ -174,8 +174,10 @@ namespace bim
     delete [] reinterpret_cast<char*>(entry);
     TEST_FAILURE(closedir(dir));
 
-    WriteJob wj(pool_, context_, request_, html_page_, WriteJob::Data);
-    wj.act();
+    pool_.postJob(new WriteJob(pool_, context_,
+                               request_,
+                               html_page_,
+                               WriteJob::Data));
 
 
     return Delete;

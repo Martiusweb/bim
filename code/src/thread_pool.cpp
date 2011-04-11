@@ -120,7 +120,6 @@ bool ThreadPool::init() {
 
   void ThreadPool::schedule()
   {
-    static int count = 0;
     for(;;)
     {
       bim::Job* to_perform = 0;
@@ -130,9 +129,6 @@ bool ThreadPool::init() {
         if(! queue_.empty() )
         {
           to_perform = queue_.front();
-#ifdef PROFILE_POOL 1
-          std::cout << queue_.size() << std::endl;
-#endif
           queue_.pop();
         }
         else

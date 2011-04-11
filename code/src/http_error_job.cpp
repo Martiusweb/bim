@@ -58,8 +58,7 @@ namespace bim
 
     std::string& path =
       context_.getErrorDocumentPath(code);
-    WriteJob wj(pool_, context_, request_, path, WriteJob::Path);
-    wj.act();
+    pool_.postJob(new WriteJob(pool_, context_, request_, path, WriteJob::Path));
 
     return Delete;
   }
