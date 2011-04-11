@@ -56,6 +56,7 @@ EventDispatcher dispatcher(10240, 32);
 
 void handle_exit(int signal_number, siginfo_t* infos, void* context)
 {
+  cerr << "Caught signal, exiting" << endl;
   dispatcher.close();
 }
 

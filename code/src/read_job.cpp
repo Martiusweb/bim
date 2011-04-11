@@ -75,7 +75,7 @@ Action ReadJob::act()
   // Typo on bitmask
   if(rv == -1 && (errno == EAGAIN))
   {
-    pool_.postJob(this);
+    while(act() == DontDelete);
     delete[] buffer;
     return DontDelete;
   }
@@ -97,7 +97,7 @@ Action ReadJob::act()
 
   if(rv == READ_SIZE) // More data to read
   {
-    pool_.postJob(this);
+    while(act() == DontDelete);
     delete[] buffer;
     return DontDelete;
   }
@@ -108,7 +108,8 @@ Action ReadJob::act()
   }
   else
   {
-    pool_.postJob(new ParseJob(pool_, context_, *request_));
+    ParseJob pj(pool_, context_, *request_);
+    pj.act();
     _client.requestsRead();
     delete[] buffer;
     return Delete;
