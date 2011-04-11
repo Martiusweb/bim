@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <!--
+
+    ***************************************************
+    *                                                 *
+    * DZ-Slides: HTML Template for your presentations *
+    *                                                 *
+    ***************************************************
+      More information: http://paulrouget.com/dzslides
+
+
+    Author: @paulrouget <paul@mozilla.com>
+
+    Contributor(s):
+      - Anthony Ricaud <rik24d@gmail.com>
+      - Louis-Rémi Babé <lrbabe@gmail.com>
+
+
+    LICENSE:
+      DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+      Version 2, December 2004
+
+      Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+
+      Everyone is permitted to copy and distribute verbatim or modified
+      copies of this license document, and changing it is allowed as long
+      as the name is changed.
+
+      DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+      TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+      0. You just DO WHAT THE FUCK YOU WANT TO.
+
+
+    -->
+
+
+
+    <title>Bim, une expérience sur les webservers</title>
+
+        <!--
+        ************************************
+        *                                  *
+        *               CSS                *
+        *                                  *
+        ************************************
+        -->
+
+
+      <style>
+        /*
+        ************************************
+        *    CSS CORE:                     *
+        *    YOU DON'T WANT TO EDIT THIS   *
+        *    (but you can)                 *
+        ************************************
+        */
+
+        html { overflow: hidden; }
+        body, html { height: 100%; padding: 0px; }
+        body { margin: auto; position: relative; }
+        img, video { vertical-align: middle; }
+        /* FIXME : Mandatory for flex box model, Firefox bug */
+        /* See JS hack */
+        section > div { width: 100%; display: -moz-box; -moz-box-orient : vertical; -moz-box-pack : center; -moz-box-align : center; }
+        section > div { width: 100%; display: -webkit-box; -webkit-box-orient : vertical; -webkit-box-pack : center; -webkit-box-align : center; }
+        footer { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; position: absolute; bottom: 0; padding: 1em; width: 100%; }
+        .flex-wrapper { display: -moz-box; display: -webkit-box; -moz-box-orient: horizontal; -webkit-box-orient: horizontal; width: 100%; }
+        footer .flex-space { -moz-box-flex: 1; -webkit-box-flex: 1; }
+        section { -moz-transition-property: -moz-transform, opacity; -moz-transition-duration: 1s, 1s; pointer-events: none; display: block; width: 100%; margin: auto; position: absolute; padding: 0 10px; opacity: 0; -moz-box-sizing: border-box; }
+        section { -webkit-transition-property: -webkit-transform, opacity; -webkit-transition-duration: 1s, 1s; pointer-events: none; -webkit-box-sizing: border-box; }
+        section h1, section h2, section h3, section p { text-align: center; margin: .3em; margin: 0; padding: 0; }
+        section[aria-selected] { opacity: 1; pointer-events: auto; -moz-transition-delay: 1s, 1s; -webkit-transition-delay: 1s, 1s; }
+        pre { font-size: 35px; border-left: 6px solid #111; padding-left: 10px; white-space: pre-wrap;       /* css-3 */ word-wrap: break-word;       /* Internet Explorer 5.5+ */ line-height: 1.3em; } 
+        a { color: white!important; text-decoration: none; }
+
+        /*
+        ************************************
+        *    CSS OPTIONS:                  *
+        *    YOU WANT TO EDIT THIS         *
+        *                                  *
+        ************************************
+        */
+
+        /* Want your own font? Use font-face */
+        @font-face  {
+          /* Uncomment and add your own font file
+          font-family: fface;
+          src: url(myfont.ttf);
+          */
+        }
+
+        /* The backgrounds of all your slides */
+        body {
+          /* Could be an image, a color, a gradient */
+          background-image: -moz-radial-gradient( 50% 50% 180deg, circle, #ddd
+          0%, #555 900px);
+          background-image: -webkit-gradient(radial, 50% 30%, 0, 50% 30%, 600, from(#006EA0), to(#304160));
+          background-color: #006EA0;
+        }
+
+        /* This is the style of a slide */
+        section {
+          font-family: "Garamond", "Book Antiqua", Palatino, serif;
+          font-weight: bold;
+          font-size: 60px;
+          text-shadow: 0px -4px 2px #444;
+          color: #111;
+          /*
+          Your own font?
+          font-family: fface;
+          */
+        }
+
+@font-face {
+    font-family: "Garamond";
+    src: url("Garamond.ttf");
+}
+        h3 {
+          font-size: 25px;
+        }
+        h4 {
+          font-size: 20px;
+        }
+
+        /* This part define the transitions between the slides
+           Here I propose 3 differents effect:
+             Default translation (classic "sliding" effect)
+             Rotation (a bit dizzy... "DZ"? You get it? \o/)
+             Nothing (just a fadein/fadeout)
+           With the CSS3 transformations, you can create your own.
+         */
+
+
+        /* Let me describe how the slides work:
+           A slide can be:
+           - the current slide
+           - A upcoming slide (from the "future")
+           - A slide already seen (from the "past")
+           With CSS, you describe where are those slide,
+           in the space. Then, a transition will animate
+           this.
+        */
+
+
+
+        /* "PAST" ******************************/
+        section {
+
+          /* The sliding effect */
+          -moz-transform: translate(-100%, 0);
+          -webkit-transform: translate(-100%, 0);
+
+          /* The rotating effect
+          -moz-transform: scale(0.3) rotate(180deg);
+          -webkit-transform: scale(0.3) rotate(180deg);
+          */
+
+          /* The nothing effect */
+          /* Well, just comment out the rotating and sliding effect*/
+
+        }
+
+        /* The footer with the title + the current slide number */
+        #footer {
+          display: block;
+          opacity: 0.9;
+          font-family: "Garamond", "Book Antiqua", Palatino, serif;
+          font-weight: bold;
+          font-size: 20px;
+          text-shadow: 0px -4px 2px #444;
+          color: #111;
+
+          /*
+          display: none;
+          */
+        }
+
+
+        /* "PRESENT" ****************************/
+        /* Current slide */
+        section[aria-selected] {
+          -moz-transform: scale(1.0) translate(0, 0);
+          -webkit-transform: scale(1.0) translate(0, 0);
+        }
+
+        /* "FUTURE" *****************************/
+        /* Selector not yet supported by Webkit :( */
+        section[aria-selected] ~ section {
+
+          /* The sliding effect */
+          -moz-transform: translate(100%, 0);
+          -webkit-transform: translate(100%, 0);
+
+          /* The rotating effect
+          -moz-transform: scale(5) rotate(-180deg);
+          -webkit-transform: scale(5) rotate(-180deg);
+          */
+
+          /* The nothing effect */
+          /* Well, just comment the rotating and sliding effect*/
+
+
+        }
+
+      </style>
+    </head>
+
+        <!--
+        ************************************
+        *                                  *
+        *        HTML: YOUR SLIDES         *
+        *                                  *
+        ************************************
+        -->
+
+      <section>
+        <h1>Bim, une expérience sur les webservers</h1>
+        <h3>Paul ADENOT & Martin RICHARD</h3>
+        <h4>INSA de Lyon - 4IF</h4>
+      </section>
+
+      <section>
+        <h1>Buts</h1>
+        <p>
+        <ul>
+          <li>Implémenter des serveurs web</li>
+          <li>Approfondir nos connaissances</li>
+          <li>S'amuser</li>
+          <li>Veiller</li>
+        </ul>
+        </p>
+      </section>
+
+      <section>
+        <h1>Résultats </h1>
+        <ul>
+          <li>4 serveurs implémentés...</li>
+          <li>...qui marchent (HTTP/0.9 au moins)</li>
+      </section>
+
+      <section>
+        <h1>Serveur HTTP ?</h1>
+        <p>
+        But : recevoir une reponse à une requête, en utilisant le protocole
+          HTTP.
+          </p>
+          <p>En clair, pouvoir fournir des pages à un navigateur</p>
+      </section>
+
+      <section>
+      <h1>Exemple de requête</h1>
+      <pre>
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (X11; Linux i686; rv:2.0) Gecko/20100101 Firefox/4.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-us,en;q=0.5
+Accept-Encoding: gzip, deflate
+Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Keep-Alive: 115
+DNT: 1
+Connection: keep-alive </pre>
+      </section>
+
+      <section>
+      <h1>Exemple de réponse</h1>
+      <pre>
+HTTP/1.1 200 OK
+Server: nginx/0.7.67
+Date: Mon, 11 Apr 2011 21:46:56 GMT
+Content-Type: text/html
+Content-Length: 2462
+Last-Modified: Thu, 02 Dec 2010 15:05:36 GMT
+Connection: keep-alive
+Accept-Ranges: bytes
+
+[Page HTML ou autre] </pre>
+      </section>
+
+      <section>
+      <h1>En bref...</h1>
+      <ul>
+        <li>epoll(7), un seul thread</li>
+        <li>Un thread par client</li>
+        <li>epoll(7), <em>n</em> threads, avec <em>jobqueue</em> et
+        <em>threadpool</em></li> 
+        <li>epoll(7), <em>n</em> threads, avec <em>threadpool</em></li>
+      </ul>
+      </section>
+
+      <section>
+      <h1><em>Threadpool</em> ?</h1>
+      <p>
+      On réutilise les threads pour éviter le surcoût de création et de
+      destruction.
+      </p>
+      </section>
+
+      <section>
+      <h1><em>Job queue</em> ?</h1>
+      <p>
+      On met des tâches dans une file, que des <em>worker threads</em> vont
+      défiler pour les exécuter.
+      </p>
+      </section>
+
+      <section>
+      <h1>Quand on benchmark...</h1>
+      <p>
+        On est moins bon que les serveurs connus...
+      </p>
+      <h1>:-(</h1>
+      </section>
+
+
+      <section>
+      <h1>Mais...</h1>
+      <p>
+        On <em>scale</em> mieux qu'Apache2.
+      </p>
+      <p>
+        :-D
+      </p>
+      <p>
+      <small>
+        (merci epoll(7))
+      </small>
+      </p>
+      </section>
+
+      <section>
+      <h1>Quelques benchmarks</h1>
+      Outil utilisés : <ul>
+          <li>ApacheBench (Apache Foudation)</li>
+          <li>HttpBench (de l'auteur de thttpd)</li>
+          <li>Des bouts de scripts shell et Python</li>
+          <li>Encore du Python pour les graphiques</li>
+        </ul>
+      </section>
+
+      <section>
+      <h1>Une connexion à la fois</h1>
+      <img src='1.png'>
+      </section>
+
+      <section>
+      <h1>10 connexion à la fois</h1>
+      <img src='10.png'>
+      </section>
+
+      <section>
+      <h1>100 connexion à la fois</h1>
+      <img src='100.png'>
+      </section>
+
+      <section>
+      <h1>1000 connexion à la fois</h1>
+      <img src='1000.png'>
+      </section>
+
+
+    <section>
+    <h1>The c10k problem</h1>
+    <p>
+    Servir 10000 clients en même temps, qui font peu de requêtes, et garder les
+    connexions ouvertes.
+    </p>
+    <p>
+    Typiquement, mise à jour en temps réel du flux Twitter ou Facebook.
+    </p>
+    </section>
+
+    <section>
+    <h1>On y arrive !</h1>
+    <p>On utilise plus de CPU, plus de mémoire, mais ça marche.</p>
+    <p>Apache ne peut pas le faire</p>
+    <p>:-)</p>
+    </section>
+    <script>
+
+
+
+      /*
+      ************************************
+      *                                  *
+      *            JAVASCRIPT            *
+      *  (You don't have to read this)   *
+      ************************************
+      */
+
+      function init() {
+        var firstFrame = window.location.hash? parseInt(window.location.hash.split("#")[1], 10) : 1;
+        var title = document.querySelector("title").textContent;
+        var slides = document.querySelectorAll("body > section");
+        for (var i = 1, il = slides.length; i <= il; i++) {
+          // FIXME : Mandatory for flex box model for vertical align
+          // Firefox bug :(
+          slides[i - 1].innerHTML = "<div>" + slides[i - 1].innerHTML + "</div>";
+          window.history[(i == 1? 'replace' : 'push') + 'State'](i, title + " ("+ i +"/"+ il +")", "#"+i);
+        }
+
+        var footer = document.createElement("footer");
+        footer.id = "footer";
+        footer.innerHTML = 
+          '<div class="flex-wrapper"><p>' + title + '</p>' +
+          '<p class="flex-space"></p>' + 
+          '<p id="index"><span class="pagenumber"></span> / ' + il +'</p>';
+        document.body.appendChild(footer);
+        history.go(- slides.length + firstFrame);
+
+
+        window.addEventListener("popstate", function(e) {
+          if(e.state) {
+            var old = document.querySelector("section[aria-selected]");
+            var next = document.querySelector("section:nth-of-type("+ e.state +")");
+
+            if (old) {
+              old.removeAttribute("aria-selected");
+              if (old.hasAttribute("data-onunload")) {
+                window[old.getAttribute("data-onunload")].call(window, old);
+              }
+            }
+
+            if (next) {
+              next.setAttribute("aria-selected", "true");
+              if (next.hasAttribute("data-onload")) {
+                window[next.getAttribute("data-onload")].call(window, next);
+              }
+            }
+
+
+            var index = document.querySelector("#index .pagenumber");
+            index.innerHTML = e.state;
+          }
+        }, true); 
+      }
+
+      function resize() {
+        var style = document.getElementById("resizeStyle");
+        if (!style) {
+          style = document.createElement("style");
+          style.id = "resizeStyle";
+          document.head.appendChild(style);
+        }
+        style.textContent = "body>section>div {height: "+ window.innerHeight +"px}";
+      }
+
+      window.addEventListener("resize", resize, true);
+      window.addEventListener("load", resize, true);
+      window.addEventListener("load", init, true);
+
+      // Webkit bug
+      // window.addEventListener("hashchange", init, true); // FIXME Webkit fires hashchange when it shouldn't
+      window.addEventListener("keydown", function(e) {
+        // Don't intercept keyboard shortcuts
+        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+          return;
+        }
+        if (   e.keyCode == 80 // p
+            || e.keyCode == 66 // b
+            || e.keyCode == 37 // left arrow
+            || e.keyCode == 33 // page up
+        ) {
+          e.preventDefault();
+          history.back();
+        }
+        if (   e.keyCode == 78 // n
+            || e.keyCode == 32 // space
+            || e.keyCode == 39 // right arrow
+            || e.keyCode == 34 // page down
+        ) {
+          e.preventDefault();
+          history.forward();
+        }
+      }, true);
+    </script>
+  </body>
+</html>
