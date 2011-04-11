@@ -32,4 +32,3 @@
 # File author : Paul ADENOT <paul@paul.cx>
 
 THREADS_PER_CORE = 1
-PRODILE_POOL = 0

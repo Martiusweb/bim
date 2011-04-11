@@ -35,15 +35,9 @@ env = Environment()
 
 vars = Variables('buildconfig.py')
 vars.Add('THREADS_PER_CORE', 'Number of threads per core', 2)
-#vars.Add('PROFILE_POOL', 'Profile the thread pool', 0)
-
-defines={
-'BIM_THREADPOOL_THREADS_PER_CORE' : '${THREADS_PER_CORE}',
-#'PROFILE_POOL' : '${PROFILE_POOL}'
-}
-
 env = Environment(variables = vars,
-                 CPPDEFINES=defines)
+                 CPPDEFINES={'BIM_THREADPOOL_THREADS_PER_CORE' :
+                 '${THREADS_PER_CORE}'})
 #env.Replace(CXX = "clang++")
 
 
