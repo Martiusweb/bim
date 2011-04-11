@@ -11,7 +11,7 @@ rc('text', usetex=True)
 
 colors_data=["blue", "green", "red", "cyan", "magenta", "yellow", "black", "white"]
 total_req=10000
-concurrency=100
+concurrency=1000
 
 
 
