@@ -74,7 +74,7 @@ section { -moz-transition-property: -moz-transform, opacity; -moz-transition-dur
 section { -webkit-transition-property: -webkit-transform, opacity; -webkit-transition-duration: 1s, 1s; pointer-events: none; -webkit-box-sizing: border-box; }
 section h1, section h2, section h3, section p { text-align: center; margin: .3em; margin: 0; padding: 0; }
 section[aria-selected] { opacity: 1; pointer-events: auto; -moz-transition-delay: 1s, 1s; -webkit-transition-delay: 1s, 1s; }
-pre { font-size: 35px; border-left: 6px solid #111; padding-left: 10px; white-space: pre-wrap;       /* css-3 */ word-wrap: break-word;       /* Internet Explorer 5.5+ */ line-height: 1.3em; } 
+pre { font-size: 25px; border-left: 6px solid #111; text-shadow: 0 0; padding-left: 10px; white-space: pre-wrap;       /* css-3 */ word-wrap: break-word;       /* Internet Explorer 5.5+ */ line-height: 1.3em; }
 a { color: white!important; text-decoration: none; }
 
 /*
@@ -223,6 +223,22 @@ a { color: white!important; text-decoration: none; }
 <h4>INSA de Lyon - 4IF</h4>
 </section>
 
+  <section>
+  <h1>The c10k problem</h1>
+  <p>
+  Servir 10000 clients en même temps, qui font peu de requêtes, et garder les
+  connexions ouvertes.
+  </p>
+  <p>
+  Typiquement, mise à jour en temps réel du flux Twitter ou Facebook.
+  </p>
+  </section>
+
+  <section>
+  <p>Ou matter des vidéos de kittehs !</p>
+  <p><img src="kittens.jpg" alt=""></p>
+  </section>
+
 <section>
 <h1>Buts</h1>
 <p>
@@ -235,12 +251,10 @@ a { color: white!important; text-decoration: none; }
 </p>
 </section>
 
-<section>
-<h1>Résultats </h1>
-<ul>
-  <li>4 serveurs implémentés...</li>
-  <li>...qui marchent (HTTP/0.9 au moins)</li>
-</ul>
+  <section>
+    <h1>Résultats </h1>
+    <p>4 serveurs implémentés...</p>
+    <p>...qui marchent (et supportent un<br>sous-ensemble de HTTP)</p>
   </section>
 
   <section>
@@ -284,6 +298,7 @@ Accept-Ranges: bytes
 
   <section>
   <h1>En bref...</h1>
+  <p><small>(Linux kernel recent)</small></p>
   <ul>
     <li>epoll(7), un seul thread</li>
     <li>Un thread par client</li>
@@ -310,22 +325,29 @@ Accept-Ranges: bytes
   </section>
 
   <section>
-  <h1>Quand on benchmark...</h1>
-  <p>
-  On est moins bon que les serveurs connus...
-  </p>
-  <h1>:-(</h1>
+  <h1>Mais :</h1>
+  <p><code>std::string</code> trop lent</p>
+  <p>Découpage en <em>threads</em> trop violent<br>
+  (optimisations du système perdues)</p>
   </section>
 
+  <section>
+    <p><img src="facepalm.jpg" alt=""></p>
+  </section>
+
+  <section>
+  <h1>Quand on benchmark...</h1>
+  <p>On est moins bon que les serveurs connus...</p>
+  </section>
+
+  <section>
+  </p><img src="double_facepalm.jpg" alt=""></p>
+  </section>
 
   <section>
   <h1>Mais...</h1>
   <p>
-  On <em>scale</em> mieux qu'Apache2.
-  </p>
-  <p>
-  :-D
-  </p>
+  On <em>scale</em> mieux qu'Apache2<br>(avec mpm_prefork et mpm_worker)</p>
   <p>
   <small>
     (merci epoll(7))
@@ -334,9 +356,13 @@ Accept-Ranges: bytes
   </section>
 
   <section>
+    <p><img src="winning.jpg" alt="WINNING !"></p>
+  </section>
+
+  <section>
   <h1>Quelques benchmarks</h1>
   Outils utilisés : <ul>
-    <li>ApacheBench (Apache Foudation)</li>
+    <li>ApacheBench (Apache Foundation)</li>
     <li>HttpBench (de l'auteur de thttpd)</li>
     <li>Des bouts de scripts shell et Python</li>
     <li>Encore du Python pour les graphiques</li>
@@ -363,23 +389,48 @@ Accept-Ranges: bytes
   <img src='1000.png'>
   </section>
 
-
-  <section>
-  <h1>The c10k problem</h1>
-  <p>
-  Servir 10000 clients en même temps, qui font peu de requêtes, et garder les
-  connexions ouvertes.
-  </p>
-  <p>
-  Typiquement, mise à jour en temps réel du flux Twitter ou Facebook.
-  </p>
-  </section>
-
   <section>
   <h1>On y arrive !</h1>
   <p>On utilise plus de CPU, plus de mémoire, mais ça marche.</p>
   <p>Apache ne peut pas le faire</p>
-  <p>:-)</p>
+  </section>
+
+  <section>
+    <p><img src="biwinning.jpg" alt=""></p>
+  </section>
+
+  <section>
+    <h1>Pipelining &amp; kept-alive</h1>
+    <p>Optimisations permettant d'effectuer plusieurs requêtes en
+    une connexion</p>
+    <p>Difficile à implémenter avec notre précedente architecture,</p>
+    <p>Proposition de Brice Arnould (merci !) :<br>
+    <em>Jobqueue</em> avec précédence</p>
+  </section>
+
+  <section>
+    <h1>Améliorations possibles</h1>
+    <p>Pour vraiment gagner en perfs</p>
+    <ul>
+      <li>Pool de mémoire (objets clients, requêtes, ...)</li>
+      <li>Compression <em>gzip</em> des pages</li>
+      <li>Utilisation d'appels système optimisés (<code>splice</code>,
+      <code>sendfile</code>)</li>
+    </ul>
+  </section>
+
+  <section>
+    <h1>En bref</h1>
+    <ul>
+        <li>Beaucoup de découvertes cool (tech &amp; non tech)</li>
+        <li>Un prototype qu'on pourrait reprendre si on le souhaitait</li>
+        <li><em>C'est vraiment pas si simple</em></li>
+    </ul>
+  </section>
+  
+  <section>
+  <h1>Questions ?</h1>
+  <p><img src="bwavo.png" alt=""></p>
   </section>
   <script>
 
